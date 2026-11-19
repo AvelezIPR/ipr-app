@@ -1,0 +1,20 @@
+{
+  "id": 58,
+  "slug": "producto-futuro",
+  "name": "Producto con disponibilidad nueva",
+  "sku": "FUT-001",
+  "brand": null,
+  "price": {
+    "status": "priced",
+    "amount": 0,
+    "regularAmount": null,
+    "onSale": false,
+    "discountPercent": null,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "pre_order",
+  "purchasable": false,
+  "image": null,
+  "categorySlugs": []
+}

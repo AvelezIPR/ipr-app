@@ -1,0 +1,19 @@
+{
+  "id": 1001,
+  "number": "1001",
+  "status": "processing",
+  "statusLabel": "En proceso",
+  "paymentState": "paid",
+  "createdAt": "2026-11-19T12:00:00Z",
+  "currency": "COP",
+  "total": 1500000,
+  "itemCount": 1,
+  "subtotal": 1445000,
+  "shippingTotal": 55000,
+  "discountTotal": 0,
+  "taxTotal": 0,
+  "paymentMethodTitle": "Wompi",
+  "items": [
+    { "productId": 55, "name": "Detector de fugas CO2 R744", "sku": "500-0144", "quantity": 1, "total": 1445000, "imageUrl": null }
+  ]
+}

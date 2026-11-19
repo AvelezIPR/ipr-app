@@ -1,0 +1,9 @@
+{
+  "id": 15,
+  "slug": "aire-acondicionado",
+  "name": "Aire Acondicionado",
+  "parentId": null,
+  "children": [
+    { "id": 16, "slug": "minisplit", "name": "Minisplit", "parentId": 15, "children": [] }
+  ]
+}

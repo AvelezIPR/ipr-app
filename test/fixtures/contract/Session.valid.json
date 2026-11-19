@@ -1,0 +1,8 @@
+{
+  "accessToken": "ipra_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-abcde",
+  "accessTokenExpiresIn": 900,
+  "refreshToken": "iprr_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-abcde",
+  "refreshTokenExpiresAt": "2026-12-19T12:00:00Z",
+  "tokenType": "Bearer",
+  "sessionId": "3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b"
+}

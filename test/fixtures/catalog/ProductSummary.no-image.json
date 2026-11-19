@@ -1,0 +1,20 @@
+{
+  "id": 104,
+  "slug": "producto-sin-imagen",
+  "name": "Producto agotado sin imagen",
+  "sku": "800-0002",
+  "brand": null,
+  "price": {
+    "status": "priced",
+    "amount": 98000,
+    "regularAmount": 98000,
+    "onSale": false,
+    "discountPercent": null,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "out_of_stock",
+  "purchasable": false,
+  "image": null,
+  "categorySlugs": []
+}

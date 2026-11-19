@@ -1,0 +1,38 @@
+{
+  "data": {
+    "id": 4521,
+    "slug": "compresor-scroll-24000-btu",
+    "name": "Compresor scroll 24.000 BTU R410A",
+    "sku": "500-0144",
+    "brand": { "name": "Copeland", "slug": "copeland" },
+    "price": {
+      "status": "priced",
+      "amount": 1234567,
+      "regularAmount": 1500000,
+      "onSale": true,
+      "discountPercent": 18,
+      "currency": "COP",
+      "taxIncluded": true
+    },
+    "availability": "in_stock",
+    "purchasable": true,
+    "image": { "url": "https://staging.invalid/media/compresor-1.jpg", "alt": "Compresor scroll vista frontal", "width": 800, "height": 800 },
+    "categorySlugs": ["refrigeracion", "compresores"],
+    "shortDescription": "Compresor scroll hermético para aire acondicionado residencial.",
+    "descriptionHtml": "<p>Compresor <strong>scroll</strong> de alta eficiencia.</p><ul><li>Refrigerante R410A</li><li>Voltaje 220 V</li></ul><p>Más datos en <a href=\"https://staging.invalid/ficha-tecnica\">la ficha técnica</a>.</p>",
+    "gallery": [
+      { "url": "https://staging.invalid/media/compresor-1.jpg", "alt": "Compresor scroll vista frontal", "width": 800, "height": 800 },
+      { "url": "https://staging.invalid/media/compresor-2.jpg", "alt": "Compresor scroll vista lateral", "width": 800, "height": 800 },
+      { "url": "https://staging.invalid/media/compresor-3.jpg", "alt": "", "width": null, "height": null }
+    ],
+    "attributes": [
+      { "name": "Capacidad", "slug": "pa_capacidad-btu", "options": ["24.000 BTU"] },
+      { "name": "Refrigerante", "slug": "pa_refrigerante", "options": ["R410A", "R32"] }
+    ],
+    "categories": [
+      { "id": 12, "slug": "refrigeracion", "name": "Refrigeración" },
+      { "id": 31, "slug": "compresores", "name": "Compresores" }
+    ],
+    "webUrl": "https://staging.invalid/producto/compresor-scroll-24000-btu"
+  }
+}

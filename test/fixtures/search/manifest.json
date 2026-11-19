@@ -1,0 +1,11 @@
+{
+  "comment": "Elementos de las respuestas de /search y /search/suggestions (ProductSummary, Suggestion, PageMeta). Datos sintéticos: ningún dato real. Los sobres {data, meta} se arman en las pruebas porque el contrato los declara en línea (sin esquema con nombre).",
+  "fixtures": [
+    { "file": "ProductSummary.priced.json", "schema": "ProductSummary", "valid": true },
+    { "file": "ProductSummary.on-request.json", "schema": "ProductSummary", "valid": true },
+    { "file": "ProductSummary.no-slug.json", "schema": "ProductSummary", "valid": false },
+    { "file": "Suggestion.valid.json", "schema": "Suggestion", "valid": true },
+    { "file": "PageMeta.valid.json", "schema": "PageMeta", "valid": true },
+    { "file": "PageMeta.no-hasmore.json", "schema": "PageMeta", "valid": false }
+  ]
+}

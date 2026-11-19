@@ -1,0 +1,37 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:ipr_mobile/core/config/app_config.dart';
+
+part 'remote_config.freezed.dart';
+
+/// Configuración remota ya interpretada (`GET /config`).
+///
+/// Aísla decisiones PENDIENTES detrás de interruptores del servidor:
+/// calculadora BTU (D-08), PQRS, checkout. Mientras no llegue una respuesta
+/// válida, todos los interruptores están **apagados** (falla cerrado).
+@freezed
+abstract class RemoteConfig with _$RemoteConfig {
+  const factory({
+    /// Versión mínima soportada para la plataforma actual (`x.y.z`) o `null`.
+    String? minSupportedVersion,
+    String? recommendedVersion,
+    @Default(false) bool checkoutEnabled,
+    @Default(false) bool pqrsEnabled,
+    @Default(false) bool btuCalculatorEnabled,
+    @Default(<String>{}) Set<String> checkoutAllowedHosts,
+    String? returnPathPrefix,
+    String? whatsappNumber,
+    String? whatsappDefaultMessage,
+    String? phoneDisplay,
+    String? phoneDial,
+
+    /// Avisos de la ficha (RF-032): envío nacional y garantía.
+    String? shippingNotice,
+    String? warrantyNotice,
+    String? priceOnRequestNotice,
+  }) = _RemoteConfig;
+
+  /// Valores previos a la primera respuesta: todo apagado y WhatsApp de
+  /// respaldo tomado de la configuración pública del flavor.
+  factory defaults(AppConfig config) =>
+      RemoteConfig(whatsappNumber: config.supportWhatsApp);
+}

@@ -1,0 +1,15 @@
+{
+  "comment": "Fixtures de la feature home (inicio): elementos de /categories, /brands y /products?sort=popularity. Los listados reales son {data:[...]} (y meta en /products); cada archivo es UN elemento validado contra su esquema. Datos sintéticos.",
+  "fixtures": [
+    { "file": "Category.valid.json", "schema": "Category", "valid": true },
+    { "file": "Category.refrigeracion.json", "schema": "Category", "valid": true },
+    { "file": "Category.missing-name.json", "schema": "Category", "valid": false, "comment": "sin name: el contrato lo marca; la app descarta el elemento sin romper el bloque" },
+    { "file": "Brand.valid.json", "schema": "Brand", "valid": true },
+    { "file": "Brand.no-landing.json", "schema": "Brand", "valid": true },
+    { "file": "ProductSummary.priced.json", "schema": "ProductSummary", "valid": true },
+    { "file": "ProductSummary.on-request.json", "schema": "ProductSummary", "valid": true },
+    { "file": "ProductSummary.out-of-stock.json", "schema": "ProductSummary", "valid": true },
+    { "file": "ProductSummary.unknown-availability.json", "schema": "ProductSummary", "valid": false, "comment": "availability fuera del enum y precio 0: la app lo tolera como 'unknown' y 'Más información'" },
+    { "file": "PageMeta.valid.json", "schema": "PageMeta", "valid": true }
+  ]
+}

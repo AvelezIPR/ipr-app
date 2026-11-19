@@ -1,0 +1,6 @@
+{
+  "key": "onSale",
+  "label": "Solo ofertas",
+  "type": "boolean",
+  "options": [ { "value": "true", "label": "Solo ofertas" } ]
+}

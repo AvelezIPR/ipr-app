@@ -1,0 +1,34 @@
+{
+  "sharedProductSku": "SKU {sku}",
+  "@sharedProductSku": { "placeholders": { "sku": { "type": "String" } } },
+  "sharedProductCardSemantics": "{name}. {brand}. SKU {sku}. {price}. {stock}.",
+  "@sharedProductCardSemantics": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "brand": { "type": "String" },
+      "sku": { "type": "String" },
+      "price": { "type": "String" },
+      "stock": { "type": "String" }
+    }
+  },
+  "sharedProductOnSale": "Oferta",
+  "sharedProductRegularPrice": "Antes {amount}",
+  "@sharedProductRegularPrice": { "placeholders": { "amount": { "type": "String" } } },
+
+  "sharedWhatsappOpenFailedTitle": "No pudimos abrir WhatsApp",
+  "sharedWhatsappOpenFailedBody": "Puedes llamar a nuestra línea de atención o abrir WhatsApp en el navegador.",
+  "sharedWhatsappCall": "Llamar a la línea de atención",
+  "sharedWhatsappWeb": "Abrir WhatsApp en el navegador",
+  "sharedWhatsappClose": "Cerrar",
+  "sharedWhatsappAdvice": "Asesoría por WhatsApp",
+  "sharedWhatsappQuote": "Cotizar por WhatsApp",
+
+  "sharedWhatsappMsgProduct": "Hola, quiero más información sobre {name} (SKU {sku}).",
+  "@sharedWhatsappMsgProduct": {
+    "placeholders": { "name": { "type": "String" }, "sku": { "type": "String" } }
+  },
+  "sharedWhatsappMsgSearch": "Hola, busqué \"{term}\" en la app y no lo encontré. ¿Me pueden ayudar?",
+  "@sharedWhatsappMsgSearch": { "placeholders": { "term": { "type": "String" } } },
+  "sharedWhatsappMsgQuote": "Hola, quiero cotizar un proyecto o un volumen de compra.",
+  "sharedWhatsappMsgAdvice": "Hola, necesito asesoría de IPR Partes y Repuestos."
+}

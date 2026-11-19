@@ -1,0 +1,9 @@
+{
+  "key": "brand",
+  "label": "Marca",
+  "type": "multi",
+  "options": [
+    { "value": "elitech", "label": "Elitech" },
+    { "value": "refco", "label": "Refco" }
+  ]
+}

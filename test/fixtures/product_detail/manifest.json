@@ -1,0 +1,11 @@
+{
+  "comment": "Fixtures de la feature product_detail: respuesta de GET /products/{slug} ({data: ProductDetail}); cada archivo se valida contra ProductDetail. Datos sintéticos (host .invalid).",
+  "fixtures": [
+    { "file": "ProductDetail.priced.json", "schema": "ProductDetail", "path": "data", "valid": true },
+    { "file": "ProductDetail.on-request.json", "schema": "ProductDetail", "path": "data", "valid": true },
+    { "file": "ProductDetail.out-of-stock.json", "schema": "ProductDetail", "path": "data", "valid": true },
+    { "file": "ProductDetail.backorder.json", "schema": "ProductDetail", "path": "data", "valid": true },
+    { "file": "ProductDetail.malicious-html.json", "schema": "ProductDetail", "path": "data", "valid": true, "comment": "el contrato no puede garantizar el contenido del HTML; la app lo sanea por su cuenta (AC-027-2)" },
+    { "file": "ProductDetail.unknown-availability.json", "schema": "ProductDetail", "path": "data", "valid": false, "comment": "availability fuera del enum: la app lo tolera como 'unknown' (no comprable) y precio 0 como 'Más información'" }
+  ]
+}

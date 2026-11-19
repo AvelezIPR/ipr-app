@@ -1,0 +1,28 @@
+{
+  "homeSearchHint": "Buscar por nombre, marca o referencia (SKU)",
+  "homeSearchSemantics": "Buscar productos por nombre, marca o referencia",
+
+  "homeCategoriesTitle": "Categorías",
+  "homeCategoriesEmptyTitle": "Aún no hay categorías para mostrar",
+  "homeCategoriesEmptyBody": "Puedes buscar un producto o escribirnos por WhatsApp.",
+  "homeCategorySemantics": "Categoría {name}",
+  "@homeCategorySemantics": { "placeholders": { "name": { "type": "String" } } },
+
+  "homeFeaturedTitle": "Más vendidos",
+
+  "homeBrandsTitle": "Marcas",
+  "homeBrandsSeeAll": "Ver todas las marcas",
+  "homeBrandSemantics": "Marca {name}",
+  "@homeBrandSemantics": { "placeholders": { "name": { "type": "String" } } },
+
+  "homeQuoteTitle": "¿Necesitas cotizar un proyecto o un volumen?",
+
+  "homeShortcutsTitle": "Más accesos",
+  "homeShortcutSale": "Liquidaciones",
+  "homeShortcutBranches": "Sedes",
+  "homeShortcutCall": "Llamar a la línea de atención",
+  "homeCallFailed": "No pudimos abrir el marcador del teléfono.",
+
+  "homeSectionLoadingSemantics": "Cargando {section}",
+  "@homeSectionLoadingSemantics": { "placeholders": { "section": { "type": "String" } } }
+}

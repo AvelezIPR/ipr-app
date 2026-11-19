@@ -1,0 +1,39 @@
+{
+  "searchTitle": "Buscar",
+  "@searchTitle": { "description": "Título de la pantalla de búsqueda (PT-06/PT-07)." },
+
+  "searchFieldLabel": "Buscar productos",
+  "@searchFieldLabel": { "description": "Etiqueta accesible del campo de búsqueda (nunca solo el ejemplo)." },
+  "searchFieldHint": "Ej.: 500-0144",
+  "searchClearTooltip": "Borrar texto",
+
+  "searchIdleBody": "Escribe el nombre, la marca o la referencia (SKU) del producto.",
+
+  "searchSuggestionsLoading": "Buscando sugerencias",
+  "searchSuggestionsSeeAll": "Ver todos los resultados para “{term}”",
+  "@searchSuggestionsSeeAll": {
+    "description": "Último renglón de las sugerencias: ejecuta la búsqueda completa.",
+    "placeholders": { "term": { "type": "String" } }
+  },
+  "searchSuggestionSemantics": "{name}. SKU {sku}. Abrir producto.",
+  "@searchSuggestionSemantics": {
+    "placeholders": { "name": { "type": "String" }, "sku": { "type": "String" } }
+  },
+
+  "searchResultsCount": "{count, plural, =1{1 resultado} other{{count} resultados}}",
+  "@searchResultsCount": {
+    "description": "Total de coincidencias informado por el servidor.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "searchEmptyTitle": "No encontramos “{term}”",
+  "@searchEmptyTitle": {
+    "description": "Sin resultados (el servidor respondió 200 con lista vacía, RF-023).",
+    "placeholders": { "term": { "type": "String" } }
+  },
+  "searchEmptyBody": "Revisa la ortografía o prueba con otra palabra. También puedes escribirnos y te ayudamos a encontrarlo.",
+  "searchEmptyRetry": "Volver a buscar",
+
+  "searchLoadingMore": "Cargando más resultados",
+  "searchLoadMoreFailed": "No pudimos cargar más resultados."
+}

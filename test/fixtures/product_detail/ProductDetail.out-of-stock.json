@@ -1,0 +1,28 @@
+{
+  "data": {
+    "id": 4540,
+    "slug": "filtro-secador-agotado",
+    "name": "Filtro secador 3/8",
+    "sku": "FS-038",
+    "brand": null,
+    "price": {
+      "status": "priced",
+      "amount": 45900,
+      "regularAmount": 45900,
+      "onSale": false,
+      "discountPercent": null,
+      "currency": "COP",
+      "taxIncluded": true
+    },
+    "availability": "out_of_stock",
+    "purchasable": false,
+    "image": { "url": "https://staging.invalid/media/filtro.jpg", "alt": "Filtro secador", "width": 600, "height": 600 },
+    "categorySlugs": [],
+    "shortDescription": "Filtro secador de rosca.",
+    "descriptionHtml": "<p>Elimina humedad del circuito.</p>",
+    "gallery": [{ "url": "https://staging.invalid/media/filtro.jpg", "alt": "Filtro secador", "width": 600, "height": 600 }],
+    "attributes": [],
+    "categories": [],
+    "webUrl": "https://staging.invalid/producto/filtro-secador-agotado"
+  }
+}

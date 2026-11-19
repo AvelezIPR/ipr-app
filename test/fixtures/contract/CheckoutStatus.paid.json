@@ -1,0 +1,15 @@
+{
+  "checkoutRef": "3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b",
+  "state": "order_created",
+  "order": {
+    "id": 1001,
+    "number": "1001",
+    "status": "processing",
+    "statusLabel": "En proceso",
+    "paymentState": "paid",
+    "createdAt": "2026-11-19T12:00:00Z",
+    "currency": "COP",
+    "total": 1445000,
+    "itemCount": 1
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "data": {
+    "id": 4570,
+    "slug": "producto-disponibilidad-nueva",
+    "name": "Producto con disponibilidad nueva",
+    "sku": "NEW-001",
+    "brand": null,
+    "price": {
+      "status": "priced",
+      "amount": 0,
+      "regularAmount": null,
+      "onSale": false,
+      "discountPercent": null,
+      "currency": "COP",
+      "taxIncluded": true
+    },
+    "availability": "preorder",
+    "purchasable": false,
+    "image": null,
+    "categorySlugs": [],
+    "shortDescription": "",
+    "descriptionHtml": "",
+    "gallery": [],
+    "attributes": [],
+    "categories": [],
+    "webUrl": "https://staging.invalid/producto/producto-disponibilidad-nueva"
+  }
+}

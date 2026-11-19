@@ -1,0 +1,24 @@
+{
+  "id": 15,
+  "slug": "aire-acondicionado",
+  "name": "Aire acondicionado",
+  "parentId": null,
+  "children": [
+    {
+      "id": 31,
+      "slug": "minisplit",
+      "name": "Minisplit",
+      "parentId": 15,
+      "children": []
+    },
+    {
+      "id": 32,
+      "slug": "cassette",
+      "name": "Cassette",
+      "parentId": 15,
+      "children": [
+        { "id": 321, "slug": "cassette-inverter", "name": "Cassette inverter", "parentId": 32, "children": [] }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "environment": "dev",
+  "apiBaseUrl": "http://10.0.2.2:8787/mobile/v1",
+  "deepLinkHost": "dev.invalid",
+  "checkoutAllowedHosts": "dev.invalid",
+  "mediaHosts": "dev.invalid",
+  "supportWhatsApp": "573014021882"
+}

@@ -1,0 +1,2033 @@
+openapi: 3.1.0
+info:
+  title: IPR Mobile BFF API
+  version: 1.0.0-draft
+  summary: API móvil /mobile/v1 de IPR Partes y Repuestos (BFF dentro del Next.js existente).
+  description: |
+    Contrato PROPUESTO de la API que consume la app móvil Flutter de IPR Partes y Repuestos.
+    Ninguna operación existe todavía: todas llevan `x-status: proposed`. La extensión
+    `x-reuses` cita el código existente de `ipr-frontend` que se reutiliza, y `x-requirements`
+    los requisitos funcionales (RF-xxx) que cubre.
+
+    Convenciones (ver docs/05_api/api_architecture.md):
+    - Éxito: `{ "data": ... }`; listas con `meta` de paginación.
+    - Errores: RFC 9457 (`application/problem+json`) con `code` estable.
+    - Tokens solo en `Authorization: Bearer` (nunca en la URL).
+    - Endpoints públicos cacheables (Cloudflare); privados `Cache-Control: private, no-store`.
+  contact:
+    name: Arquitectura de la app IPR (borrador para revisión)
+  license:
+    name: Propietario - Inverprimos S.A.S.
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: https://iprpartesyrepuestos.com/mobile/v1
+    description: Producción (propuesta)
+  - url: https://staging.example.invalid/mobile/v1
+    description: Staging (DESCONOCIDO; condición C2 de ADR-001)
+security: []
+tags:
+  - name: config
+    description: Configuración remota y versión mínima
+  - name: auth
+    description: Registro, sesiones por dispositivo y recuperación
+  - name: account
+    description: Perfil, direcciones y eliminación de cuenta
+  - name: catalog
+    description: Categorías, productos, filtros, marcas y liquidaciones
+  - name: search
+    description: Búsqueda y sugerencias
+  - name: cart
+    description: Revalidación del carrito local
+  - name: checkout
+    description: Ticket de checkout y estado del pago
+  - name: orders
+    description: Pedidos del cliente
+  - name: stores
+    description: Sedes
+  - name: support
+    description: PQRS
+
+paths:
+  /config:
+    get:
+      operationId: getConfig
+      tags: [config]
+      summary: Configuración remota, versión mínima, contactos y documentos legales
+      x-status: proposed
+      x-requirements: [RF-005, RF-062, RF-094, RF-095, RF-099, RF-111, RNF-029]
+      x-reuses: [src/lib/contact-links.ts]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Configuración vigente
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AppConfig' }
+        '304': { $ref: '#/components/responses/NotModified' }
+        '426': { $ref: '#/components/responses/UpgradeRequired' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Registro de cliente con aceptación de términos y sesión por dispositivo
+      x-status: proposed
+      x-requirements: [RF-038, RF-039, RF-045]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (ipr_auth_handle_register)]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+      responses:
+        '201':
+          description: Cuenta creada y sesión emitida
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSessionResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '415': { $ref: '#/components/responses/UnsupportedMediaType' }
+        '426': { $ref: '#/components/responses/UpgradeRequired' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Inicio de sesión por dispositivo
+      description: |
+        Credenciales incorrectas, cuenta inexistente, cuenta en eliminación y rol administrativo
+        devuelven el mismo `401 invalid_credentials` (AC-045-5, AC-048-1).
+      x-status: proposed
+      x-requirements: [RF-040, RF-043, RF-045, RF-048]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (ipr_auth_handle_login)]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Sesión emitida
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSessionResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '426': { $ref: '#/components/responses/UpgradeRequired' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/InternalError' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /auth/refresh:
+    post:
+      operationId: refreshSession
+      tags: [auth]
+      summary: Rotación del refresh token (con detección de reutilización)
+      description: |
+        El refresh token viaja solo en el cuerpo. Un refresh ya rotado presentado fuera de la
+        ventana de gracia (30 s, mismo X-Device-Id) revoca la sesión y devuelve
+        `401 refresh_token_reused`.
+      x-status: proposed
+      x-requirements: [RF-044]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+      responses:
+        '200':
+          description: Par de tokens nuevo
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [session]
+                    properties:
+                      session: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '426': { $ref: '#/components/responses/UpgradeRequired' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Revoca la sesión actual o todas las sesiones del usuario
+      x-status: proposed
+      x-requirements: [RF-041]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (ipr_auth_handle_logout)]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LogoutRequest' }
+      responses:
+        '204':
+          description: Sesión(es) revocada(s)
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /auth/password/forgot:
+    post:
+      operationId: requestPasswordReset
+      tags: [auth]
+      summary: Solicita el correo de restablecimiento de contraseña (respuesta uniforme)
+      description: Responde siempre 202, exista o no la cuenta. El restablecimiento se completa en WordPress.
+      x-status: proposed
+      x-requirements: [RF-042, RF-045]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ForgotPasswordRequest' }
+      responses:
+        '202':
+          description: Solicitud aceptada
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AcceptedResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /me:
+    get:
+      operationId: getMe
+      tags: [account]
+      summary: Perfil y direcciones del usuario autenticado
+      x-status: proposed
+      x-requirements: [RF-104, RF-106]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (ipr_auth_handle_me, ipr_auth_public_user)]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '200':
+          $ref: '#/components/responses/UserProfileOk'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+    patch:
+      operationId: updateMe
+      tags: [account]
+      summary: Actualiza nombre y apellido
+      x-status: proposed
+      x-requirements: [RF-104]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (ipr_auth_handle_update)]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateProfileRequest' }
+      responses:
+        '200':
+          $ref: '#/components/responses/UserProfileOk'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /me/email:
+    post:
+      operationId: changeEmail
+      tags: [account]
+      summary: Cambia el correo (exige contraseña actual; revoca las demás sesiones)
+      x-status: proposed
+      x-requirements: [RF-104]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (ipr_auth_handle_update)]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangeEmailRequest' }
+      responses:
+        '200':
+          description: Correo cambiado; sesión actual rotada
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthSessionResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /me/password:
+    post:
+      operationId: changePassword
+      tags: [account]
+      summary: Cambia la contraseña (exige la actual; revoca las demás sesiones)
+      x-status: proposed
+      x-requirements: [RF-105]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (ipr_auth_handle_update)]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+      responses:
+        '200':
+          description: Contraseña cambiada; sesión actual rotada
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [session]
+                    properties:
+                      session: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /me/addresses/{type}:
+    put:
+      operationId: putAddress
+      tags: [account]
+      summary: Reemplaza la dirección de facturación o de envío
+      x-status: proposed
+      x-requirements: [RF-106]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (lista blanca de direcciones), src/lib/checkout-schema.ts (addressSchema)]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [billing, shipping]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddressInput' }
+      responses:
+        '200':
+          $ref: '#/components/responses/UserProfileOk'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /me/deletion:
+    post:
+      operationId: requestAccountDeletion
+      tags: [account]
+      summary: Solicita la eliminación de la cuenta del usuario autenticado
+      description: |
+        Revoca todas las sesiones de inmediato y programa la supresión/anonimización. Qué se
+        retiene por obligación legal es una decisión pendiente (D-12). No acepta id de cuenta.
+      x-status: proposed
+      x-requirements: [RF-110]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AccountDeletionRequest' }
+      responses:
+        '202':
+          description: Solicitud registrada
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AccountDeletionStatus' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [catalog]
+      summary: Árbol de categorías
+      x-status: proposed
+      x-requirements: [RF-002, RF-010]
+      x-reuses: [src/lib/wc/meta.ts (getCategories), src/lib/woocommerce.ts (buildCategoryTree)]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Categorías raíz con hijos anidados
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+            ETag: { $ref: '#/components/headers/ETag' }
+            X-IPR-Data-State: { $ref: '#/components/headers/X-IPR-Data-State' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Category' }
+        '304': { $ref: '#/components/responses/NotModified' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [catalog]
+      summary: Listado de productos con filtros, orden y paginación
+      description: Nunca devuelve 200 con lista vacía causada por una caída de WooCommerce (usa 503/504).
+      x-status: proposed
+      x-requirements: [RF-003, RF-011, RF-012, RF-013, RF-014, RF-015, RF-016, RF-019, RF-089]
+      x-reuses: [src/lib/woocommerce.ts (fetchCatalogProducts), src/lib/wc/meta.ts (validateFilters)]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+        - name: category
+          in: query
+          description: Slug de una categoría
+          schema: { $ref: '#/components/schemas/Slug' }
+        - name: brand
+          in: query
+          description: Slugs de marca separados por coma (máx. 5)
+          schema:
+            type: string
+            maxLength: 500
+            pattern: '^[a-z0-9][a-z0-9._-]*(,[a-z0-9][a-z0-9._-]*){0,4}$'
+        - name: tag
+          in: query
+          description: Slugs de etiqueta separados por coma (máx. 5)
+          schema:
+            type: string
+            maxLength: 500
+            pattern: '^[a-z0-9][a-z0-9._-]*(,[a-z0-9][a-z0-9._-]*){0,4}$'
+        - name: onSale
+          in: query
+          schema:
+            type: boolean
+        - name: attr
+          in: query
+          description: |
+            Filtros por atributo de WooCommerce: `attr[pa_capacidad-btu]=12-000-btu,18-000-btu`.
+            Máximo 5 atributos; términos separados por coma.
+          style: deepObject
+          explode: true
+          schema:
+            type: object
+            maxProperties: 5
+            propertyNames:
+              pattern: '^pa_[a-z0-9_-]{1,60}$'
+            additionalProperties:
+              type: string
+              maxLength: 300
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          $ref: '#/components/responses/ProductPage'
+        '304': { $ref: '#/components/responses/NotModified' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /products/{slug}:
+    get:
+      operationId: getProduct
+      tags: [catalog]
+      summary: Ficha de producto (solo productos publicados y visibles)
+      description: 404 solo con respuesta definitiva de WooCommerce; caídas devuelven 503/504.
+      x-status: proposed
+      x-requirements: [RF-026, RF-027, RF-028, RF-029, RF-030, RF-031, RF-032]
+      x-reuses: [src/lib/woocommerce.ts (fetchProductBySlug, normalizeProductDetail), src/lib/security/sanitize.ts (sanitizeHtml)]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 200
+            pattern: '^[a-z0-9][a-z0-9._%-]{0,199}$'
+      responses:
+        '200':
+          description: Ficha del producto
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+            ETag: { $ref: '#/components/headers/ETag' }
+            X-IPR-Data-State: { $ref: '#/components/headers/X-IPR-Data-State' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ProductDetail' }
+        '304': { $ref: '#/components/responses/NotModified' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /filters:
+    get:
+      operationId: listFilters
+      tags: [catalog]
+      summary: Dimensiones de filtro para una categoría
+      x-status: proposed
+      x-requirements: [RF-014, RF-089]
+      x-reuses: [src/lib/filter-context.ts (getContextualDimensions, getProductosDimensions)]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+        - name: category
+          in: query
+          schema: { $ref: '#/components/schemas/Slug' }
+      responses:
+        '200':
+          description: Dimensiones disponibles (sin conteo en el MVP)
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/FilterDimension' }
+        '304': { $ref: '#/components/responses/NotModified' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /search:
+    get:
+      operationId: searchProducts
+      tags: [search]
+      summary: Búsqueda por texto, marca o referencia/SKU (paginada)
+      description: |
+        Lista vacía = sin coincidencias reales. Si el índice no está listo responde
+        503 `catalog_index_warming` con Retry-After.
+      x-status: proposed
+      x-requirements: [RF-016, RF-020, RF-022, RF-023]
+      x-reuses: [src/lib/woocommerce.ts (searchProducts, searchBrandProducts), src/schema/searchSchema.ts]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+        - $ref: '#/components/parameters/SearchQuery'
+        - name: brand
+          in: query
+          description: Restringe la búsqueda a una marca (búsqueda interna de marca)
+          schema: { $ref: '#/components/schemas/Slug' }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Resultados
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProductSummary' }
+                  meta:
+                    allOf:
+                      - $ref: '#/components/schemas/PageMeta'
+                      - type: object
+                        required: [query]
+                        properties:
+                          query: { type: string }
+        '304': { $ref: '#/components/responses/NotModified' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /search/suggestions:
+    get:
+      operationId: searchSuggestions
+      tags: [search]
+      summary: Sugerencias de autocompletado (máx. 6)
+      x-status: proposed
+      x-requirements: [RF-021, RF-022]
+      x-reuses: [src/app/api/search/suggestions/route.ts, src/features/search/search-types.ts]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 120
+      responses:
+        '200':
+          description: Sugerencias
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [query, total, items]
+                    properties:
+                      query: { type: string }
+                      total: { type: integer, minimum: 0 }
+                      items:
+                        type: array
+                        maxItems: 6
+                        items: { $ref: '#/components/schemas/Suggestion' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /brands:
+    get:
+      operationId: listBrands
+      tags: [catalog]
+      summary: Directorio de marcas
+      x-status: proposed
+      x-requirements: [RF-004, RF-016]
+      x-reuses: ['src/lib/wc/meta.ts (carga de product_brand; requiere exportar getBrands)', 'src/lib/brands.ts (getBrandLogo)']
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Marcas ordenadas por nombre
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Brand' }
+        '304': { $ref: '#/components/responses/NotModified' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /liquidaciones:
+    get:
+      operationId: listClearanceProducts
+      tags: [catalog]
+      summary: Productos en liquidación
+      x-status: proposed
+      x-requirements: [RF-007, RF-018]
+      x-reuses: [src/lib/liquidaciones.ts (fetchLiquidationProducts), src/lib/liquidaciones-shared.ts (discountPercent)]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          $ref: '#/components/responses/ProductPage'
+        '304': { $ref: '#/components/responses/NotModified' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /cart/validate:
+    post:
+      operationId: validateCart
+      tags: [cart]
+      summary: Revalida precio y disponibilidad de las líneas del carrito local
+      description: Operación sin efectos (segura). La app solo envía ids y cantidades; nunca precios.
+      x-status: proposed
+      x-requirements: [RF-049, RF-050, RF-051]
+      x-reuses: [src/lib/woocommerce.ts (fetchProductsByIds), src/lib/checkout-schema.ts (items)]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartItemsRequest' }
+      responses:
+        '200':
+          description: Estado de cada línea
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CartValidation' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /stores:
+    get:
+      operationId: listStores
+      tags: [stores]
+      summary: Sedes con canales corporativos de contacto
+      x-status: proposed
+      x-requirements: [RF-072, RF-073, RF-074, RF-075, RF-076]
+      x-reuses: [src/lib/sedes-data.ts (datos actuales, respaldo)]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Sedes agrupables por ciudad
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Store' }
+        '304': { $ref: '#/components/responses/NotModified' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /checkout:
+    post:
+      operationId: createCheckout
+      tags: [checkout]
+      summary: Crea un ticket de un solo uso (60 s) y devuelve la URL del checkout de WooCommerce
+      description: |
+        El cuerpo solo admite `items`. La app abre `checkoutUrl` en el navegador seguro del sistema
+        tras verificar que su host está en `allowedHosts`, y luego consulta
+        `GET /checkout/{checkoutRef}` para conocer el resultado.
+      x-status: proposed
+      x-requirements: [RF-052, RF-053, RF-054, RF-058]
+      x-reuses: [src/app/api/checkout/route.ts, src/lib/checkout-schema.ts (checkoutPayloadSchema.items), wp-snippets/ipr-cart-handoff.php]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartItemsRequest' }
+      responses:
+        '201':
+          description: Ticket emitido
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CheckoutSession' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /checkout/{checkoutRef}:
+    get:
+      operationId: getCheckoutStatus
+      tags: [checkout]
+      summary: Estado del intento de pago (fuente de verdad del retorno a la app)
+      description: Solo busca entre los pedidos del usuario autenticado; una referencia ajena devuelve `awaiting_order`.
+      x-status: proposed
+      x-requirements: [RF-055, RF-056, RF-057]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+        - name: checkoutRef
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Estado
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CheckoutStatus' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: Historial de pedidos del usuario (paginado)
+      x-status: proposed
+      x-requirements: [RF-107]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (ipr_auth_handle_orders)]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 1 }
+        - name: perPage
+          in: query
+          schema: { type: integer, enum: [10, 20], default: 10 }
+      responses:
+        '200':
+          description: Página de pedidos
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/OrderSummary' }
+                  meta: { $ref: '#/components/schemas/PageMeta' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /orders/{orderId}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Detalle de un pedido del usuario
+      description: Un pedido inexistente o de otro usuario devuelve 404 (no 403), sin revelar su existencia.
+      x-status: proposed
+      x-requirements: [RF-056, RF-108]
+      x-reuses: [wp-snippets/ipr-auth-rest.php (mapeo de pedidos)]
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+        - name: orderId
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        '200':
+          description: Detalle
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/OrderDetail' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/GatewayTimeout' }
+
+  /pqrs:
+    post:
+      operationId: submitPqrs
+      tags: [support]
+      summary: Envía una petición, queja, reclamo o sugerencia al buzón corporativo
+      x-status: proposed
+      x-requirements: [RF-096, RF-097]
+      x-reuses: [src/app/api/pqrs/route.ts]
+      security:
+        - {}
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceId'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PqrsRequest' }
+      responses:
+        '202':
+          description: PQRS recibida
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [status, receivedAt]
+                    properties:
+                      status: { type: string, const: received }
+                      receivedAt: { type: string, format: date-time }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/BadGateway' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque (ipra_ + 43 caracteres base64url)
+      description: |
+        Access token opaco de 15 minutos emitido por /auth/login, /auth/register o /auth/refresh.
+        Solo se acepta en la cabecera Authorization; un token en la query devuelve 400.
+
+  parameters:
+    AppVersion:
+      name: X-App-Version
+      in: header
+      required: true
+      schema:
+        type: string
+        pattern: '^\d+\.\d+\.\d+$'
+        examples: ['1.0.0']
+    AppPlatform:
+      name: X-App-Platform
+      in: header
+      required: true
+      schema:
+        type: string
+        enum: [android, ios]
+    DeviceId:
+      name: X-Device-Id
+      in: header
+      required: true
+      description: UUID v4 generado por la app en la instalación (no es secreto ni identificador de hardware).
+      schema:
+        type: string
+        format: uuid
+    DeviceIdOptional:
+      name: X-Device-Id
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+    RequestId:
+      name: X-Request-Id
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      schema:
+        type: string
+        maxLength: 200
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 1
+    PerPage:
+      name: perPage
+      in: query
+      description: Valores distintos se ajustan al permitido inmediatamente superior.
+      schema:
+        type: integer
+        enum: [12, 24, 48]
+        default: 24
+    Sort:
+      name: sort
+      in: query
+      schema:
+        type: string
+        enum: [latest, popularity, price-asc, price-desc, name]
+        default: latest
+    SearchQuery:
+      name: q
+      in: query
+      required: true
+      description: 1 a 120 caracteres, sin etiquetas HTML ni caracteres de control.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 120
+
+  headers:
+    X-Request-Id:
+      description: Identificador de la solicitud (correlación con logs)
+      schema: { type: string, format: uuid }
+    Cache-Control-Public:
+      description: 'Ejemplo: public, max-age=60, s-maxage=300, stale-while-revalidate=300, stale-if-error=86400'
+      schema: { type: string }
+    Cache-Control-NoStore:
+      description: 'private, no-store'
+      schema: { type: string }
+    ETag:
+      description: ETag débil del cuerpo
+      schema: { type: string }
+    Retry-After:
+      description: Segundos a esperar antes de reintentar
+      schema: { type: integer, minimum: 1 }
+    X-IPR-Data-State:
+      description: stale si se sirvió un dato vencido de la caché porque WooCommerce no respondió
+      schema:
+        type: string
+        enum: [fresh, stale]
+
+  responses:
+    NotModified:
+      description: El recurso no cambió (If-None-Match coincide)
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+        ETag: { $ref: '#/components/headers/ETag' }
+    UserProfileOk:
+      description: Perfil del usuario
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+        Cache-Control: { $ref: '#/components/headers/Cache-Control-NoStore' }
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/UserProfile' }
+    ProductPage:
+      description: Página de productos
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+        Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+        ETag: { $ref: '#/components/headers/ETag' }
+        X-IPR-Data-State: { $ref: '#/components/headers/X-IPR-Data-State' }
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data, meta]
+            properties:
+              data:
+                type: array
+                items: { $ref: '#/components/schemas/ProductSummary' }
+              meta: { $ref: '#/components/schemas/PageMeta' }
+    BadRequest:
+      description: 'Entrada inválida (validation_failed, token_in_url_forbidden)'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthorized:
+      description: 'Token ausente/ inválido/ vencido/ revocado (unauthorized), credenciales inválidas (invalid_credentials) o refresh reutilizado (refresh_token_reused)'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+        WWW-Authenticate:
+          schema: { type: string }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      description: 'Contraseña actual incorrecta (current_password_invalid) o cuenta bloqueada (account_locked)'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: 'El recurso no existe o no es visible para el usuario (not_found); solo con respuesta definitiva'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Conflict:
+      description: 'email_in_use, refresh_in_progress o idempotency_conflict'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    PayloadTooLarge:
+      description: 'Cuerpo mayor a 32 KB (payload_too_large)'
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    UnsupportedMediaType:
+      description: 'Content-Type distinto de application/json (unsupported_media_type)'
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    UpgradeRequired:
+      description: 'Versión de la app por debajo del mínimo (app_version_unsupported)'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    TooManyRequests:
+      description: 'Límite de frecuencia superado (rate_limited)'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+        Retry-After: { $ref: '#/components/headers/Retry-After' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    InternalError:
+      description: 'Error no controlado del BFF (internal_error)'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    BadGateway:
+      description: 'WordPress/WooCommerce/SMTP respondió de forma inesperada (upstream_bad_response). No significa que el recurso no exista.'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    ServiceUnavailable:
+      description: 'upstream_unavailable, catalog_index_warming o feature_disabled. Incluye Retry-After.'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+        Retry-After: { $ref: '#/components/headers/Retry-After' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    GatewayTimeout:
+      description: 'Se agotó el presupuesto de tiempo esperando a WordPress (upstream_timeout)'
+      headers:
+        X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+    Problem:
+      type: object
+      description: RFC 9457 Problem Details con extensiones de IPR
+      required: [type, title, status, code, requestId]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        detail: { type: string, description: Mensaje en español apto para mostrar }
+        instance: { type: string }
+        code:
+          type: string
+          x-extensible-enum: true
+          examples:
+            - validation_failed
+            - token_in_url_forbidden
+            - unauthorized
+            - invalid_credentials
+            - refresh_token_reused
+            - current_password_invalid
+            - account_locked
+            - not_found
+            - email_in_use
+            - refresh_in_progress
+            - idempotency_conflict
+            - payload_too_large
+            - unsupported_media_type
+            - app_version_unsupported
+            - rate_limited
+            - internal_error
+            - upstream_bad_response
+            - upstream_unavailable
+            - catalog_index_warming
+            - feature_disabled
+            - upstream_timeout
+        requestId: { type: string, format: uuid }
+        retryAfter: { type: integer, minimum: 1 }
+        errors:
+          type: array
+          items:
+            type: object
+            required: [field, code, message]
+            properties:
+              field: { type: string }
+              code: { type: string }
+              message: { type: string }
+
+    PageMeta:
+      type: object
+      required: [page, perPage, total, totalPages, hasMore]
+      properties:
+        page: { type: integer, minimum: 1 }
+        perPage: { type: integer, minimum: 1 }
+        total: { type: integer, minimum: 0 }
+        totalPages: { type: integer, minimum: 0 }
+        hasMore: { type: boolean }
+
+    Slug:
+      type: string
+      maxLength: 200
+      pattern: '^[a-z0-9][a-z0-9._-]{0,199}$'
+
+    Price:
+      type: object
+      required: [status, amount, regularAmount, onSale, discountPercent, currency, taxIncluded]
+      properties:
+        status:
+          type: string
+          enum: [priced, on_request]
+          description: on_request = sin precio en WooCommerce; la app muestra "Más información" (nunca $0)
+        amount:
+          type: [number, 'null']
+          minimum: 0
+          description: Precio vigente en COP, IVA incluido; null si status = on_request
+        regularAmount:
+          type: [number, 'null']
+          minimum: 0
+        onSale: { type: boolean }
+        discountPercent:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 100
+        currency: { type: string, const: COP }
+        taxIncluded: { type: boolean, const: true }
+
+    Availability:
+      type: string
+      enum: [in_stock, out_of_stock, on_backorder]
+      description: Disponibilidad genérica; nunca cantidades exactas.
+
+    ImageRef:
+      type: object
+      required: [url, alt]
+      properties:
+        url: { type: string, format: uri }
+        alt: { type: string }
+        width: { type: [integer, 'null'], minimum: 1 }
+        height: { type: [integer, 'null'], minimum: 1 }
+
+    BrandRef:
+      type: object
+      required: [name, slug]
+      properties:
+        name: { type: string }
+        slug: { type: [string, 'null'] }
+
+    ProductSummary:
+      type: object
+      required: [id, slug, name, sku, brand, price, availability, purchasable, image, categorySlugs]
+      properties:
+        id: { type: integer, minimum: 1 }
+        slug: { type: string }
+        name: { type: string }
+        sku: { type: string }
+        brand:
+          oneOf:
+            - $ref: '#/components/schemas/BrandRef'
+            - type: 'null'
+        price: { $ref: '#/components/schemas/Price' }
+        availability: { $ref: '#/components/schemas/Availability' }
+        purchasable:
+          type: boolean
+          description: true solo si tiene precio y está disponible para añadir al carrito
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/ImageRef'
+            - type: 'null'
+        categorySlugs:
+          type: array
+          items: { type: string }
+
+    ProductAttribute:
+      type: object
+      required: [name, slug, options]
+      properties:
+        name: { type: string }
+        slug: { type: string }
+        options:
+          type: array
+          items: { type: string }
+
+    CategoryRef:
+      type: object
+      required: [id, slug, name]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        name: { type: string }
+
+    ProductDetail:
+      allOf:
+        - $ref: '#/components/schemas/ProductSummary'
+        - type: object
+          required: [shortDescription, descriptionHtml, gallery, attributes, categories, webUrl]
+          properties:
+            shortDescription:
+              type: string
+              description: Texto plano (sin HTML)
+            descriptionHtml:
+              type: string
+              description: HTML saneado en servidor (sin script, style, iframe, on*, ni esquemas no permitidos)
+            gallery:
+              type: array
+              items: { $ref: '#/components/schemas/ImageRef' }
+            attributes:
+              type: array
+              items: { $ref: '#/components/schemas/ProductAttribute' }
+            categories:
+              type: array
+              items: { $ref: '#/components/schemas/CategoryRef' }
+            webUrl: { type: string, format: uri }
+
+    Category:
+      type: object
+      required: [id, slug, name, parentId, children]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        name: { type: string }
+        parentId: { type: [integer, 'null'] }
+        children:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
+
+    FilterDimension:
+      type: object
+      required: [key, label, type, options]
+      properties:
+        key:
+          type: string
+          description: Nombre del parámetro de /products (p. ej. "attr[pa_capacidad-btu]", "brand", "onSale")
+        label: { type: string }
+        type:
+          type: string
+          enum: [multi, boolean]
+        options:
+          type: array
+          items:
+            type: object
+            required: [value, label]
+            properties:
+              value: { type: string }
+              label: { type: string }
+
+    Suggestion:
+      type: object
+      required: [id, slug, name, sku, brandName, price, availability, image]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        name: { type: string }
+        sku: { type: string }
+        brandName: { type: [string, 'null'] }
+        price: { $ref: '#/components/schemas/Price' }
+        availability: { $ref: '#/components/schemas/Availability' }
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/ImageRef'
+            - type: 'null'
+
+    Brand:
+      type: object
+      required: [slug, name, logoUrl, hasLanding]
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        logoUrl: { type: [string, 'null'], format: uri }
+        hasLanding: { type: boolean }
+
+    Store:
+      type: object
+      required: [slug, city, name, address, upcoming, phones, whatsapp, imageUrl, mapsQuery, coordinates, openingHours]
+      properties:
+        slug: { type: string }
+        city: { type: string }
+        name: { type: string }
+        address: { type: string }
+        upcoming: { type: boolean }
+        phones:
+          type: array
+          items:
+            type: object
+            required: [type, display, dial]
+            properties:
+              type:
+                type: string
+                enum: [landline, sales_parts, sales_ac, mobile]
+              display: { type: string }
+              dial: { type: string, pattern: '^\+?\d{7,15}$' }
+        whatsapp:
+          oneOf:
+            - type: object
+              required: [number]
+              properties:
+                number: { type: string, pattern: '^\d{8,15}$' }
+            - type: 'null'
+        imageUrl: { type: [string, 'null'], format: uri }
+        mapsQuery: { type: [string, 'null'] }
+        coordinates:
+          type: 'null'
+          description: Fase 2 (RF-077, D-09)
+        openingHours:
+          type: 'null'
+          description: Fase 2 (RF-077, D-09)
+
+    AppConfig:
+      type: object
+      required: [minSupportedVersion, recommendedVersion, features, contact, legal, notices, checkout, catalog]
+      properties:
+        minSupportedVersion: { $ref: '#/components/schemas/PlatformVersions' }
+        recommendedVersion: { $ref: '#/components/schemas/PlatformVersions' }
+        features:
+          type: object
+          required: [checkoutEnabled, pqrsEnabled, btuCalculatorEnabled]
+          properties:
+            checkoutEnabled: { type: boolean }
+            pqrsEnabled: { type: boolean }
+            btuCalculatorEnabled: { type: boolean }
+        contact:
+          type: object
+          required: [whatsapp, phone, salesEmail, pqrsEmail, engineering]
+          properties:
+            whatsapp:
+              type: object
+              required: [number, defaultMessage]
+              properties:
+                number: { type: string }
+                defaultMessage: { type: string }
+            phone:
+              type: object
+              required: [display, dial]
+              properties:
+                display: { type: string }
+                dial: { type: string }
+            salesEmail: { type: string, format: email }
+            pqrsEmail: { type: string, format: email }
+            engineering:
+              type: object
+              required: [whatsapp, email]
+              properties:
+                whatsapp: { type: [string, 'null'] }
+                email: { type: [string, 'null'], format: email }
+        legal:
+          type: object
+          required: [terms, privacyPolicy, dataRightsChannel, accountDeletionNotice]
+          properties:
+            terms: { $ref: '#/components/schemas/LegalDocument' }
+            privacyPolicy: { $ref: '#/components/schemas/LegalDocument' }
+            dataRightsChannel:
+              type: object
+              required: [url, email]
+              properties:
+                url: { type: [string, 'null'], format: uri }
+                email: { type: [string, 'null'], format: email }
+            accountDeletionNotice:
+              type: string
+              description: Qué se elimina y qué se conserva (pendiente D-12)
+        notices:
+          type: object
+          required: [shipping, warranty, priceOnRequest]
+          properties:
+            shipping: { type: string }
+            warranty: { type: string }
+            priceOnRequest: { type: string }
+        checkout:
+          type: object
+          required: [allowedHosts, returnPathPrefix]
+          properties:
+            allowedHosts:
+              type: array
+              items: { type: string }
+            returnPathPrefix: { type: string }
+        catalog:
+          type: object
+          required: [pageSizes, maxPage]
+          properties:
+            pageSizes:
+              type: array
+              items: { type: integer }
+            maxPage: { type: integer }
+
+    PlatformVersions:
+      type: object
+      required: [android, ios]
+      properties:
+        android: { type: string, pattern: '^\d+\.\d+\.\d+$' }
+        ios: { type: string, pattern: '^\d+\.\d+\.\d+$' }
+
+    LegalDocument:
+      type: object
+      required: [version, url]
+      properties:
+        version: { type: string }
+        url: { type: string, format: uri }
+
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required: [email, firstName, lastName, password, acceptance]
+      properties:
+        email: { type: string, format: email, maxLength: 120 }
+        firstName: { type: string, minLength: 1, maxLength: 60 }
+        lastName: { type: string, minLength: 1, maxLength: 60 }
+        password: { type: string, minLength: 8, maxLength: 128 }
+        acceptance:
+          type: object
+          additionalProperties: false
+          required: [termsVersion, privacyPolicyVersion, accepted]
+          properties:
+            termsVersion: { type: string, maxLength: 20 }
+            privacyPolicyVersion: { type: string, maxLength: 20 }
+            accepted: { type: boolean, const: true }
+
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [login, password]
+      properties:
+        login:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: Correo o nombre de usuario
+        password: { type: string, minLength: 1, maxLength: 128 }
+
+    RefreshRequest:
+      type: object
+      additionalProperties: false
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string, pattern: '^iprr_[A-Za-z0-9_-]{43}$' }
+
+    LogoutRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        scope:
+          type: string
+          enum: [current, all]
+          default: current
+
+    ForgotPasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [email]
+      properties:
+        email: { type: string, format: email, maxLength: 120 }
+
+    AcceptedResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [status]
+          properties:
+            status: { type: string, const: accepted }
+
+    Session:
+      type: object
+      required: [accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresAt, tokenType, sessionId]
+      properties:
+        accessToken: { type: string, pattern: '^ipra_[A-Za-z0-9_-]{43}$' }
+        accessTokenExpiresIn:
+          type: integer
+          description: Segundos de vida del access token (propuesto 900)
+        refreshToken: { type: string, pattern: '^iprr_[A-Za-z0-9_-]{43}$' }
+        refreshTokenExpiresAt:
+          type: string
+          format: date-time
+          description: Vencimiento por inactividad (acotado por la vida absoluta de la sesión)
+        tokenType: { type: string, const: Bearer }
+        sessionId: { type: string, format: uuid }
+
+    AuthSessionResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [session, user]
+          properties:
+            session: { $ref: '#/components/schemas/Session' }
+            user: { $ref: '#/components/schemas/UserProfile' }
+
+    UserProfile:
+      type: object
+      required: [id, email, firstName, lastName, displayName, billing, shipping]
+      properties:
+        id: { type: integer }
+        email: { type: string, format: email }
+        firstName: { type: string }
+        lastName: { type: string }
+        displayName: { type: string }
+        billing:
+          oneOf:
+            - $ref: '#/components/schemas/Address'
+            - type: 'null'
+        shipping:
+          oneOf:
+            - $ref: '#/components/schemas/Address'
+            - type: 'null'
+
+    Address:
+      type: object
+      required: [firstName, lastName, company, nationalId, address1, address2, department, city, postcode, phone]
+      properties:
+        firstName: { type: string }
+        lastName: { type: string }
+        company: { type: string }
+        nationalId:
+          type: [string, 'null']
+          description: Cédula o NIT (clave de almacenamiento en el perfil por confirmar)
+        address1: { type: string }
+        address2: { type: string }
+        department: { type: string, description: Código de departamento de WooCommerce (p. ej. ANT, BOG) }
+        city: { type: string }
+        postcode: { type: string }
+        phone: { type: [string, 'null'] }
+
+    AddressInput:
+      type: object
+      additionalProperties: false
+      required: [firstName, lastName, address1, department, city]
+      properties:
+        nationalId: { type: string, minLength: 3, maxLength: 30, pattern: '^[\d.\-]+$' }
+        firstName: { type: string, minLength: 1, maxLength: 60 }
+        lastName: { type: string, minLength: 1, maxLength: 60 }
+        company: { type: string, maxLength: 120 }
+        address1: { type: string, minLength: 1, maxLength: 200 }
+        address2: { type: string, maxLength: 200 }
+        department: { type: string, minLength: 1, maxLength: 3 }
+        city: { type: string, minLength: 1, maxLength: 80 }
+        postcode: { type: string, maxLength: 20 }
+        phone: { type: string, minLength: 7, maxLength: 20, pattern: '^[\d\s+\-().]{7,20}$' }
+
+    UpdateProfileRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        firstName: { type: string, minLength: 1, maxLength: 60 }
+        lastName: { type: string, minLength: 1, maxLength: 60 }
+
+    ChangeEmailRequest:
+      type: object
+      additionalProperties: false
+      required: [newEmail, currentPassword]
+      properties:
+        newEmail: { type: string, format: email, maxLength: 120 }
+        currentPassword: { type: string, minLength: 1, maxLength: 128 }
+
+    ChangePasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string, minLength: 1, maxLength: 128 }
+        newPassword: { type: string, minLength: 8, maxLength: 128 }
+
+    AccountDeletionRequest:
+      type: object
+      additionalProperties: false
+      required: [currentPassword, confirm]
+      properties:
+        currentPassword: { type: string, minLength: 1, maxLength: 128 }
+        confirm: { type: boolean, const: true }
+
+    AccountDeletionStatus:
+      type: object
+      required: [requestId, status, completeBy]
+      properties:
+        requestId: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [scheduled, completed]
+        completeBy: { type: string, format: date-time }
+
+    CartItem:
+      type: object
+      additionalProperties: false
+      required: [id, quantity]
+      properties:
+        id: { type: integer, minimum: 1 }
+        quantity: { type: integer, minimum: 1, maximum: 99 }
+
+    CartItemsRequest:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items: { $ref: '#/components/schemas/CartItem' }
+
+    CartValidation:
+      type: object
+      required: [lines, informativeSubtotal, checkoutAllowed]
+      properties:
+        lines:
+          type: array
+          items:
+            type: object
+            required: [id, quantity, status, product, lineSubtotal]
+            properties:
+              id: { type: integer }
+              quantity: { type: integer }
+              status:
+                type: string
+                enum: [available, out_of_stock, on_backorder, price_on_request, not_found]
+              product:
+                oneOf:
+                  - $ref: '#/components/schemas/ProductSummary'
+                  - type: 'null'
+              lineSubtotal: { type: [number, 'null'] }
+        informativeSubtotal:
+          type: object
+          required: [amount, currency, taxIncluded]
+          properties:
+            amount: { type: number, minimum: 0 }
+            currency: { type: string, const: COP }
+            taxIncluded: { type: boolean, const: true }
+        checkoutAllowed: { type: boolean }
+
+    CheckoutSession:
+      type: object
+      required: [checkoutRef, checkoutUrl, expiresAt, expiresIn, allowedHosts, returnUrlPrefix]
+      properties:
+        checkoutRef: { type: string, format: uuid }
+        checkoutUrl:
+          type: string
+          format: uri
+          description: URL con ticket opaco de 32 caracteres; no se guarda ni se registra en la app
+        expiresAt: { type: string, format: date-time }
+        expiresIn: { type: integer, const: 60 }
+        allowedHosts:
+          type: array
+          items: { type: string }
+        returnUrlPrefix: { type: string, format: uri }
+
+    PaymentState:
+      type: string
+      enum: [paid, pending, failed, cancelled, refunded, unknown]
+
+    OrderSummary:
+      type: object
+      required: [id, number, status, statusLabel, paymentState, createdAt, currency, total, itemCount]
+      properties:
+        id: { type: integer }
+        number: { type: string }
+        status:
+          type: string
+          description: Estado de WooCommerce sin prefijo wc- (p. ej. processing)
+        statusLabel: { type: string }
+        paymentState: { $ref: '#/components/schemas/PaymentState' }
+        createdAt: { type: string, format: date-time }
+        currency: { type: string }
+        total: { type: number }
+        itemCount: { type: integer, minimum: 0 }
+
+    OrderDetail:
+      allOf:
+        - $ref: '#/components/schemas/OrderSummary'
+        - type: object
+          required: [subtotal, shippingTotal, discountTotal, taxTotal, paymentMethodTitle, items]
+          properties:
+            subtotal: { type: number }
+            shippingTotal: { type: number }
+            discountTotal: { type: number }
+            taxTotal: { type: number }
+            paymentMethodTitle: { type: string }
+            items:
+              type: array
+              items:
+                type: object
+                required: [productId, name, sku, quantity, total, imageUrl]
+                properties:
+                  productId: { type: [integer, 'null'] }
+                  name: { type: string }
+                  sku: { type: [string, 'null'] }
+                  quantity: { type: integer }
+                  total: { type: number }
+                  imageUrl: { type: [string, 'null'], format: uri }
+
+    CheckoutStatus:
+      type: object
+      required: [checkoutRef, state, order]
+      properties:
+        checkoutRef: { type: string, format: uuid }
+        state:
+          type: string
+          enum: [awaiting_order, order_created]
+        order:
+          oneOf:
+            - $ref: '#/components/schemas/OrderSummary'
+            - type: 'null'
+
+    PqrsRequest:
+      type: object
+      additionalProperties: false
+      required: [type, name, email, phone, message, acceptsDataPolicy]
+      properties:
+        type:
+          type: string
+          enum: [peticion, queja, reclamo, sugerencia]
+        name: { type: string, minLength: 3, maxLength: 120 }
+        email: { type: string, format: email, maxLength: 254 }
+        phone: { type: string, pattern: '^[\d\s+\-().]{7,20}$' }
+        orderReference: { type: string, maxLength: 60 }
+        message: { type: string, minLength: 1, maxLength: 1000 }
+        acceptsDataPolicy: { type: boolean, const: true }

@@ -1,0 +1,22 @@
+{
+  "data": {
+    "minSupportedVersion": { "android": "1.0.0", "ios": "1.0.0" },
+    "recommendedVersion": { "android": "1.1.0", "ios": "1.1.0" },
+    "features": { "checkoutEnabled": true, "pqrsEnabled": true, "btuCalculatorEnabled": false },
+    "contact": {
+      "whatsapp": { "number": "573000000000", "defaultMessage": "Hola" },
+      "phone": { "display": "(604) 000 0000", "dial": "+576040000000" },
+      "salesEmail": "ventas@example.invalid",
+      "pqrsEmail": "pqrs@example.invalid",
+      "engineering": { "whatsapp": null, "email": null }
+    },
+    "legal": {
+      "terms": { "version": "1", "url": "https://example.invalid/t" },
+      "privacyPolicy": { "version": "1", "url": "https://example.invalid/p" },
+      "dataRightsChannel": { "url": null, "email": null },
+      "accountDeletionNotice": "x"
+    },
+    "notices": { "shipping": "x", "warranty": "x", "priceOnRequest": "x" },
+    "catalog": { "pageSizes": [12], "maxPage": 50 }
+  }
+}

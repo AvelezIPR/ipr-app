@@ -1,0 +1,10 @@
+{
+  "key": "attr[pa_capacidad-btu]",
+  "label": "Capacidad BTU",
+  "type": "multi",
+  "options": [
+    { "value": "9-000-btu", "label": "9.000" },
+    { "value": "12-000-btu", "label": "12.000" },
+    { "value": "18-000-btu", "label": "18.000" }
+  ]
+}

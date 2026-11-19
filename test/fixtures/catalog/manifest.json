@@ -1,0 +1,20 @@
+{
+  "comment": "Fixtures sintéticos de la feature catalog (listCategories, listBrands, listFilters, listProducts, listClearanceProducts). Cada archivo es UN objeto del esquema declarado; las pruebas arman los sobres {data, meta}. Ningún dato real.",
+  "fixtures": [
+    { "file": "Category.root.json", "schema": "Category", "valid": true },
+    { "file": "Category.leaf.json", "schema": "Category", "valid": true },
+    { "file": "Brand.valid.json", "schema": "Brand", "valid": true },
+    { "file": "Brand.no-logo.json", "schema": "Brand", "valid": true },
+    { "file": "FilterDimension.btu.json", "schema": "FilterDimension", "valid": true },
+    { "file": "FilterDimension.brand.json", "schema": "FilterDimension", "valid": true },
+    { "file": "FilterDimension.on-sale.json", "schema": "FilterDimension", "valid": true },
+    { "file": "ProductSummary.priced.json", "schema": "ProductSummary", "valid": true },
+    { "file": "ProductSummary.on-request.json", "schema": "ProductSummary", "valid": true },
+    { "file": "ProductSummary.on-sale.json", "schema": "ProductSummary", "valid": true },
+    { "file": "ProductSummary.no-image.json", "schema": "ProductSummary", "valid": true },
+    { "file": "ProductSummary.unknown-availability.json", "schema": "ProductSummary", "valid": false, "comment": "availability fuera del enum: el contrato lo marca; la app lo tolera como 'unknown'" },
+    { "file": "PageMeta.more.json", "schema": "PageMeta", "valid": true },
+    { "file": "PageMeta.last.json", "schema": "PageMeta", "valid": true },
+    { "file": "PageMeta.bad-total.json", "schema": "PageMeta", "valid": false, "comment": "total negativo: el contrato exige mínimo 0" }
+  ]
+}

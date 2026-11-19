@@ -1,0 +1,20 @@
+{
+  "id": 102,
+  "slug": "valvula-sin-precio",
+  "name": "Válvula de expansión sin precio",
+  "sku": "600-0001",
+  "brand": { "name": "Refco", "slug": "refco" },
+  "price": {
+    "status": "on_request",
+    "amount": null,
+    "regularAmount": null,
+    "onSale": false,
+    "discountPercent": null,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "in_stock",
+  "purchasable": false,
+  "image": null,
+  "categorySlugs": []
+}

@@ -1,0 +1,8 @@
+{
+  "environment": "staging",
+  "apiBaseUrl": "https://staging.invalid/mobile/v1",
+  "deepLinkHost": "staging.invalid",
+  "checkoutAllowedHosts": "staging.invalid",
+  "mediaHosts": "staging.invalid",
+  "supportWhatsApp": "573014021882"
+}

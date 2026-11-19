@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["REEMPLAZAR_TEAM_ID.REEMPLAZAR_BUNDLE_ID"],
+        "components": [
+          { "/": "/app/pedido", "comment": "Solo el retorno del pago (CR-001). Sin comodines." }
+        ]
+      }
+    ]
+  }
+}

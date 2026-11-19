@@ -1,0 +1,449 @@
+{
+  "@@locale": "es",
+  "appTitle": "IPR Partes y Repuestos",
+  "@appTitle": {
+    "description": "Nombre de la app mostrado en el selector de aplicaciones."
+  },
+  "tabHome": "Inicio",
+  "tabCatalog": "Catálogo",
+  "tabCart": "Carrito",
+  "tabAccount": "Cuenta",
+  "placeholderTitle": "En construcción",
+  "placeholderBody": "Esta pantalla se construye en una rebanada posterior del plan de implementación.",
+  "actionRetry": "Reintentar",
+  "actionContactWhatsApp": "Escribir por WhatsApp",
+  "actionUpdateApp": "Actualizar la app",
+  "stateLoading": "Cargando",
+  "stateEmptyTitle": "No hay resultados",
+  "stateEmptyBody": "No encontramos información para mostrar.",
+  "staleBanner": "Mostrando información guardada; puede no estar actualizada.",
+  "updateRequiredTitle": "Actualiza la app para continuar",
+  "updateRequiredBody": "Esta versión de la app ya no es compatible. Instala la versión más reciente desde la tienda.",
+  "priceConsult": "Más información",
+  "priceTaxIncluded": "IVA incluido",
+  "priceSemantics": "{amount} pesos, IVA incluido",
+  "@priceSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "priceOnRequestSemantics": "Precio bajo consulta. Más información por WhatsApp",
+  "stockInStock": "En stock",
+  "stockOutOfStock": "Agotado",
+  "stockOnBackorder": "Bajo pedido",
+  "stockUnknown": "Disponibilidad por confirmar",
+  "failureNoConnection": "No tienes conexión. Revisa tu internet.",
+  "failureTimeout": "La respuesta está tardando. Intenta de nuevo.",
+  "failureNotFound": "Este contenido ya no está disponible.",
+  "failureServiceUnavailable": "La tienda no está disponible en este momento.",
+  "failureRateLimited": "Demasiados intentos. Espera un momento.",
+  "failureUnauthorized": "Tu sesión terminó. Inicia sesión de nuevo.",
+  "failureForbidden": "No tienes permiso para esta acción.",
+  "failureBlockedByEdge": "No pudimos verificar la conexión. Intenta más tarde.",
+  "failureValidation": "Revisa los datos ingresados.",
+  "failureConflict": "No se pudo completar la acción. Intenta de nuevo.",
+  "failureUpgradeRequired": "Actualiza la app para continuar.",
+  "failureServer": "Algo salió mal. Intenta de nuevo.",
+  "failureContract": "Algo salió mal.",
+  "failureUnknown": "Algo salió mal. Intenta de nuevo.",
+  "sharedProductSku": "SKU {sku}",
+  "@sharedProductSku": {
+    "placeholders": {
+      "sku": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedProductCardSemantics": "{name}. {brand}. SKU {sku}. {price}. {stock}.",
+  "@sharedProductCardSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "brand": {
+        "type": "String"
+      },
+      "sku": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      },
+      "stock": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedProductOnSale": "Oferta",
+  "sharedProductRegularPrice": "Antes {amount}",
+  "@sharedProductRegularPrice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedWhatsappOpenFailedTitle": "No pudimos abrir WhatsApp",
+  "sharedWhatsappOpenFailedBody": "Puedes llamar a nuestra línea de atención o abrir WhatsApp en el navegador.",
+  "sharedWhatsappCall": "Llamar a la línea de atención",
+  "sharedWhatsappWeb": "Abrir WhatsApp en el navegador",
+  "sharedWhatsappClose": "Cerrar",
+  "sharedWhatsappAdvice": "Asesoría por WhatsApp",
+  "sharedWhatsappQuote": "Cotizar por WhatsApp",
+  "sharedWhatsappMsgProduct": "Hola, quiero más información sobre {name} (SKU {sku}).",
+  "@sharedWhatsappMsgProduct": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "sku": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedWhatsappMsgSearch": "Hola, busqué \"{term}\" en la app y no lo encontré. ¿Me pueden ayudar?",
+  "@sharedWhatsappMsgSearch": {
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedWhatsappMsgQuote": "Hola, quiero cotizar un proyecto o un volumen de compra.",
+  "sharedWhatsappMsgAdvice": "Hola, necesito asesoría de IPR Partes y Repuestos.",
+  "homeSearchHint": "Buscar por nombre, marca o referencia (SKU)",
+  "homeSearchSemantics": "Buscar productos por nombre, marca o referencia",
+  "homeCategoriesTitle": "Categorías",
+  "homeCategoriesEmptyTitle": "Aún no hay categorías para mostrar",
+  "homeCategoriesEmptyBody": "Puedes buscar un producto o escribirnos por WhatsApp.",
+  "homeCategorySemantics": "Categoría {name}",
+  "@homeCategorySemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeFeaturedTitle": "Más vendidos",
+  "homeBrandsTitle": "Marcas",
+  "homeBrandsSeeAll": "Ver todas las marcas",
+  "homeBrandSemantics": "Marca {name}",
+  "@homeBrandSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeQuoteTitle": "¿Necesitas cotizar un proyecto o un volumen?",
+  "homeShortcutsTitle": "Más accesos",
+  "homeShortcutSale": "Liquidaciones",
+  "homeShortcutBranches": "Sedes",
+  "homeShortcutCall": "Llamar a la línea de atención",
+  "homeCallFailed": "No pudimos abrir el marcador del teléfono.",
+  "homeSectionLoadingSemantics": "Cargando {section}",
+  "@homeSectionLoadingSemantics": {
+    "placeholders": {
+      "section": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogSearchTooltip": "Buscar productos",
+  "catalogSeeAllIn": "Ver todo en {name}",
+  "@catalogSeeAllIn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogCategoriesEmpty": "Aún no hay categorías para mostrar.",
+  "catalogBrandsLink": "Marcas",
+  "catalogSaleLink": "Liquidaciones",
+  "catalogCategoryItemSemantics": "{name}. Subcategorías disponibles",
+  "@catalogCategoryItemSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogListFallbackTitle": "Productos",
+  "catalogResultCount": "{count, plural, =0{Sin resultados} =1{1 resultado} other{{count} resultados}}",
+  "@catalogResultCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogFilters": "Filtros",
+  "catalogFiltersWithCount": "Filtros ({count})",
+  "@catalogFiltersWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogSortButton": "Ordenar: {sort}",
+  "@catalogSortButton": {
+    "placeholders": {
+      "sort": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogSortTitle": "Ordenar por",
+  "catalogSortLatest": "Más recientes",
+  "catalogSortPopularity": "Más populares",
+  "catalogSortPriceAsc": "Precio: menor a mayor",
+  "catalogSortPriceDesc": "Precio: mayor a menor",
+  "catalogSortName": "Nombre (A a Z)",
+  "catalogFilterSheetTitle": "Filtros",
+  "catalogFilterApply": "Aplicar",
+  "catalogFilterClear": "Limpiar",
+  "catalogFilterClose": "Cerrar",
+  "catalogFilterCategorySection": "Categoría",
+  "catalogFilterCategoryAll": "Todas",
+  "catalogFilterLimitHint": "Puedes elegir hasta {max} opciones.",
+  "@catalogFilterLimitHint": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogFilterNone": "No hay filtros disponibles para este listado.",
+  "catalogActiveFilters": "Filtros activos",
+  "catalogChipLabel": "{dimension}: {value}",
+  "@catalogChipLabel": {
+    "placeholders": {
+      "dimension": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogChipCategory": "Categoría: {name}",
+  "@catalogChipCategory": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogChipSearch": "Búsqueda: {term}",
+  "@catalogChipSearch": {
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogRemoveFilter": "Quitar filtro {label}",
+  "@catalogRemoveFilter": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogClearFilters": "Limpiar filtros",
+  "catalogEmptyCategoryTitle": "No hay productos en esta categoría",
+  "catalogEmptyCategoryBody": "Prueba con otra categoría o busca por nombre, marca o referencia.",
+  "catalogEmptySearchAction": "Buscar productos",
+  "catalogEmptyFilteredTitle": "Sin resultados con estos filtros",
+  "catalogEmptyFilteredBody": "Quita algún filtro para ver más productos.",
+  "catalogEmptyBrandTitle": "Esta marca aún no tiene productos",
+  "catalogEmptyBrandBody": "Vuelve a revisar más tarde o explora otras marcas.",
+  "catalogEmptyBrandSearchTitle": "Sin resultados para tu búsqueda",
+  "catalogEmptyBrandSearchBody": "No encontramos productos de esta marca con ese término.",
+  "catalogEmptySaleTitle": "No hay liquidaciones vigentes",
+  "catalogEmptySaleBody": "Revisa de nuevo más tarde.",
+  "catalogListEnd": "Llegaste al final",
+  "catalogLoadingMore": "Cargando más productos",
+  "catalogRefreshing": "Actualizando resultados",
+  "catalogBrandsTitle": "Marcas",
+  "catalogBrandsEmpty": "Aún no hay marcas para mostrar.",
+  "catalogBrandsCount": "{count, plural, =1{1 marca} other{{count} marcas}}",
+  "@catalogBrandsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "catalogBrandItemSemantics": "Marca {name}. Ver productos",
+  "@catalogBrandItemSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogBrandTitleFallback": "Marca",
+  "catalogBrandSearchHint": "Buscar en esta marca",
+  "catalogBrandSearchClear": "Borrar búsqueda",
+  "catalogBrandSearchSubmit": "Buscar",
+  "catalogSaleTitle": "Liquidaciones",
+  "searchTitle": "Buscar",
+  "@searchTitle": {
+    "description": "Título de la pantalla de búsqueda (PT-06/PT-07)."
+  },
+  "searchFieldLabel": "Buscar productos",
+  "@searchFieldLabel": {
+    "description": "Etiqueta accesible del campo de búsqueda (nunca solo el ejemplo)."
+  },
+  "searchFieldHint": "Ej.: 500-0144",
+  "searchClearTooltip": "Borrar texto",
+  "searchIdleBody": "Escribe el nombre, la marca o la referencia (SKU) del producto.",
+  "searchSuggestionsLoading": "Buscando sugerencias",
+  "searchSuggestionsSeeAll": "Ver todos los resultados para “{term}”",
+  "@searchSuggestionsSeeAll": {
+    "description": "Último renglón de las sugerencias: ejecuta la búsqueda completa.",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "searchSuggestionSemantics": "{name}. SKU {sku}. Abrir producto.",
+  "@searchSuggestionSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "sku": {
+        "type": "String"
+      }
+    }
+  },
+  "searchResultsCount": "{count, plural, =1{1 resultado} other{{count} resultados}}",
+  "@searchResultsCount": {
+    "description": "Total de coincidencias informado por el servidor.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchEmptyTitle": "No encontramos “{term}”",
+  "@searchEmptyTitle": {
+    "description": "Sin resultados (el servidor respondió 200 con lista vacía, RF-023).",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      }
+    }
+  },
+  "searchEmptyBody": "Revisa la ortografía o prueba con otra palabra. También puedes escribirnos y te ayudamos a encontrarlo.",
+  "searchEmptyRetry": "Volver a buscar",
+  "searchLoadingMore": "Cargando más resultados",
+  "searchLoadMoreFailed": "No pudimos cargar más resultados.",
+  "productDetailTitle": "Producto",
+  "productDetailUnavailableTitle": "Producto no disponible",
+  "productDetailUnavailableBody": "Este producto ya no está disponible.",
+  "productDetailBack": "Volver",
+  "productDetailGallerySemantics": "Galería de imágenes, imagen {current} de {total}",
+  "@productDetailGallerySemantics": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "productDetailGalleryPosition": "Imagen {current} de {total}",
+  "@productDetailGalleryPosition": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "productDetailGalleryPrevious": "Imagen anterior",
+  "productDetailGalleryNext": "Imagen siguiente",
+  "productDetailGalleryZoom": "Ampliar imagen",
+  "productDetailGalleryClose": "Cerrar galería",
+  "productDetailGalleryFullTitle": "Galería de imágenes",
+  "productDetailImageFallbackAlt": "Imagen de {name}",
+  "@productDetailImageFallbackAlt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productDetailPriceOnRequest": "Precio bajo consulta",
+  "productDetailOnSaleBadge": "Oferta",
+  "productDetailOutOfStockNotice": "Este producto está agotado.",
+  "productDetailBackorderNotice": "Este producto está disponible bajo pedido. Consúltanos por WhatsApp.",
+  "productDetailUnknownStockNotice": "Confirma la disponibilidad con nosotros por WhatsApp.",
+  "productDetailWhatsappMessageNoSku": "Hola, quiero más información sobre {name}.",
+  "@productDetailWhatsappMessageNoSku": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productDetailDescriptionTitle": "Descripción",
+  "productDetailAttributesTitle": "Especificaciones",
+  "productDetailAttributeSemantics": "{name}: {value}",
+  "@productDetailAttributeSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "productDetailLinkOpenFailed": "No se pudo abrir el enlace.",
+  "productDetailQuantityLabel": "Cantidad",
+  "productDetailQuantityDecrease": "Reducir cantidad",
+  "productDetailQuantityIncrease": "Aumentar cantidad",
+  "productDetailQuantitySemantics": "Cantidad, {quantity}",
+  "@productDetailQuantitySemantics": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "productDetailQuantityAnnounce": "Cantidad {quantity}",
+  "@productDetailQuantityAnnounce": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "productDetailQuantityRangeError": "La cantidad debe estar entre {min} y {max}.",
+  "@productDetailQuantityRangeError": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "productDetailAddToCart": "Agregar al carrito",
+  "productDetailAddedToCart": "Producto agregado al carrito",
+  "productDetailViewCart": "Ver carrito",
+  "@@x-generado": "GENERADO por tool/merge_arb.dart desde l10n/parts/*.arb. No editar a mano."
+}

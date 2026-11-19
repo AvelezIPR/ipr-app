@@ -1,0 +1,27 @@
+{
+  "data": {
+    "minSupportedVersion": { "android": "1.0.0", "ios": "1.0.0" },
+    "recommendedVersion": { "android": "1.1.0", "ios": "1.1.0" },
+    "features": { "checkoutEnabled": true, "pqrsEnabled": true, "btuCalculatorEnabled": false },
+    "contact": {
+      "whatsapp": { "number": "573000000000", "defaultMessage": "Hola, necesito información." },
+      "phone": { "display": "(604) 000 0000", "dial": "+576040000000" },
+      "salesEmail": "ventas@example.invalid",
+      "pqrsEmail": "pqrs@example.invalid",
+      "engineering": { "whatsapp": null, "email": null }
+    },
+    "legal": {
+      "terms": { "version": "2026-01", "url": "https://example.invalid/terminos" },
+      "privacyPolicy": { "version": "2026-01", "url": "https://example.invalid/privacidad" },
+      "dataRightsChannel": { "url": null, "email": "datos@example.invalid" },
+      "accountDeletionNotice": "Texto de ejemplo; el definitivo depende de la asesoría jurídica (D-12)."
+    },
+    "notices": {
+      "shipping": "Envío a todo Colombia.",
+      "warranty": "Garantía de fábrica.",
+      "priceOnRequest": "Escríbenos por WhatsApp."
+    },
+    "checkout": { "allowedHosts": ["example.invalid"], "returnPathPrefix": "/app/pedido" },
+    "catalog": { "pageSizes": [12, 24], "maxPage": 50 }
+  }
+}

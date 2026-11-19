@@ -1,0 +1,20 @@
+{
+  "id": 57,
+  "slug": "manometro-agotado",
+  "name": "Manómetro de refrigeración agotado",
+  "sku": "MAN-777",
+  "brand": { "name": "Value", "slug": null },
+  "price": {
+    "status": "priced",
+    "amount": 89900,
+    "regularAmount": 89900,
+    "onSale": false,
+    "discountPercent": 0,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "out_of_stock",
+  "purchasable": false,
+  "image": null,
+  "categorySlugs": ["herramientas"]
+}

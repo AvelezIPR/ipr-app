@@ -1,0 +1,6 @@
+{
+  "type": "https://example.invalid/problems/x",
+  "title": "x",
+  "status": 503,
+  "requestId": "3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b"
+}

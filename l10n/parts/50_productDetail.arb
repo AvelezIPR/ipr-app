@@ -1,0 +1,56 @@
+{
+  "productDetailTitle": "Producto",
+
+  "productDetailUnavailableTitle": "Producto no disponible",
+  "productDetailUnavailableBody": "Este producto ya no está disponible.",
+  "productDetailBack": "Volver",
+
+  "productDetailGallerySemantics": "Galería de imágenes, imagen {current} de {total}",
+  "@productDetailGallerySemantics": {
+    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "productDetailGalleryPosition": "Imagen {current} de {total}",
+  "@productDetailGalleryPosition": {
+    "placeholders": { "current": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "productDetailGalleryPrevious": "Imagen anterior",
+  "productDetailGalleryNext": "Imagen siguiente",
+  "productDetailGalleryZoom": "Ampliar imagen",
+  "productDetailGalleryClose": "Cerrar galería",
+  "productDetailGalleryFullTitle": "Galería de imágenes",
+  "productDetailImageFallbackAlt": "Imagen de {name}",
+  "@productDetailImageFallbackAlt": { "placeholders": { "name": { "type": "String" } } },
+
+  "productDetailPriceOnRequest": "Precio bajo consulta",
+  "productDetailOnSaleBadge": "Oferta",
+
+  "productDetailOutOfStockNotice": "Este producto está agotado.",
+  "productDetailBackorderNotice": "Este producto está disponible bajo pedido. Consúltanos por WhatsApp.",
+  "productDetailUnknownStockNotice": "Confirma la disponibilidad con nosotros por WhatsApp.",
+
+  "productDetailWhatsappMessageNoSku": "Hola, quiero más información sobre {name}.",
+  "@productDetailWhatsappMessageNoSku": { "placeholders": { "name": { "type": "String" } } },
+
+  "productDetailDescriptionTitle": "Descripción",
+  "productDetailAttributesTitle": "Especificaciones",
+  "productDetailAttributeSemantics": "{name}: {value}",
+  "@productDetailAttributeSemantics": {
+    "placeholders": { "name": { "type": "String" }, "value": { "type": "String" } }
+  },
+  "productDetailLinkOpenFailed": "No se pudo abrir el enlace.",
+
+  "productDetailQuantityLabel": "Cantidad",
+  "productDetailQuantityDecrease": "Reducir cantidad",
+  "productDetailQuantityIncrease": "Aumentar cantidad",
+  "productDetailQuantitySemantics": "Cantidad, {quantity}",
+  "@productDetailQuantitySemantics": { "placeholders": { "quantity": { "type": "int" } } },
+  "productDetailQuantityAnnounce": "Cantidad {quantity}",
+  "@productDetailQuantityAnnounce": { "placeholders": { "quantity": { "type": "int" } } },
+  "productDetailQuantityRangeError": "La cantidad debe estar entre {min} y {max}.",
+  "@productDetailQuantityRangeError": {
+    "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } }
+  },
+  "productDetailAddToCart": "Agregar al carrito",
+  "productDetailAddedToCart": "Producto agregado al carrito",
+  "productDetailViewCart": "Ver carrito"
+}

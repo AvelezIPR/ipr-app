@@ -1,0 +1,30 @@
+{
+  "data": {
+    "id": 4560,
+    "slug": "producto-con-html-malicioso",
+    "name": "Producto con descripción hostil",
+    "sku": "XSS-001",
+    "brand": null,
+    "price": {
+      "status": "priced",
+      "amount": 10000,
+      "regularAmount": 10000,
+      "onSale": false,
+      "discountPercent": null,
+      "currency": "COP",
+      "taxIncluded": true
+    },
+    "availability": "in_stock",
+    "purchasable": true,
+    "image": null,
+    "categorySlugs": [],
+    "shortDescription": "Texto seguro.",
+    "descriptionHtml": "<p>Texto legítimo</p><script>alert('xss1')</script><img src=\"https://evil.invalid/pixel.png\" onerror=\"alert('xss2')\"><a href=\"javascript:alert('xss3')\">enlace malo</a><iframe src=\"https://evil.invalid/frame\"></iframe><object data=\"x\"></object><form action=\"https://evil.invalid/post\"><input name=\"x\"></form>",
+    "gallery": [],
+    "attributes": [
+      { "name": "Nota", "slug": "pa_nota", "options": ["<b>negrita</b>", "<script>alert(1)</script>"] }
+    ],
+    "categories": [],
+    "webUrl": "https://staging.invalid/producto/producto-con-html-malicioso"
+  }
+}

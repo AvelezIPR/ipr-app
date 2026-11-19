@@ -1,0 +1,28 @@
+{
+  "data": {
+    "id": 4530,
+    "slug": "unidad-condensadora-especial",
+    "name": "Unidad condensadora especial",
+    "sku": "500-0145",
+    "brand": { "name": "Carrier", "slug": null },
+    "price": {
+      "status": "on_request",
+      "amount": null,
+      "regularAmount": null,
+      "onSale": false,
+      "discountPercent": null,
+      "currency": "COP",
+      "taxIncluded": true
+    },
+    "availability": "in_stock",
+    "purchasable": false,
+    "image": null,
+    "categorySlugs": ["refrigeracion"],
+    "shortDescription": "",
+    "descriptionHtml": "",
+    "gallery": [],
+    "attributes": [],
+    "categories": [{ "id": 12, "slug": "refrigeracion", "name": "Refrigeración" }],
+    "webUrl": "https://staging.invalid/producto/unidad-condensadora-especial"
+  }
+}

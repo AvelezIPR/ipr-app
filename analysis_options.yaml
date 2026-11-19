@@ -1,0 +1,25 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - lib/l10n/app_localizations*.dart
+    # Generado por ci/gen_coverage_helper.dart (importa todo lib/ para medir)
+    - test/coverage_helper_test.dart
+  errors:
+    # Infracciones de seguridad o de arquitectura nunca son "info".
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    # Justificado: en una app (no una librería) documentar cada miembro público
+    # añade ruido sin valor; las clases con reglas de negocio llevan comentario.
+    public_member_api_docs: false
+    # Justificado: dart format ya fija el ancho y las cadenas en español superan 80.
+    lines_longer_than_80_chars: false
+    # Se prefiere paquete: ver D1-D6 verificadas por ci/check_layer_rules.dart.
+    always_use_package_imports: true

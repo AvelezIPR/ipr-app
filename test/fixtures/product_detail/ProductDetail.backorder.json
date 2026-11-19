@@ -1,0 +1,28 @@
+{
+  "data": {
+    "id": 4550,
+    "slug": "valvula-bajo-pedido",
+    "name": "Válvula de expansión termostática",
+    "sku": "QA-0004",
+    "brand": { "name": "Danfoss", "slug": "danfoss" },
+    "price": {
+      "status": "priced",
+      "amount": 320000,
+      "regularAmount": 320000,
+      "onSale": false,
+      "discountPercent": null,
+      "currency": "COP",
+      "taxIncluded": true
+    },
+    "availability": "on_backorder",
+    "purchasable": false,
+    "image": null,
+    "categorySlugs": [],
+    "shortDescription": "",
+    "descriptionHtml": "",
+    "gallery": [],
+    "attributes": [],
+    "categories": [],
+    "webUrl": "https://staging.invalid/producto/valvula-bajo-pedido"
+  }
+}

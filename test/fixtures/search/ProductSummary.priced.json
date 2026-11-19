@@ -1,0 +1,20 @@
+{
+  "id": 501,
+  "slug": "valvula-solenoide-1-4-qa-0001",
+  "name": "Válvula solenoide 1/4\" para refrigerante",
+  "sku": "QA-0001",
+  "brand": { "name": "Elitech", "slug": "elitech" },
+  "price": {
+    "status": "priced",
+    "amount": 185000,
+    "regularAmount": 210000,
+    "onSale": true,
+    "discountPercent": 12,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "in_stock",
+  "purchasable": true,
+  "image": { "url": "https://staging.invalid/img/qa-0001.jpg", "alt": "Válvula solenoide", "width": 600, "height": 600 },
+  "categorySlugs": ["refrigeracion", "valvulas"]
+}

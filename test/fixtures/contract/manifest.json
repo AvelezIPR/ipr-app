@@ -1,0 +1,19 @@
+{
+  "comment": "Cada fixture declara el esquema de contract/openapi.yaml y si debe ser válido. Los inválidos prueban que el validador detecta incumplimientos. Datos sintéticos: ningún dato real.",
+  "fixtures": [
+    { "file": "AppConfig.valid.json", "schema": "AppConfig", "path": "data", "valid": true },
+    { "file": "AppConfig.missing-checkout.json", "schema": "AppConfig", "path": "data", "valid": false },
+    { "file": "Problem.503.json", "schema": "Problem", "valid": true },
+    { "file": "Problem.validation.json", "schema": "Problem", "valid": true },
+    { "file": "Problem.no-code.json", "schema": "Problem", "valid": false },
+    { "file": "Session.valid.json", "schema": "Session", "valid": true },
+    { "file": "Session.bad-prefix.json", "schema": "Session", "valid": false },
+    { "file": "CheckoutStatus.paid.json", "schema": "CheckoutStatus", "valid": true },
+    { "file": "CheckoutStatus.awaiting.json", "schema": "CheckoutStatus", "valid": true },
+    { "file": "CheckoutStatus.bad-state.json", "schema": "CheckoutStatus", "valid": false },
+    { "file": "OrderDetail.valid.json", "schema": "OrderDetail", "valid": true },
+    { "file": "OrderSummary.unknown-payment-state.json", "schema": "OrderSummary", "valid": false, "comment": "paymentState fuera del enum: el contrato lo marca; la app lo tolera como 'unknown' (CR-007)" },
+    { "file": "PqrsRequest.valid.json", "schema": "PqrsRequest", "valid": true },
+    { "file": "PqrsRequest.no-consent.json", "schema": "PqrsRequest", "valid": false }
+  ]
+}

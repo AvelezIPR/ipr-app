@@ -1,0 +1,9 @@
+{
+  "type": "https://example.invalid/problems/upstream_unavailable",
+  "title": "Servicio no disponible",
+  "status": 503,
+  "detail": "La tienda no está disponible en este momento.",
+  "code": "upstream_unavailable",
+  "requestId": "3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b",
+  "retryAfter": 5
+}

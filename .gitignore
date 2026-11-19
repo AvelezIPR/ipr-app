@@ -1,0 +1,33 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+coverage/
+*.iml
+.idea/
+.vscode/
+
+# Código generado (se regenera con build_runner y gen-l10n en CI)
+*.g.dart
+*.freezed.dart
+lib/l10n/app_localizations*.dart
+
+# Secretos y firmas: NUNCA en el repositorio (ADR-009, SC-038)
+.env
+.env.*
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+key.properties
+local.properties
+**/Pods/
+**/ios/Flutter/ephemeral/
+build/symbols/
+
+# Respaldos locales de la documentación
+_backup/
+test/coverage_helper_test.dart

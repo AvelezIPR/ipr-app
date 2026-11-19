@@ -1,0 +1,8 @@
+{
+  "environment": "prod",
+  "apiBaseUrl": "https://iprpartesyrepuestos.com/mobile/v1",
+  "deepLinkHost": "iprpartesyrepuestos.com",
+  "checkoutAllowedHosts": "iprpartesyrepuestos.com,ipr.iprpartesyrepuestos.com",
+  "mediaHosts": "iprpartesyrepuestos.com,ipr.iprpartesyrepuestos.com",
+  "supportWhatsApp": "573014021882"
+}

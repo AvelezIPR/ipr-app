@@ -1,0 +1,20 @@
+{
+  "id": 56,
+  "slug": "compresor-sin-precio",
+  "name": "Compresor scroll sin precio publicado",
+  "sku": "CMP-001",
+  "brand": null,
+  "price": {
+    "status": "on_request",
+    "amount": null,
+    "regularAmount": null,
+    "onSale": false,
+    "discountPercent": null,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "in_stock",
+  "purchasable": false,
+  "image": null,
+  "categorySlugs": []
+}

@@ -1,0 +1,8 @@
+{
+  "type": "peticion",
+  "name": "Persona de Prueba",
+  "email": "prueba@example.invalid",
+  "phone": "3000000000",
+  "message": "Mensaje de prueba.",
+  "acceptsDataPolicy": true
+}

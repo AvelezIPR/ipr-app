@@ -1,0 +1,20 @@
+{
+  "id": 101,
+  "slug": "detector-de-fugas-co2",
+  "name": "Detector de fugas CO2 R744 Elitech",
+  "sku": "500-0144",
+  "brand": { "name": "Elitech", "slug": "elitech" },
+  "price": {
+    "status": "priced",
+    "amount": 1445000,
+    "regularAmount": 1445000,
+    "onSale": false,
+    "discountPercent": null,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "in_stock",
+  "purchasable": true,
+  "image": { "url": "https://staging.invalid/img/detector.jpg", "alt": "Detector", "width": 800, "height": 800 },
+  "categorySlugs": ["herramientas"]
+}

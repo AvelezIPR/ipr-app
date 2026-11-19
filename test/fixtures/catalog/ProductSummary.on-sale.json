@@ -1,0 +1,20 @@
+{
+  "id": 103,
+  "slug": "minisplit-12000-oferta",
+  "name": "Minisplit 12.000 BTU inverter en oferta",
+  "sku": "700-1200",
+  "brand": { "name": "Elitech", "slug": "elitech" },
+  "price": {
+    "status": "priced",
+    "amount": 1890000,
+    "regularAmount": 2350000,
+    "onSale": true,
+    "discountPercent": 20,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "in_stock",
+  "purchasable": true,
+  "image": null,
+  "categorySlugs": ["minisplit"]
+}

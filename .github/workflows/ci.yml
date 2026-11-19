@@ -1,0 +1,85 @@
+# CI de la app Flutter — estructura de docs/09_devops/ci_cd.md §6.1.
+#
+# ESTADO: NO EJECUTADO. Este archivo no se ha corrido nunca en GitHub Actions
+# (en M0 el repositorio ni siquiera está bajo git). Las etapas 1-8 son las mismas
+# órdenes que se ejecutaron a mano en M0 (ver README, "Puertas de calidad").
+#
+# PENDIENTES antes de confiar en él (ci_cd.md §3.1, §9.4):
+#   * Fijar cada acción por SHA de commit (hoy usan etiquetas de versión mayor;
+#     verificar cada SHA en el repositorio de la acción).
+#   * Confirmar la acción de instalación de Flutter y que acepta 3.50.0.
+#   * Etapas 9-14 (compilación Android/iOS, emulador, E2E con staging y Wompi
+#     sandbox, release firmado, análisis de binario, SBOM): requieren staging (C2),
+#     JDK/Android SDK, runner macOS y secretos de firma. No están aquí.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read # mínimo privilegio; las PR nunca reciben secretos de firma
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4 # PENDIENTE: fijar por SHA
+
+      - name: Instalar Flutter (versión fijada en .flutter-version)
+        uses: subosito/flutter-action@v2 # PENDIENTE: fijar por SHA y verificar
+        with:
+          flutter-version: 3.50.0
+          cache: true
+
+      - name: Dependencias (con el lockfile versionado)
+        run: flutter pub get --enforce-lockfile
+
+      - name: Textos al día (l10n/parts → app_es.arb)
+        run: dart run tool/merge_arb.dart --check
+
+      - name: Código generado (freezed, json_serializable, l10n)
+        run: |
+          flutter gen-l10n
+          dart run build_runner build --delete-conflicting-outputs
+
+      # Etapa 1 — Formato
+      - name: Formato
+        run: dart format --output=none --set-exit-if-changed .
+
+      # Etapa 2 — Análisis (very_good_analysis)
+      - name: Análisis estático
+        run: flutter analyze --fatal-infos
+
+      # Etapa 3 — Reglas de dependencia D1-D6 (QG-M03)
+      - name: Reglas de capas
+        run: dart run ci/check_layer_rules.dart
+
+      # Etapa 5 — Contrato (lado app) (QG-M06)
+      - name: Fixtures contra el contrato fijado
+        run: dart run ci/check_openapi_fixtures.dart
+
+      # Configuración pública sin secretos (SC-038)
+      - name: Configuración pública
+        run: dart run ci/check_public_config.dart
+
+      # Etapas 4 y 6 — Pruebas, cobertura y guías de accesibilidad
+      - name: Pruebas con cobertura
+        run: |
+          dart run ci/gen_coverage_helper.dart
+          flutter test --coverage
+
+      - name: Umbrales de cobertura (≥ 70 % global, ≥ 90 % críticos)
+        run: dart run ci/check_coverage.dart
+
+      # Etapa 8 — Seguridad (PENDIENTE de elegir y fijar herramientas:
+      # gitleaks sobre el historial, OSV-Scanner sobre pubspec.lock, SBOM).
+      - name: Dependencias desactualizadas (informativo)
+        run: dart pub outdated
+        continue-on-error: true

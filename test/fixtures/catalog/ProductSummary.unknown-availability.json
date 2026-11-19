@@ -1,0 +1,20 @@
+{
+  "id": 105,
+  "slug": "producto-estado-futuro",
+  "name": "Producto con disponibilidad futura",
+  "sku": "900-0003",
+  "brand": null,
+  "price": {
+    "status": "priced",
+    "amount": 1000,
+    "regularAmount": 1000,
+    "onSale": false,
+    "discountPercent": null,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "discontinued",
+  "purchasable": false,
+  "image": null,
+  "categorySlugs": []
+}
