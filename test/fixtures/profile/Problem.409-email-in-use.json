@@ -1,0 +1,7 @@
+{
+  "type": "https://iprpartesyrepuestos.com/problems/email_in_use",
+  "title": "email_in_use",
+  "status": 409,
+  "code": "email_in_use",
+  "requestId": "11111111-1111-4111-8111-111111111111"
+}

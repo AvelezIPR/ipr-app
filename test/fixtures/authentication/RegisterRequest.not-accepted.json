@@ -1,0 +1,11 @@
+{
+  "email": "qa.cliente.nuevo@example.test",
+  "firstName": "Cliente",
+  "lastName": "Prueba",
+  "password": "Qa123456",
+  "acceptance": {
+    "termsVersion": "2026-01",
+    "privacyPolicyVersion": "2026-01",
+    "accepted": false
+  }
+}

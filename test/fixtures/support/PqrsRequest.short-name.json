@@ -1,0 +1,8 @@
+{
+  "type": "peticion",
+  "name": "Ab",
+  "email": "ana.prueba@example.invalid",
+  "phone": "3000000001",
+  "message": "Consulta corta.",
+  "acceptsDataPolicy": true
+}

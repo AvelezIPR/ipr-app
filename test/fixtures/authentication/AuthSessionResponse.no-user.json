@@ -1,0 +1,12 @@
+{
+  "data": {
+    "session": {
+      "accessToken": "ipra_iQapXE1ih8Cq8y-eEEcaMgDl-jdZLLH4WrVB2eeZkCQ",
+      "accessTokenExpiresIn": 900,
+      "refreshToken": "iprr_1Qhfpnbto0IEOdBb2GXQ_bYitXy8_PX3qdVZdy7X0FM",
+      "refreshTokenExpiresAt": "2026-12-20T15:00:00Z",
+      "tokenType": "Bearer",
+      "sessionId": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+    }
+  }
+}

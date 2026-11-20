@@ -1,0 +1,15 @@
+{
+  "slug": "sede-telefono-invalido",
+  "city": "Cali",
+  "name": "QA-SEDE-4 Sur",
+  "address": "Calle 1 # 2-3, Cali",
+  "upcoming": false,
+  "phones": [
+    { "type": "landline", "display": "Invalido", "dial": "abc" }
+  ],
+  "whatsapp": null,
+  "imageUrl": null,
+  "mapsQuery": "Calle 1 # 2-3, Cali",
+  "coordinates": null,
+  "openingHours": null
+}

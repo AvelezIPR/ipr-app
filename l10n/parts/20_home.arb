@@ -1,4 +1,10 @@
 {
+  "homeTopHelpTooltip": "Ayuda y contacto",
+  "homeTopCartTooltip": "Ir al carrito",
+  "homeTopCartTooltipWithCount": "Ir al carrito, {count, plural, =1{1 producto} other{{count} productos}}",
+  "@homeTopCartTooltipWithCount": { "placeholders": { "count": { "type": "int" } } },
+  "homeShortcutBtu": "Calculadora de BTU",
+
   "homeSearchHint": "Buscar por nombre, marca o referencia (SKU)",
   "homeSearchSemantics": "Buscar productos por nombre, marca o referencia",
 

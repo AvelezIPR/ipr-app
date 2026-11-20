@@ -1,0 +1,44 @@
+{
+  "data": {
+    "lines": [
+      {
+        "id": 4521,
+        "quantity": 1,
+        "status": "available",
+        "product": {
+          "id": 4521,
+          "slug": "compresor-scroll-24000-btu",
+          "name": "Compresor scroll 24.000 BTU R410A",
+          "sku": "QA-0001",
+          "brand": { "name": "Copeland", "slug": "copeland" },
+          "price": { "status": "priced", "amount": 100000, "regularAmount": null, "onSale": false, "discountPercent": null, "currency": "COP", "taxIncluded": true },
+          "availability": "in_stock",
+          "purchasable": true,
+          "image": { "url": "https://staging.invalid/media/compresor-1.jpg", "alt": "Compresor scroll vista frontal", "width": 800, "height": 800 },
+          "categorySlugs": ["compresores"]
+        },
+        "lineSubtotal": 100000
+      },
+      {
+        "id": 4522,
+        "quantity": 1,
+        "status": "available",
+        "product": {
+          "id": 4522,
+          "slug": "contactor-3-polos-25a",
+          "name": "Contactor 3 polos 25 A",
+          "sku": "QA-0005",
+          "brand": null,
+          "price": { "status": "priced", "amount": 50000, "regularAmount": 60000, "onSale": true, "discountPercent": 17, "currency": "COP", "taxIncluded": true },
+          "availability": "in_stock",
+          "purchasable": true,
+          "image": null,
+          "categorySlugs": ["electricos"]
+        },
+        "lineSubtotal": 50000
+      }
+    ],
+    "informativeSubtotal": { "amount": 150000, "currency": "COP", "taxIncluded": true },
+    "checkoutAllowed": true
+  }
+}

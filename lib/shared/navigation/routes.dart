@@ -26,8 +26,10 @@ abstract final class Routes {
   // Cuenta.
   static const orders = '/orders';
   static const profile = '/account/profile';
+  static const changePassword = '/account/password';
   static const addresses = '/account/addresses';
   static const deleteAccount = '/account/delete';
+  static const dataRights = '/account/data-rights';
 
   // Resto.
   static const branches = '/branches';
@@ -53,17 +55,30 @@ abstract final class Routes {
   static String categoryList(String slug) =>
       Uri(path: catalogList, queryParameters: {'category': slug}).toString();
 
+  /// Listado filtrado por capacidad BTU desde la calculadora (RF-089).
+  static String btuCatalogList(String btuSlug) =>
+      Uri(path: catalogList, queryParameters: {'btu': btuSlug}).toString();
+
+  /// Ficha de una sede: `/branches/<slug>`.
+  static String branchDetail(String slug) =>
+      '$branches/${Uri.encodeComponent(slug)}';
+
   /// Resultados de búsqueda: `/search?q=<texto>`.
   static String searchFor(String query) =>
       Uri(path: search, queryParameters: {'q': query}).toString();
+
+  /// Detalle de un pedido por su id entero: `/orders/<orderId>` (CR-054).
+  static String orderDetail(int orderId) => '$orders/$orderId';
 
   /// Rutas que exigen sesión (guarda del router).
   static const protectedPrefixes = <String>[
     checkout,
     orders,
     profile,
+    changePassword,
     addresses,
     deleteAccount,
+    dataRights,
   ];
 
   /// Prefijos internos válidos para el parámetro `from` del login.

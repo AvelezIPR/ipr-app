@@ -1,0 +1,20 @@
+{
+  "type": "https://example.invalid/problems/validation_failed",
+  "title": "Datos no válidos",
+  "status": 400,
+  "detail": "Revisa los datos ingresados.",
+  "code": "validation_failed",
+  "requestId": "3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b",
+  "errors": [
+    {
+      "field": "email",
+      "code": "invalid_email",
+      "message": "El correo no es válido."
+    },
+    {
+      "field": "password",
+      "code": "too_common",
+      "message": "Esa contraseña es muy común."
+    }
+  ]
+}

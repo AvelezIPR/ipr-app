@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "mock-bff",
+      "runtimeExecutable": "C:\\Users\\empr16\\tools\\flutter\\bin\\dart.bat",
+      "runtimeArgs": ["run", "tool/mock_bff/main.dart", "8787"],
+      "port": 8787
+    },
+    {
+      "name": "app-web",
+      "runtimeExecutable": "C:\\Users\\empr16\\tools\\flutter\\bin\\flutter.bat",
+      "runtimeArgs": ["run", "-d", "web-server", "--web-hostname", "localhost", "--web-port", "8080", "-t", "tool/preview/main.dart"],
+      "port": 8080
+    }
+  ]
+}

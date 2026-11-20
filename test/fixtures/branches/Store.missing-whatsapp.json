@@ -1,0 +1,15 @@
+{
+  "slug": "sede-sin-whatsapp",
+  "city": "Bogotá",
+  "name": "QA-SEDE-3 Norte",
+  "address": "Carrera 0 # 0-00, Bogotá",
+  "upcoming": false,
+  "phones": [
+    { "type": "landline", "display": "(601) 0000001", "dial": "+576010000001" }
+  ],
+  "whatsapp": null,
+  "imageUrl": null,
+  "mapsQuery": null,
+  "coordinates": null,
+  "openingHours": null
+}

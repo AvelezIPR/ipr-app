@@ -1,4 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ipr_mobile/features/cart/cart.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/spacing_tokens.dart';
 import 'package:material_ui/material_ui.dart';
@@ -42,14 +44,21 @@ class PlaceholderScreen extends StatelessWidget {
 
 /// Estructura de pestañas: barra inferior de 4 destinos (Inicio, Catálogo,
 /// Carrito, Cuenta) con pila independiente por pestaña (ADR-005).
-class ShellScaffold extends StatelessWidget {
+class ShellScaffold extends ConsumerWidget {
   const new({required this.shell, super.key});
 
   final StatefulNavigationShell shell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final cartUnits = ref.watch(cartUnitCountProvider);
+    Widget cartIcon(IconData icon) => cartUnits == 0
+        ? Icon(icon)
+        : Badge(
+            label: Text(cartUnits > 99 ? '99+' : '$cartUnits'),
+            child: Icon(icon),
+          );
     return Scaffold(
       body: shell,
       bottomNavigationBar: NavigationBar(
@@ -68,9 +77,10 @@ class ShellScaffold extends StatelessWidget {
             label: l10n.tabCatalog,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.shopping_cart_outlined),
-            selectedIcon: const Icon(Icons.shopping_cart),
+            icon: cartIcon(Icons.shopping_cart_outlined),
+            selectedIcon: cartIcon(Icons.shopping_cart),
             label: l10n.tabCart,
+            tooltip: cartUnits == 0 ? null : l10n.tabCartWithCount(cartUnits),
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),

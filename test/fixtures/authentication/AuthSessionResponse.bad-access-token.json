@@ -1,0 +1,21 @@
+{
+  "data": {
+    "session": {
+      "accessToken": "token-sin-prefijo",
+      "accessTokenExpiresIn": 900,
+      "refreshToken": "iprr_1Qhfpnbto0IEOdBb2GXQ_bYitXy8_PX3qdVZdy7X0FM",
+      "refreshTokenExpiresAt": "2026-12-20T15:00:00Z",
+      "tokenType": "Bearer",
+      "sessionId": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+    },
+    "user": {
+      "id": 4821,
+      "email": "qa.cliente.nuevo@example.test",
+      "firstName": "Cliente",
+      "lastName": "Prueba",
+      "displayName": "Cliente Prueba",
+      "billing": null,
+      "shipping": null
+    }
+  }
+}

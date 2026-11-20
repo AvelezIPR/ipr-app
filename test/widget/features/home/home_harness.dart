@@ -28,6 +28,9 @@ const _destinations = [
   '/catalog/sale',
   '/branches',
   '/product/:slug',
+  '/support',
+  '/cart',
+  '/tools/btu',
 ];
 
 /// Datos de contacto para las pruebas.

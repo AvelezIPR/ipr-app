@@ -1,0 +1,87 @@
+{
+  "data": {
+    "lines": [
+      {
+        "id": 4521,
+        "quantity": 2,
+        "status": "available",
+        "product": {
+          "id": 4521,
+          "slug": "compresor-scroll-24000-btu",
+          "name": "Compresor scroll 24.000 BTU R410A",
+          "sku": "500-0144",
+          "brand": { "name": "Copeland", "slug": "copeland" },
+          "price": { "status": "priced", "amount": 1234567, "regularAmount": 1500000, "onSale": true, "discountPercent": 18, "currency": "COP", "taxIncluded": true },
+          "availability": "in_stock",
+          "purchasable": true,
+          "image": { "url": "https://staging.invalid/media/compresor-1.jpg", "alt": "Compresor scroll vista frontal", "width": 800, "height": 800 },
+          "categorySlugs": ["refrigeracion", "compresores"]
+        },
+        "lineSubtotal": 2469134
+      },
+      {
+        "id": 4533,
+        "quantity": 1,
+        "status": "out_of_stock",
+        "product": {
+          "id": 4533,
+          "slug": "capacitor-45-5-uf",
+          "name": "Capacitor de marcha 45+5 uF",
+          "sku": "QA-0007",
+          "brand": null,
+          "price": { "status": "priced", "amount": 89900, "regularAmount": null, "onSale": false, "discountPercent": null, "currency": "COP", "taxIncluded": true },
+          "availability": "out_of_stock",
+          "purchasable": false,
+          "image": null,
+          "categorySlugs": ["electricos"]
+        },
+        "lineSubtotal": null
+      },
+      {
+        "id": 4540,
+        "quantity": 1,
+        "status": "on_backorder",
+        "product": {
+          "id": 4540,
+          "slug": "valvula-expansion-r410a",
+          "name": "Válvula de expansión R410A",
+          "sku": "QA-0008",
+          "brand": { "name": "Danfoss", "slug": "danfoss" },
+          "price": { "status": "priced", "amount": 350000, "regularAmount": null, "onSale": false, "discountPercent": null, "currency": "COP", "taxIncluded": true },
+          "availability": "on_backorder",
+          "purchasable": false,
+          "image": null,
+          "categorySlugs": ["refrigeracion"]
+        },
+        "lineSubtotal": null
+      },
+      {
+        "id": 4551,
+        "quantity": 3,
+        "status": "price_on_request",
+        "product": {
+          "id": 4551,
+          "slug": "tarjeta-universal-inverter",
+          "name": "Tarjeta universal inverter",
+          "sku": "QA-0009",
+          "brand": null,
+          "price": { "status": "on_request", "amount": null, "regularAmount": null, "onSale": false, "discountPercent": null, "currency": "COP", "taxIncluded": true },
+          "availability": "in_stock",
+          "purchasable": false,
+          "image": null,
+          "categorySlugs": ["electricos"]
+        },
+        "lineSubtotal": null
+      },
+      {
+        "id": 9999,
+        "quantity": 1,
+        "status": "not_found",
+        "product": null,
+        "lineSubtotal": null
+      }
+    ],
+    "informativeSubtotal": { "amount": 2469134, "currency": "COP", "taxIncluded": true },
+    "checkoutAllowed": false
+  }
+}

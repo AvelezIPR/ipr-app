@@ -1,0 +1,36 @@
+{
+  "data": {
+    "id": 1001,
+    "number": "1001",
+    "status": "processing",
+    "statusLabel": "En preparación",
+    "paymentState": "paid",
+    "createdAt": "2026-11-19T18:30:00Z",
+    "currency": "COP",
+    "total": 465000,
+    "itemCount": 2,
+    "subtotal": 450000,
+    "shippingTotal": 25000,
+    "discountTotal": 10000,
+    "taxTotal": 0,
+    "paymentMethodTitle": "Wompi",
+    "items": [
+      {
+        "productId": 501,
+        "name": "Compresor rotativo QA 12000 BTU",
+        "sku": "QA-COMP-12K",
+        "quantity": 1,
+        "total": 350000,
+        "imageUrl": "https://staging.invalid/media/compresor.jpg"
+      },
+      {
+        "productId": null,
+        "name": "Capacitor universal de marcha QA",
+        "sku": null,
+        "quantity": 2,
+        "total": 100000,
+        "imageUrl": null
+      }
+    ]
+  }
+}

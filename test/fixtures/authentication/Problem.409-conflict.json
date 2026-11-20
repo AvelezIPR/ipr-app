@@ -1,0 +1,8 @@
+{
+  "type": "https://example.invalid/problems/email_in_use",
+  "title": "Conflicto",
+  "status": 409,
+  "detail": "No se pudo completar la acción.",
+  "code": "email_in_use",
+  "requestId": "3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b"
+}

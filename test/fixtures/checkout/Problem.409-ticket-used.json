@@ -1,0 +1,8 @@
+{
+  "type": "https://example.invalid/problems/idempotency_conflict",
+  "title": "Conflicto",
+  "status": 409,
+  "detail": "El pago ya se había iniciado.",
+  "code": "idempotency_conflict",
+  "requestId": "3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b"
+}

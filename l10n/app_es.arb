@@ -7,6 +7,15 @@
   "tabHome": "Inicio",
   "tabCatalog": "Catálogo",
   "tabCart": "Carrito",
+  "tabCartWithCount": "Carrito, {count, plural, =1{1 producto} other{{count} productos}}",
+  "@tabCartWithCount": {
+    "description": "Etiqueta accesible de la pestaña Carrito con la cantidad de unidades",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "tabAccount": "Cuenta",
   "placeholderTitle": "En construcción",
   "placeholderBody": "Esta pantalla se construye en una rebanada posterior del plan de implementación.",
@@ -113,6 +122,17 @@
   },
   "sharedWhatsappMsgQuote": "Hola, quiero cotizar un proyecto o un volumen de compra.",
   "sharedWhatsappMsgAdvice": "Hola, necesito asesoría de IPR Partes y Repuestos.",
+  "homeTopHelpTooltip": "Ayuda y contacto",
+  "homeTopCartTooltip": "Ir al carrito",
+  "homeTopCartTooltipWithCount": "Ir al carrito, {count, plural, =1{1 producto} other{{count} productos}}",
+  "@homeTopCartTooltipWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeShortcutBtu": "Calculadora de BTU",
   "homeSearchHint": "Buscar por nombre, marca o referencia (SKU)",
   "homeSearchSemantics": "Buscar productos por nombre, marca o referencia",
   "homeCategoriesTitle": "Categorías",
@@ -292,6 +312,15 @@
   "catalogBrandSearchClear": "Borrar búsqueda",
   "catalogBrandSearchSubmit": "Buscar",
   "catalogSaleTitle": "Liquidaciones",
+  "catalogBtuFilterLabel": "Capacidad BTU",
+  "catalogBtuOptionLabel": "{capacity} BTU",
+  "@catalogBtuOptionLabel": {
+    "placeholders": {
+      "capacity": {
+        "type": "String"
+      }
+    }
+  },
   "searchTitle": "Buscar",
   "@searchTitle": {
     "description": "Título de la pantalla de búsqueda (PT-06/PT-07)."
@@ -445,5 +474,838 @@
   "productDetailAddToCart": "Agregar al carrito",
   "productDetailAddedToCart": "Producto agregado al carrito",
   "productDetailViewCart": "Ver carrito",
+  "authenticationLoginTitle": "Iniciar sesión",
+  "@authenticationLoginTitle": {
+    "description": "Título de la pantalla de inicio de sesión (PT-14, RF-040)."
+  },
+  "authenticationRegisterTitle": "Crear cuenta",
+  "@authenticationRegisterTitle": {
+    "description": "Título de la pantalla de registro (PT-15, RF-038)."
+  },
+  "authenticationRecoveryTitle": "Recuperar contraseña",
+  "@authenticationRecoveryTitle": {
+    "description": "Título de la pantalla de recuperación (PT-17, RF-042)."
+  },
+  "authenticationBackToHome": "Volver al inicio",
+  "authenticationSessionExpiredNotice": "Tu sesión terminó. Inicia sesión de nuevo. Tu carrito sigue igual.",
+  "@authenticationSessionExpiredNotice": {
+    "description": "Aviso superior del login cuando la sesión terminó (AC-044-5)."
+  },
+  "authenticationFieldLogin": "Correo o usuario",
+  "authenticationFieldEmail": "Correo electrónico",
+  "authenticationFieldFirstName": "Nombres",
+  "authenticationFieldLastName": "Apellidos",
+  "authenticationFieldPassword": "Contraseña",
+  "authenticationFieldNewPassword": "Contraseña (mínimo 8 caracteres)",
+  "authenticationFieldConfirmPassword": "Confirmar contraseña",
+  "authenticationPasswordShow": "Mostrar contraseña",
+  "authenticationPasswordHide": "Ocultar contraseña",
+  "authenticationErrorLoginRequired": "Escribe tu correo o tu usuario.",
+  "authenticationErrorPasswordRequired": "Escribe tu contraseña.",
+  "authenticationErrorEmailRequired": "Escribe tu correo electrónico.",
+  "authenticationErrorEmailInvalid": "Revisa el correo: debe tener el formato nombre@dominio.com.",
+  "authenticationErrorFirstNameRequired": "Escribe tus nombres.",
+  "authenticationErrorLastNameRequired": "Escribe tus apellidos.",
+  "authenticationErrorNewPasswordRequired": "Crea una contraseña.",
+  "authenticationErrorPasswordTooShort": "La contraseña debe tener al menos {min} caracteres.",
+  "@authenticationErrorPasswordTooShort": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
+  },
+  "authenticationErrorConfirmRequired": "Repite la contraseña para confirmarla.",
+  "authenticationErrorPasswordMismatch": "Las contraseñas no coinciden.",
+  "authenticationErrorTooLong": "Es demasiado largo: máximo {max} caracteres.",
+  "@authenticationErrorTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "authenticationErrorAcceptanceRequired": "Debes aceptar los términos y la política de tratamiento de datos para continuar.",
+  "authenticationErrorServerField": "Revisa este dato.",
+  "@authenticationErrorServerField": {
+    "description": "Texto de respaldo cuando el servidor señala un campo sin mensaje."
+  },
+  "authenticationSubmitting": "Enviando, espera un momento",
+  "authenticationSubmitWait": "Disponible en {time}",
+  "@authenticationSubmitWait": {
+    "description": "Texto del botón deshabilitado durante la espera por demasiados intentos.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "authenticationLoginSubmit": "Iniciar sesión",
+  "authenticationLoginForgotLink": "¿Olvidaste tu contraseña?",
+  "authenticationLoginRegisterLink": "¿No tienes cuenta? Regístrate",
+  "authenticationLoginLegalLink": "Términos y política de datos",
+  "authenticationLoginInvalidCredentials": "Correo o contraseña incorrectos.",
+  "@authenticationLoginInvalidCredentials": {
+    "description": "Mensaje ÚNICO ante cuenta inexistente, contraseña errónea, rol bloqueado o cuenta en eliminación (AC-040-2, AC-048-1). No debe cambiar según el caso."
+  },
+  "authenticationRateLimitedMessage": "Demasiados intentos. Espera un momento antes de intentarlo de nuevo.",
+  "@authenticationRateLimitedMessage": {
+    "description": "429: no indica si la cuenta existe (AC-045-7)."
+  },
+  "authenticationRateLimitedCountdown": "Podrás volver a intentarlo en {time}.",
+  "@authenticationRateLimitedCountdown": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "authenticationRegisterSubmit": "Registrarme",
+  "authenticationRegisterLoginLink": "¿Ya tienes cuenta? Inicia sesión",
+  "authenticationAcceptanceLabel": "Acepto los términos y condiciones y la política de tratamiento de datos.",
+  "authenticationTermsLink": "Leer los términos y condiciones",
+  "authenticationPrivacyLink": "Leer la política de tratamiento de datos",
+  "authenticationLegalUnavailableTitle": "No podemos crear la cuenta ahora",
+  "authenticationLegalUnavailableBody": "No pudimos cargar la versión vigente de los términos y la política de datos, y sin ella no se puede registrar la aceptación. Reintenta cuando tengas conexión.",
+  "authenticationRegisterConflictNotice": "No pudimos completar el registro con estos datos. Si ya tienes una cuenta, inicia sesión o recupera tu contraseña.",
+  "@authenticationRegisterConflictNotice": {
+    "description": "Mensaje NEUTRAL ante 409: no confirma que la cuenta exista. Comportamiento definitivo pendiente de H-03 (PA-02); ver RegisterConflictPolicy."
+  },
+  "authenticationRegisterConflictLogin": "Iniciar sesión",
+  "authenticationRegisterConflictRecover": "Recuperar contraseña",
+  "authenticationDiscardTitle": "¿Descartar los cambios?",
+  "authenticationDiscardBody": "Lo que escribiste en el formulario se perderá.",
+  "authenticationDiscardCancel": "Seguir editando",
+  "authenticationDiscardConfirm": "Descartar",
+  "authenticationRecoveryIntro": "Escribe el correo de tu cuenta y te enviaremos un enlace para crear una nueva contraseña.",
+  "authenticationRecoverySubmit": "Enviar enlace",
+  "authenticationRecoverySentTitle": "Revisa tu correo",
+  "authenticationRecoverySentBody": "Si el correo está registrado, te enviamos un enlace para crear una nueva contraseña. Ábrelo desde tu correo para completar el cambio.",
+  "@authenticationRecoverySentBody": {
+    "description": "Mensaje uniforme: idéntico exista o no la cuenta (AC-042-4, AC-045-5)."
+  },
+  "authenticationBackToLogin": "Volver a iniciar sesión",
+  "profileGuestTitle": "Inicia sesión o crea tu cuenta",
+  "profileGuestBody": "Puedes explorar el catálogo sin cuenta. Con una cuenta consultas tus pedidos y gestionas tus datos y direcciones.",
+  "profileLogin": "Iniciar sesión",
+  "profileRegister": "Crear cuenta",
+  "profileSignedInTitle": "Sesión iniciada",
+  "profileSignedInBody": "Desde aquí gestionas tus pedidos, tus datos y tus direcciones.",
+  "profileSectionAccount": "Mi cuenta",
+  "profileOrders": "Mis pedidos",
+  "profileData": "Mis datos",
+  "profileAddresses": "Direcciones",
+  "profileDataRights": "Derechos sobre mis datos",
+  "profileDeleteAccount": "Eliminar cuenta",
+  "profileSectionHelp": "Ayuda e información",
+  "profileLegal": "Términos y política de datos",
+  "profileLogout": "Cerrar sesión",
+  "profileLoggingOut": "Cerrando sesión",
+  "profileLoggedOut": "Sesión cerrada",
+  "profileLogoutFailed": "No pudimos cerrar la sesión. Intenta de nuevo.",
+  "profileScreenTitle": "Mis datos",
+  "profileNamesSection": "Nombre y apellido",
+  "profileFirstNameLabel": "Nombre",
+  "profileLastNameLabel": "Apellido",
+  "profileSaveNames": "Guardar nombre",
+  "profileNamesSaved": "Guardamos tus datos.",
+  "profileEmailSection": "Correo electrónico",
+  "profileEmailLabel": "Correo electrónico",
+  "profileCurrentPasswordLabel": "Contraseña actual",
+  "profileSaveEmail": "Cambiar correo",
+  "profileEmailSaved": "Actualizamos tu correo.",
+  "profileEmailConflict": "No pudimos actualizar el correo con los datos ingresados. Verifica e intenta de nuevo.",
+  "profileEmailUnchanged": "Escribe un correo distinto al actual.",
+  "profileChangePasswordTile": "Cambiar contraseña",
+  "profilePasswordTitle": "Cambiar contraseña",
+  "profilePasswordIntro": "Por seguridad, escribe tu contraseña actual para confirmar el cambio.",
+  "profileNewPasswordLabel": "Contraseña nueva (mínimo 8 caracteres)",
+  "profileConfirmPasswordLabel": "Confirmar contraseña nueva",
+  "profilePasswordSave": "Actualizar contraseña",
+  "profilePasswordSaved": "Actualizamos tu contraseña.",
+  "profilePasswordShow": "Mostrar contraseña",
+  "profilePasswordHide": "Ocultar contraseña",
+  "profileSubmitting": "Guardando",
+  "profileWaitSeconds": "{seconds, plural, =1{1 s} other{{seconds} s}}",
+  "@profileWaitSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "profileWaitMinutesSeconds": "{minutes} min {seconds} s",
+  "@profileWaitMinutesSeconds": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "profileSubmitWait": "Espera {wait}",
+  "@profileSubmitWait": {
+    "placeholders": {
+      "wait": {
+        "type": "String"
+      }
+    }
+  },
+  "profileRateLimitedWait": "Demasiados intentos. Espera {wait} antes de volver a intentar.",
+  "@profileRateLimitedWait": {
+    "placeholders": {
+      "wait": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCurrentPasswordInvalid": "La contraseña actual no es correcta.",
+  "profileErrorRequired": "Este campo es obligatorio.",
+  "profileErrorTooLong": "Máximo {max} caracteres.",
+  "@profileErrorTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "profileErrorEmailInvalid": "Escribe un correo válido.",
+  "profileErrorPasswordShort": "Debe tener al menos 8 caracteres.",
+  "profileErrorPasswordMismatch": "Las contraseñas no coinciden.",
+  "profileErrorNationalId": "Escribe una cédula o NIT válido (3 a 30 caracteres: dígitos, puntos o guiones).",
+  "profileErrorPhone": "Escribe un teléfono válido (7 a 20 caracteres).",
+  "profileErrorDepartment": "Selecciona un departamento válido.",
+  "profileErrorCity": "Selecciona un municipio o ciudad.",
+  "profileAddressesTitle": "Direcciones",
+  "profileAddressBillingTab": "Facturación",
+  "profileAddressShippingTab": "Envío",
+  "profileAddressCountryLabel": "País: Colombia",
+  "profileAddressNationalIdLabel": "Cédula o NIT",
+  "profileAddressNationalIdOptionalLabel": "Cédula o NIT (opcional)",
+  "profileAddressCompanyLabel": "Empresa (opcional)",
+  "profileAddressLine1Label": "Dirección",
+  "profileAddressLine2Label": "Complemento / apartamento / oficina (opcional)",
+  "profileAddressDepartmentLabel": "Departamento",
+  "profileAddressCityLabel": "Ciudad / municipio",
+  "profileAddressCitySelectFirst": "Selecciona primero un departamento",
+  "profileAddressPostcodeLabel": "Código postal (opcional)",
+  "profileAddressPhoneLabel": "Teléfono",
+  "profileAddressPhoneOptionalLabel": "Teléfono (opcional)",
+  "profileAddressSaveBilling": "Guardar facturación",
+  "profileAddressSaveShipping": "Guardar envío",
+  "profileAddressSaved": "Guardamos la dirección.",
+  "profileDeleteTitle": "Eliminar cuenta",
+  "profileDeleteWarningTitle": "Antes de continuar",
+  "profileDeleteNoticeUnavailable": "No pudimos cargar el detalle completo de retención desde el servidor. Al confirmar, cerraremos tu sesión en todos los dispositivos y registraremos tu solicitud de eliminación.",
+  "profileDeleteNoticeRetry": "Recargar información",
+  "profileDeleteConfirmCheckbox": "Entiendo qué datos se eliminan y cuáles se conservan, y confirmo que quiero eliminar mi cuenta.",
+  "profileDeleteConfirmRequired": "Marca la casilla de confirmación para continuar.",
+  "profileDeletePasswordIntro": "Escribe tu contraseña actual para autorizar la eliminación.",
+  "profileDeleteSubmit": "Eliminar mi cuenta",
+  "profileDeleteDeleting": "Eliminando cuenta",
+  "profileDeleteCancel": "Cancelar",
+  "profileDeleteSuccess": "Registramos la eliminación de tu cuenta y cerramos tu sesión.",
+  "profileDeleteFailed": "No pudimos completar la eliminación. Tu cuenta sigue activa; intenta de nuevo.",
+  "profileDataRightsTitle": "Derechos sobre mis datos",
+  "profileDataRightsIntro": "Desde aquí puedes consultar los canales publicados por IPR para ejercer tus derechos de consulta, rectificación, actualización o supresión de datos personales.",
+  "profileDataRightsDirectDeletionTitle": "Eliminación directa de cuenta",
+  "profileDataRightsDirectDeletionBody": "Si deseas eliminar tu cuenta y revocar tus sesiones, puedes hacerlo directamente desde la app.",
+  "profileDataRightsDirectDeletionButton": "Ir a eliminar cuenta",
+  "profileDataRightsChannelTitle": "Canal corporativo de atención",
+  "profileDataRightsOpenPortal": "Abrir canal de derechos en el navegador",
+  "profileDataRightsEmailLabel": "Escribir a {email}",
+  "@profileDataRightsEmailLabel": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "profileDataRightsEmailCopied": "Copiamos el correo {email}.",
+  "@profileDataRightsEmailCopied": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "profileDataRightsCopyEmail": "Copiar correo",
+  "profileDataRightsUnavailable": "El canal corporativo de derechos no está publicado en este momento. Intenta de nuevo en unos minutos o contáctanos por WhatsApp.",
+  "profileDataRightsOpenFailed": "No pudimos abrir el enlace en el navegador.",
+  "ordersListTitle": "Mis pedidos",
+  "ordersEmptyTitle": "Aún no tienes pedidos",
+  "ordersEmptyBody": "Cuando realices una compra verás aquí el historial y el estado de cada pedido.",
+  "ordersEmptyAction": "Explorar catálogo",
+  "ordersOrderNumber": "Pedido #{number}",
+  "@ordersOrderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersItemCount": "{count, plural, =1{1 producto} other{{count} productos}}",
+  "@ordersItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ordersLoadMoreError": "No pudimos cargar más pedidos.",
+  "ordersLoadingMore": "Cargando más pedidos",
+  "ordersDetailTitle": "Pedido #{number}",
+  "@ordersDetailTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailFallbackTitle": "Detalle del pedido",
+  "ordersDetailNotFoundTitle": "Pedido no encontrado",
+  "ordersDetailNotFoundBody": "No encontramos este pedido o no está disponible para tu cuenta.",
+  "ordersDetailBackToList": "Volver a mis pedidos",
+  "ordersDetailDate": "Fecha",
+  "ordersDetailStatus": "Estado",
+  "ordersDetailPaymentMethod": "Método de pago",
+  "ordersDetailProductsSection": "Productos",
+  "ordersDetailQuantity": "Cantidad: {quantity}",
+  "@ordersDetailQuantity": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "ordersDetailSku": "Ref. {sku}",
+  "@ordersDetailSku": {
+    "placeholders": {
+      "sku": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailSubtotal": "Subtotal",
+  "ordersDetailShipping": "Envío",
+  "ordersDetailDiscount": "Descuento",
+  "ordersDetailTax": "Impuestos",
+  "ordersDetailTotal": "Total",
+  "ordersDetailPaymentFallback": "Por confirmar",
+  "ordersPaymentStatePaid": "Pagado",
+  "ordersPaymentStatePending": "Pago pendiente",
+  "ordersPaymentStateFailed": "Pago rechazado",
+  "ordersPaymentStateCancelled": "Pago cancelado",
+  "ordersPaymentStateRefunded": "Reembolsado",
+  "ordersPaymentStateUnknown": "En proceso",
+  "supportLegalTitle": "Información legal",
+  "supportLegalIntro": "Documentos publicados por IPR. Se abren en el navegador del sistema.",
+  "supportLegalTerms": "Términos y condiciones",
+  "supportLegalPrivacy": "Política de tratamiento de datos personales",
+  "supportLegalDataRights": "Derechos sobre tus datos personales",
+  "supportLegalVersion": "Versión {version}",
+  "@supportLegalVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "supportLegalOpensInBrowser": "Se abre en el navegador",
+  "supportLegalEmailAction": "Escribir a {email}",
+  "@supportLegalEmailAction": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "supportLegalEmailCopied": "Copiamos la dirección {email}.",
+  "@supportLegalEmailCopied": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "supportLegalCopyEmail": "Copiar correo",
+  "supportLegalDeletionTitle": "Eliminación de cuenta",
+  "supportLegalEmptyTitle": "Los documentos legales no están disponibles por ahora",
+  "supportLegalEmptyBody": "Intenta de nuevo en unos minutos. Si lo necesitas, escríbenos por WhatsApp.",
+  "supportLegalStillEmpty": "Todavía no están disponibles. Revisa tu conexión e intenta de nuevo.",
+  "supportLegalOpenFailedTitle": "No pudimos abrir el documento",
+  "supportLegalUnavailableBody": "Este documento no está disponible en la app por ahora. Escríbenos y te ayudamos.",
+  "supportLegalOpenFailedBody": "No pudimos abrirlo. Revisa tu conexión e intenta de nuevo, o escríbenos y te ayudamos.",
+  "supportLegalWhatsapp": "Pedir ayuda por WhatsApp",
+  "supportLegalWhatsappMsg": "Hola, no pude abrir un documento legal (términos o política de datos) en la app. ¿Me pueden ayudar?",
+  "supportLegalClose": "Cerrar",
+  "supportHelpTitle": "Ayuda y contacto",
+  "supportHelpIntro": "Canales oficiales de atención corporativa de IPR.",
+  "supportHelpChannelsTitle": "Canales de atención",
+  "supportHelpWhatsapp": "Atención por WhatsApp",
+  "supportHelpWhatsappSubtitle": "Conversar con un asesor",
+  "supportHelpQuoteWhatsapp": "Cotizar por WhatsApp",
+  "supportHelpPhone": "Teléfono de atención",
+  "supportHelpEmail": "Correo de ventas",
+  "supportHelpPqrs": "Peticiones, quejas, reclamos y sugerencias (PQRS)",
+  "supportHelpPqrsSubtitle": "Radica una solicitud formal",
+  "supportHelpEngineering": "Asesoría técnica e ingeniería",
+  "supportHelpEngineeringSubtitle": "Proyectos de aire acondicionado y refrigeración",
+  "supportHelpBranches": "Sedes a nivel nacional",
+  "supportHelpBranchesSubtitle": "Consulta direcciones y canales de contacto",
+  "supportHelpLegal": "Información legal y privacidad",
+  "supportHelpCallFailed": "No pudimos abrir el marcador del teléfono.",
+  "supportHelpEmailCopied": "Copiamos el correo {email}.",
+  "@supportHelpEmailCopied": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "supportEngineeringTitle": "Asesoría técnica",
+  "supportEngineeringIntro": "Acompañamiento técnico corporativo para dimensionamiento, selección de equipos e insumos en aire acondicionado y refrigeración.",
+  "supportEngineeringAcTitle": "Aire acondicionado",
+  "supportEngineeringAcBody": "Orientación en capacidad térmica, selección de minisplit, cassette, piso techo y sistemas de climatización.",
+  "supportEngineeringRefTitle": "Refrigeración",
+  "supportEngineeringRefBody": "Asesoría en cuartos fríos, unidades condensadoras, evaporadores, compresores y repuestos industriales.",
+  "supportEngineeringContactTitle": "Canales corporativos de ingeniería",
+  "supportEngineeringWhatsapp": "Escribir por WhatsApp de ingeniería",
+  "supportEngineeringWhatsappMsg": "Hola, solicito asesoría técnica corporativa para un proyecto o selección de equipos.",
+  "supportEngineeringPhone": "Llamar al PBX de atención",
+  "supportEngineeringEmailAction": "Escribir a {email}",
+  "@supportEngineeringEmailAction": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "supportEngineeringCopyEmail": "Copiar correo corporativo",
+  "supportPqrsTitle": "PQRS",
+  "supportPqrsIntro": "Envía tu petición, queja, reclamo o sugerencia al buzón corporativo de atención.",
+  "supportPqrsDisabledTitle": "El formulario PQRS no está disponible ahora",
+  "supportPqrsDisabledBody": "Puedes comunicarte con nosotros por nuestros otros canales de atención.",
+  "supportPqrsRetryConfig": "Volver a comprobar",
+  "supportPqrsTypeLabel": "Tipo de solicitud",
+  "supportPqrsTypePeticion": "Petición",
+  "supportPqrsTypeQueja": "Queja",
+  "supportPqrsTypeReclamo": "Reclamo",
+  "supportPqrsTypeSugerencia": "Sugerencia",
+  "supportPqrsNameLabel": "Nombre completo",
+  "supportPqrsEmailLabel": "Correo electrónico",
+  "supportPqrsPhoneLabel": "Celular o teléfono",
+  "supportPqrsOrderRefLabel": "Número de pedido o factura (opcional)",
+  "supportPqrsMessageLabel": "Mensaje",
+  "supportPqrsMessageCounter": "{count}/{max}",
+  "@supportPqrsMessageCounter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "supportPqrsDataPolicyLabel": "Acepto la política de tratamiento de datos personales para gestionar esta solicitud.",
+  "supportPqrsDataPolicyLink": "Consultar política de tratamiento de datos",
+  "supportPqrsSubmit": "Enviar solicitud",
+  "supportPqrsSubmitting": "Enviando...",
+  "supportPqrsSuccessTitle": "Solicitud enviada",
+  "supportPqrsSuccessBody": "Su solicitud fue enviada correctamente al buzón corporativo de atención.",
+  "supportPqrsErrorRateLimit": "Demasiadas solicitudes, inténtelo de nuevo en unos minutos.",
+  "supportPqrsErrorServer": "No se pudo enviar, intente más tarde.",
+  "supportPqrsErrorName": "Ingresa un nombre entre 3 y 120 caracteres.",
+  "supportPqrsErrorEmail": "Ingresa un correo electrónico válido (máximo 254 caracteres).",
+  "supportPqrsErrorPhone": "Ingresa un teléfono válido entre 7 y 20 dígitos o signos.",
+  "supportPqrsErrorOrderRef": "El número de pedido o factura no puede superar 60 caracteres.",
+  "supportPqrsErrorMessage": "Escribe un mensaje entre 1 y 1000 caracteres.",
+  "supportPqrsErrorDataPolicy": "Debes aceptar la política de tratamiento de datos personales.",
+  "branchesTitle": "Sedes",
+  "branchesEmptyTitle": "No hay sedes disponibles por ahora",
+  "branchesEmptyBody": "Vuelve a intentar en unos minutos o escríbenos por WhatsApp.",
+  "branchesUpcomingBadge": "Próximamente",
+  "branchesUpcomingBody": "Esta sede estará disponible próximamente. Aún no tiene canales de atención habilitados.",
+  "branchesOpenDetailsSemantics": "Abrir ficha de la sede {name}",
+  "@branchesOpenDetailsSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "branchesDetailTitle": "Detalle de sede",
+  "branchesAddressLabel": "Dirección",
+  "branchesPhonesLabel": "Teléfonos",
+  "branchesPhoneLandline": "Fijo / PBX",
+  "branchesPhoneSalesParts": "Ventas de repuestos",
+  "branchesPhoneSalesAc": "Ventas de aire acondicionado",
+  "branchesPhoneMobile": "Celular corporativo",
+  "branchesPhoneMobileSecondary": "Celular corporativo adicional",
+  "branchesCallAction": "Llamar a {display}",
+  "@branchesCallAction": {
+    "placeholders": {
+      "display": {
+        "type": "String"
+      }
+    }
+  },
+  "branchesWhatsappAction": "Escribir por WhatsApp",
+  "branchesWhatsappMessage": "Hola IPR, deseo comunicarme con la sede {branchName}.",
+  "@branchesWhatsappMessage": {
+    "placeholders": {
+      "branchName": {
+        "type": "String"
+      }
+    }
+  },
+  "branchesDirectionsAction": "Cómo llegar",
+  "branchesCallFailed": "No pudimos abrir el marcador del teléfono.",
+  "branchesMapsFailed": "No pudimos abrir el mapa para esta dirección.",
+  "technicalToolsBtuTitle": "Calculadora de BTU",
+  "technicalToolsBtuDisabledTitle": "Calculadora no disponible",
+  "technicalToolsBtuDisabledBody": "Esta herramienta técnica no está habilitada en este momento.",
+  "technicalToolsBtuIntro": "Estima la capacidad térmica requerida para tu espacio según dimensiones, ocupación, equipos y clima.",
+  "technicalToolsBtuLengthLabel": "Largo del espacio (m)",
+  "technicalToolsBtuWidthLabel": "Ancho del espacio (m)",
+  "technicalToolsBtuHeightLabel": "Alto del espacio (m)",
+  "technicalToolsBtuOccupantsLabel": "Número de ocupantes",
+  "technicalToolsBtuEquipmentLabel": "Equipos que generan calor (computadores, TV, etc.)",
+  "technicalToolsBtuClimateLabel": "Clima de la zona",
+  "technicalToolsBtuClimateCold": "Frío",
+  "technicalToolsBtuClimateTemperate": "Templado",
+  "technicalToolsBtuClimateWarm": "Cálido",
+  "technicalToolsBtuCalculate": "Calcular BTU",
+  "technicalToolsBtuErrorLength": "Ingresa un largo válido entre 1 y 15 metros.",
+  "technicalToolsBtuErrorWidth": "Ingresa un ancho válido entre 1 y 15 metros.",
+  "technicalToolsBtuErrorHeight": "Ingresa un alto válido entre 2 y 4 metros.",
+  "technicalToolsBtuErrorOccupants": "Ingresa un número entero entre 1 y 10 ocupantes.",
+  "technicalToolsBtuErrorEquipment": "Ingresa un número entero entre 0 y 10 equipos.",
+  "technicalToolsBtuResultTitle": "Resultado estimado",
+  "technicalToolsBtuRequiredLabel": "Capacidad requerida",
+  "technicalToolsBtuValueFormat": "{btu} BTU",
+  "@technicalToolsBtuValueFormat": {
+    "placeholders": {
+      "btu": {
+        "type": "String"
+      }
+    }
+  },
+  "technicalToolsBtuSuggestedLabel": "Capacidad comercial sugerida",
+  "technicalToolsBtuNotice": "Aviso: este cálculo es una estimación referencial y no reemplaza la visita o validación técnica de Ingeniería IPR.",
+  "technicalToolsBtuOverMaxTitle": "Supera la capacidad máxima sugerible ({maxBtu} BTU)",
+  "@technicalToolsBtuOverMaxTitle": {
+    "placeholders": {
+      "maxBtu": {
+        "type": "String"
+      }
+    }
+  },
+  "technicalToolsBtuOverMaxBody": "Para capacidades superiores a 36.000 BTU te recomendamos asesoría técnica personalizada para seleccionar el equipo adecuado.",
+  "technicalToolsBtuContactAdvisor": "Contactar a un asesor",
+  "technicalToolsBtuAdvisorMsg": "Hola, usé la calculadora BTU y obtuve un requerimiento estimado de {requiredBtu} BTU (supera 36.000 BTU). ¿Me pueden asesorar?",
+  "@technicalToolsBtuAdvisorMsg": {
+    "placeholders": {
+      "requiredBtu": {
+        "type": "String"
+      }
+    }
+  },
+  "technicalToolsBtuViewProducts": "Ver equipos",
+  "cartTitle": "Carrito",
+  "cartEmptyTitle": "Tu carrito está vacío",
+  "cartEmptyBody": "Explora el catálogo y agrega los repuestos que necesites.",
+  "cartEmptyAction": "Explorar catálogo",
+  "cartVerifying": "Verificando precios y disponibilidad",
+  "cartVerifyFailed": "No pudimos verificar precios ni disponibilidad. Tus productos siguen guardados en el carrito.",
+  "cartVerifyFailedOffline": "Sin conexión: puedes seguir armando tu carrito. Para pagar necesitamos verificar precios, y eso requiere internet.",
+  "cartBlockedBannerTitle": "{count, plural, =1{Hay 1 producto que no se puede comprar} other{Hay {count} productos que no se pueden comprar}}",
+  "@cartBlockedBannerTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartBlockedBannerBody": "Quítalos del carrito para poder pagar.",
+  "cartBlockedBannerAction": "Quitar",
+  "cartChangedBannerTitle": "{count, plural, =1{El precio de 1 producto cambió} other{El precio de {count} productos cambió}}",
+  "@cartChangedBannerTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartChangedBannerBody": "Revisa los precios nuevos y acéptalos para poder pagar.",
+  "cartChangedBannerAction": "Ajustar",
+  "cartLineUnnamed": "Producto (ref. {id})",
+  "@cartLineUnnamed": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "cartLineSubtotal": "Subtotal de la línea: {amount}",
+  "@cartLineSubtotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cartLineSubtotalSemantics": "Subtotal de la línea: {amount} pesos",
+  "@cartLineSubtotalSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cartLinePriceChanged": "Precio actualizado: antes {previous}, ahora {current}",
+  "@cartLinePriceChanged": {
+    "placeholders": {
+      "previous": {
+        "type": "String"
+      },
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "cartLinePriceChangedToNone": "Precio actualizado: antes {previous}, ahora sin precio",
+  "@cartLinePriceChangedToNone": {
+    "placeholders": {
+      "previous": {
+        "type": "String"
+      }
+    }
+  },
+  "cartLinePriceChangedFromNone": "Precio actualizado: ahora {current}",
+  "@cartLinePriceChangedFromNone": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "cartLineAvailabilityChanged": "La disponibilidad de este producto cambió.",
+  "cartStatusOutOfStock": "Agotado: quítalo para poder pagar",
+  "cartStatusOnBackorder": "Bajo pedido: no se puede comprar en la app",
+  "cartStatusPriceOnRequest": "Sin precio: no se puede comprar en la app",
+  "cartStatusNotFound": "Ya no está disponible",
+  "cartQuantityDecrease": "Disminuir cantidad de {name}",
+  "@cartQuantityDecrease": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cartQuantityIncrease": "Aumentar cantidad de {name}",
+  "@cartQuantityIncrease": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cartQuantitySemantics": "Cantidad de {name}: {quantity}",
+  "@cartQuantitySemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "cartQuantityMaxNote": "Máximo {max} por producto",
+  "@cartQuantityMaxNote": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "cartLineRemove": "Quitar {name} del carrito",
+  "@cartLineRemove": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cartLineRemoved": "Quitaste {name} del carrito",
+  "@cartLineRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cartUndo": "Deshacer",
+  "cartSubtotalLabel": "Subtotal informativo (IVA incluido)",
+  "cartSubtotalSemantics": "Subtotal informativo, {amount} pesos, IVA incluido",
+  "@cartSubtotalSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "cartSubtotalNone": "Sin subtotal",
+  "cartSubtotalUnverified": "Precios sin verificar: se confirmarán antes de pagar.",
+  "cartSubtotalExcluded": "{count, plural, =1{No incluye 1 producto sin precio o no disponible.} other{No incluye {count} productos sin precio o no disponibles.}}",
+  "@cartSubtotalExcluded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartSummaryNotice": "Los impuestos, el envío (lo eliges en el pago según la transportadora) y el total final se confirman en el pago.",
+  "cartPayAction": "Pagar",
+  "cartPayChecking": "Verificando…",
+  "cartPayHintUnverified": "Antes de pagar verificaremos precios y disponibilidad. Para pagar necesitas conexión a internet.",
+  "cartPayHintBlocked": "Quita los productos que no se pueden comprar para continuar.",
+  "cartPayHintChanges": "Acepta los cambios de precio (Ajustar) para continuar.",
+  "cartPayHintServerDenied": "Por ahora no podemos continuar con el pago. Revisa tu carrito o intenta de nuevo más tarde.",
+  "cartPayHintDisabled": "El pago en la app no está disponible por ahora. Inténtalo más tarde.",
+  "cartPayNeedsConnection": "Para pagar necesitas conexión a internet.",
+  "cartPayVerifyFailed": "No pudimos verificar tu carrito. Intenta de nuevo.",
+  "cartPayBlockedSnack": "Hay cambios en tu carrito. Revísalos antes de pagar.",
+  "cartAddLineLimit": "Tu carrito ya tiene 100 productos distintos. Quita alguno para añadir otro.",
+  "cartAddNotPurchasable": "Este producto no se puede comprar en la app.",
+  "cartAddInvalid": "No pudimos añadir el producto. Revisa la cantidad.",
+  "cartAddQuantityLimited": "Máximo {max} unidades por producto: ajustamos la cantidad.",
+  "@cartAddQuantityLimited": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "checkoutTitle": "Pagar",
+  "checkoutResultTitle": "Resultado del pago",
+  "checkoutBack": "Volver",
+  "checkoutSummaryTitle": "Resumen de tu pedido",
+  "checkoutLineUnnamed": "Producto {id}",
+  "@checkoutLineUnnamed": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "checkoutLineSemantics": "{name}, cantidad {quantity}",
+  "@checkoutLineSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "checkoutLineQuantity": "Cantidad: {quantity}",
+  "@checkoutLineQuantity": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "checkoutPriceNotice": "El precio final lo confirma la tienda al pagar.",
+  "checkoutSecureNotice": "El pago se completa de forma segura en tu navegador; no guardamos datos de tarjeta.",
+  "checkoutNeedsConnection": "Necesitas conexión a internet para pagar.",
+  "checkoutPriorPendingNotice": "Tienes un pedido con pago en verificación. Revísalo en Mis pedidos antes de pagar de nuevo para no duplicarlo.",
+  "checkoutEmptyTitle": "Tu carrito está vacío",
+  "checkoutEmptyBody": "Agrega productos para poder pagar.",
+  "checkoutEmptyAction": "Ver catálogo",
+  "checkoutPayButton": "Pagar",
+  "checkoutPayBusy": "Procesando…",
+  "checkoutVerifyingButton": "Verificando…",
+  "checkoutContinueVerifying": "Continuar verificando",
+  "checkoutVerifyAgain": "Verificar de nuevo",
+  "checkoutRetryPayment": "Reintentar pago",
+  "checkoutBackToCart": "Volver al carrito",
+  "checkoutBackToHome": "Ir a Inicio",
+  "checkoutViewOrders": "Ver mis pedidos",
+  "checkoutSignIn": "Iniciar sesión",
+  "checkoutRetryIn": "Podrás reintentar en {seconds} s",
+  "@checkoutRetryIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "checkoutProgressLabel": "Progreso del pago",
+  "checkoutPhaseIdle": "Listo para pagar.",
+  "checkoutPhaseRevalidating": "Revisando tu carrito…",
+  "checkoutPhaseRequestingTicket": "Preparando el pago seguro…",
+  "checkoutPhaseTicketExpired": "El enlace de pago venció. Preparando uno nuevo…",
+  "checkoutPhaseOpeningBrowser": "Abriendo el navegador seguro…",
+  "checkoutPhaseAwaitingResult": "Completa el pago en el navegador. Cuando termines, vuelve a la app y toca «Continuar verificando».",
+  "checkoutPhaseVerifying": "Verificando tu pago con la tienda…",
+  "checkoutReviewTitle": "Revisa tu carrito antes de pagar",
+  "checkoutReviewChanges": "Algunos precios o cantidades cambiaron.",
+  "checkoutReviewUnavailable": "Algunos productos ya no están disponibles.",
+  "checkoutReviewBlocked": "No se puede pagar hasta que ajustes el carrito.",
+  "checkoutReviewContinue": "Continuar con el pago",
+  "checkoutReviewEdit": "Revisar carrito",
+  "checkoutFailureNoConnection": "No tienes conexión. Conéctate a internet para pagar; tu carrito sigue intacto.",
+  "checkoutFailureTimeout": "La tienda tardó demasiado en responder. Inténtalo de nuevo; tu carrito sigue intacto.",
+  "checkoutFailureStoreUnavailable": "No se pudo conectar con la tienda, inténtalo de nuevo. Tu carrito sigue intacto.",
+  "checkoutFailureRateLimited": "Hiciste demasiados intentos. Espera un momento y vuelve a intentar.",
+  "checkoutFailureCartInvalid": "Tu carrito cambió o la tienda no lo aceptó. Revísalo e inténtalo de nuevo.",
+  "checkoutFailureTicketInvalid": "No pudimos preparar el pago. Inténtalo de nuevo; tu carrito sigue intacto.",
+  "checkoutFailureUnauthorized": "Tu sesión terminó. Inicia sesión para continuar; tu carrito se conserva.",
+  "checkoutFailureForbidden": "No pudimos iniciar el pago desde esta cuenta. Intenta más tarde o contáctanos.",
+  "checkoutFailureContract": "La tienda respondió algo inesperado. Inténtalo de nuevo.",
+  "checkoutFailureUrlNotAllowed": "Por seguridad no abrimos el enlace de pago que recibimos. Inténtalo de nuevo.",
+  "checkoutFailureBrowserUnavailable": "No pudimos abrir el navegador para el pago. Inténtalo de nuevo.",
+  "checkoutFailureDisabled": "El pago desde la app no está disponible por ahora. Tu carrito se conserva.",
+  "checkoutFailureStatusUnavailable": "No pudimos confirmar el estado de tu pago. No lo damos por exitoso ni por fallido; vuelve a verificar.",
+  "checkoutFailureUnknown": "Algo salió mal. Inténtalo de nuevo.",
+  "checkoutResultPaidTitle": "Pago confirmado",
+  "checkoutResultPaidBody": "La tienda confirmó tu pedido.",
+  "checkoutResultPendingTitle": "Pago en verificación",
+  "checkoutResultPendingBody": "Todavía no se confirma tu pago, así que no lo damos por exitoso. Tu carrito se conserva. Revisa Mis pedidos para ver el estado.",
+  "checkoutResultUnknownTitle": "Estado del pedido por confirmar",
+  "checkoutResultUnknownBody": "La tienda reporta un estado que la app no reconoce; no lo damos por pagado. Tu carrito se conserva.",
+  "checkoutResultFailedTitle": "El pago no se completó",
+  "checkoutResultFailedBody": "La tienda informa que el pago no se completó. Tu carrito se conserva y puedes intentarlo de nuevo.",
+  "checkoutResultRefundedTitle": "Pedido reembolsado",
+  "checkoutResultRefundedBody": "La tienda informa que este pedido fue reembolsado, por eso no lo contamos como pagado. Tu carrito se conserva.",
+  "checkoutResultCancelledTitle": "Pago cancelado",
+  "checkoutResultCancelledBody": "El pago se canceló. Tu carrito se conserva y puedes intentarlo de nuevo.",
+  "checkoutResultNoOrderTitle": "No encontramos un pedido",
+  "checkoutResultNoOrderBody": "La tienda aún no registra un pedido para este pago, así que no lo damos por exitoso. Tu carrito se conserva. Puedes verificar de nuevo o intentarlo otra vez.",
+  "checkoutResultNoneTitle": "No hay un pago en curso",
+  "checkoutResultNoneBody": "Si acabas de pagar, revisa Mis pedidos. Esta pantalla solo muestra pagos verificados con la tienda.",
+  "checkoutResultOrderNumber": "Pedido número {number}",
+  "@checkoutResultOrderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutResultOrderStatus": "Estado del pedido: {status}",
+  "@checkoutResultOrderStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "@@x-generado": "GENERADO por tool/merge_arb.dart desde l10n/parts/*.arb. No editar a mano."
 }

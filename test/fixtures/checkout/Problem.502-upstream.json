@@ -1,0 +1,8 @@
+{
+  "type": "https://example.invalid/problems/upstream_bad_response",
+  "title": "Respuesta inválida de la tienda",
+  "status": 502,
+  "detail": "No se pudo preparar el pago.",
+  "code": "upstream_bad_response",
+  "requestId": "3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b"
+}

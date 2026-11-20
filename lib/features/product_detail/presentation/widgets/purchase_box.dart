@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ipr_mobile/core/network/result.dart';
+import 'package:ipr_mobile/core/providers.dart';
+import 'package:ipr_mobile/features/cart/cart.dart';
 import 'package:ipr_mobile/features/product_detail/domain/entities/product_detail.dart';
 import 'package:ipr_mobile/features/product_detail/domain/rules/quantity_rules.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/controllers/add_to_cart_provider.dart';
@@ -11,7 +13,6 @@ import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/spacing_tokens.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 import 'package:ipr_mobile/shared/navigation/routes.dart';
-import 'package:ipr_mobile/shared/widgets/failure_messages.dart';
 import 'package:ipr_mobile/shared/widgets/whatsapp_button.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -47,21 +48,26 @@ class _PurchaseBoxState extends ConsumerState<PurchaseBox> {
     final result = await action.add(
       productId: widget.product.id,
       quantity: QuantityRules.clamp(_quantity),
+      snapshot: widget.product.summary,
     );
     if (!mounted) return;
     setState(() => _adding = false);
     messenger
       ?..hideCurrentSnackBar()
       ..showSnackBar(switch (result) {
-        Ok() => SnackBar(
-          content: Text(l10n.productDetailAddedToCart),
+        Ok(:final value) => SnackBar(
+          content: Text(
+            value.quantityLimited
+                ? cartQuantityLimitedText(l10n)
+                : l10n.productDetailAddedToCart,
+          ),
           action: SnackBarAction(
             label: l10n.productDetailViewCart,
             onPressed: () => router?.go(Routes.cart),
           ),
         ),
         Err(:final failure) => SnackBar(
-          content: Text(failureText(l10n, failure)),
+          content: Text(cartAddFailureText(l10n, failure)),
         ),
       });
   }
@@ -114,9 +120,33 @@ class _PurchaseBoxState extends ConsumerState<PurchaseBox> {
             filled: false,
           )
         else
-          WhatsAppButton(label: l10n.priceConsult, message: message),
+          WhatsAppButton(
+            label: l10n.priceConsult,
+            message: message,
+            onBeforeOpen: product.price.hasPrice
+                ? null
+                : () => unawaited(_trackPriceInquiry(ref, product.id)),
+          ),
       ],
     );
+  }
+
+  /// Medición agregada de "Más información" en productos sin precio (RF-065).
+  /// Cero PII y nunca retrasa ni bloquea WhatsApp (`AC-065-2`, `AC-065-4`).
+  Future<void> _trackPriceInquiry(WidgetRef ref, int productId) async {
+    try {
+      await ref
+          .read(analyticsSinkProvider)
+          .track(
+            'price_on_request_tap',
+            parameters: {
+              'product_id': '$productId',
+              'timestamp': DateTime.now().toUtc().toIso8601String(),
+            },
+          );
+    } on Object {
+      // Silencioso: no muestra error al usuario ni impide abrir WhatsApp.
+    }
   }
 
   /// Mensaje con nombre y SKU; sin SKU, solo el nombre (AC-062-5: nunca

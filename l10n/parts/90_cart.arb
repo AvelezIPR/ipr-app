@@ -1,0 +1,83 @@
+{
+  "cartTitle": "Carrito",
+
+  "cartEmptyTitle": "Tu carrito está vacío",
+  "cartEmptyBody": "Explora el catálogo y agrega los repuestos que necesites.",
+  "cartEmptyAction": "Explorar catálogo",
+
+  "cartVerifying": "Verificando precios y disponibilidad",
+  "cartVerifyFailed": "No pudimos verificar precios ni disponibilidad. Tus productos siguen guardados en el carrito.",
+  "cartVerifyFailedOffline": "Sin conexión: puedes seguir armando tu carrito. Para pagar necesitamos verificar precios, y eso requiere internet.",
+
+  "cartBlockedBannerTitle": "{count, plural, =1{Hay 1 producto que no se puede comprar} other{Hay {count} productos que no se pueden comprar}}",
+  "@cartBlockedBannerTitle": { "placeholders": { "count": { "type": "int" } } },
+  "cartBlockedBannerBody": "Quítalos del carrito para poder pagar.",
+  "cartBlockedBannerAction": "Quitar",
+  "cartChangedBannerTitle": "{count, plural, =1{El precio de 1 producto cambió} other{El precio de {count} productos cambió}}",
+  "@cartChangedBannerTitle": { "placeholders": { "count": { "type": "int" } } },
+  "cartChangedBannerBody": "Revisa los precios nuevos y acéptalos para poder pagar.",
+  "cartChangedBannerAction": "Ajustar",
+
+  "cartLineUnnamed": "Producto (ref. {id})",
+  "@cartLineUnnamed": { "placeholders": { "id": { "type": "int" } } },
+  "cartLineSubtotal": "Subtotal de la línea: {amount}",
+  "@cartLineSubtotal": { "placeholders": { "amount": { "type": "String" } } },
+  "cartLineSubtotalSemantics": "Subtotal de la línea: {amount} pesos",
+  "@cartLineSubtotalSemantics": { "placeholders": { "amount": { "type": "String" } } },
+  "cartLinePriceChanged": "Precio actualizado: antes {previous}, ahora {current}",
+  "@cartLinePriceChanged": {
+    "placeholders": { "previous": { "type": "String" }, "current": { "type": "String" } }
+  },
+  "cartLinePriceChangedToNone": "Precio actualizado: antes {previous}, ahora sin precio",
+  "@cartLinePriceChangedToNone": { "placeholders": { "previous": { "type": "String" } } },
+  "cartLinePriceChangedFromNone": "Precio actualizado: ahora {current}",
+  "@cartLinePriceChangedFromNone": { "placeholders": { "current": { "type": "String" } } },
+  "cartLineAvailabilityChanged": "La disponibilidad de este producto cambió.",
+
+  "cartStatusOutOfStock": "Agotado: quítalo para poder pagar",
+  "cartStatusOnBackorder": "Bajo pedido: no se puede comprar en la app",
+  "cartStatusPriceOnRequest": "Sin precio: no se puede comprar en la app",
+  "cartStatusNotFound": "Ya no está disponible",
+
+  "cartQuantityDecrease": "Disminuir cantidad de {name}",
+  "@cartQuantityDecrease": { "placeholders": { "name": { "type": "String" } } },
+  "cartQuantityIncrease": "Aumentar cantidad de {name}",
+  "@cartQuantityIncrease": { "placeholders": { "name": { "type": "String" } } },
+  "cartQuantitySemantics": "Cantidad de {name}: {quantity}",
+  "@cartQuantitySemantics": {
+    "placeholders": { "name": { "type": "String" }, "quantity": { "type": "int" } }
+  },
+  "cartQuantityMaxNote": "Máximo {max} por producto",
+  "@cartQuantityMaxNote": { "placeholders": { "max": { "type": "int" } } },
+  "cartLineRemove": "Quitar {name} del carrito",
+  "@cartLineRemove": { "placeholders": { "name": { "type": "String" } } },
+  "cartLineRemoved": "Quitaste {name} del carrito",
+  "@cartLineRemoved": { "placeholders": { "name": { "type": "String" } } },
+  "cartUndo": "Deshacer",
+
+  "cartSubtotalLabel": "Subtotal informativo (IVA incluido)",
+  "cartSubtotalSemantics": "Subtotal informativo, {amount} pesos, IVA incluido",
+  "@cartSubtotalSemantics": { "placeholders": { "amount": { "type": "String" } } },
+  "cartSubtotalNone": "Sin subtotal",
+  "cartSubtotalUnverified": "Precios sin verificar: se confirmarán antes de pagar.",
+  "cartSubtotalExcluded": "{count, plural, =1{No incluye 1 producto sin precio o no disponible.} other{No incluye {count} productos sin precio o no disponibles.}}",
+  "@cartSubtotalExcluded": { "placeholders": { "count": { "type": "int" } } },
+  "cartSummaryNotice": "Los impuestos, el envío (lo eliges en el pago según la transportadora) y el total final se confirman en el pago.",
+
+  "cartPayAction": "Pagar",
+  "cartPayChecking": "Verificando…",
+  "cartPayHintUnverified": "Antes de pagar verificaremos precios y disponibilidad. Para pagar necesitas conexión a internet.",
+  "cartPayHintBlocked": "Quita los productos que no se pueden comprar para continuar.",
+  "cartPayHintChanges": "Acepta los cambios de precio (Ajustar) para continuar.",
+  "cartPayHintServerDenied": "Por ahora no podemos continuar con el pago. Revisa tu carrito o intenta de nuevo más tarde.",
+  "cartPayHintDisabled": "El pago en la app no está disponible por ahora. Inténtalo más tarde.",
+  "cartPayNeedsConnection": "Para pagar necesitas conexión a internet.",
+  "cartPayVerifyFailed": "No pudimos verificar tu carrito. Intenta de nuevo.",
+  "cartPayBlockedSnack": "Hay cambios en tu carrito. Revísalos antes de pagar.",
+
+  "cartAddLineLimit": "Tu carrito ya tiene 100 productos distintos. Quita alguno para añadir otro.",
+  "cartAddNotPurchasable": "Este producto no se puede comprar en la app.",
+  "cartAddInvalid": "No pudimos añadir el producto. Revisa la cantidad.",
+  "cartAddQuantityLimited": "Máximo {max} unidades por producto: ajustamos la cantidad.",
+  "@cartAddQuantityLimited": { "placeholders": { "max": { "type": "int" } } }
+}

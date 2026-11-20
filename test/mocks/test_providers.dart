@@ -3,6 +3,7 @@ import 'package:ipr_mobile/app/providers.dart';
 import 'package:ipr_mobile/core/external/external_launcher.dart';
 import 'package:ipr_mobile/core/providers.dart';
 import 'package:ipr_mobile/core/storage/cache_store.dart';
+import 'package:ipr_mobile/core/storage/durable_store.dart';
 
 import 'memory_preferences_store.dart';
 import 'memory_secure_key_value.dart';
@@ -30,6 +31,7 @@ final class FakeExternalLauncher implements ExternalLauncher {
 List<Override> testOverrides({
   FakeExternalLauncher? launcher,
   CacheStore? cache,
+  DurableStore? durable,
   List<Override> extra = const [],
 }) => [
   ...coreOverrides(
@@ -39,6 +41,7 @@ List<Override> testOverrides({
     secure: InMemorySecureKeyValue(),
     preferences: InMemoryPreferencesStore(),
     cache: cache ?? MemoryCacheStore(),
+    durable: durable ?? MemoryDurableStore(),
   ),
   externalLauncherProvider.overrideWithValue(
     launcher ?? FakeExternalLauncher(),

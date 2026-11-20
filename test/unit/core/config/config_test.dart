@@ -28,6 +28,11 @@ const Map<String, Map<String, Object>> _configJson = {
       'whatsapp': {'number': '573014021882', 'defaultMessage': 'Hola'},
       'phone': {'display': '(604) 3604440', 'dial': '+576043604440'},
       'salesEmail': 'ventas@example.invalid',
+      'pqrsEmail': 'pqrs@example.invalid',
+      'engineering': {
+        'whatsapp': '573014021883',
+        'email': 'ingenieria@example.invalid',
+      },
     },
     'checkout': {
       'allowedHosts': ['IPRPartesyRepuestos.com'],
@@ -157,7 +162,32 @@ void main() {
       expect(android.returnPathPrefix, '/app/pedido');
       expect(android.whatsappNumber, '573014021882');
       expect(android.phoneDial, '+576043604440');
+      expect(android.salesEmail, 'ventas@example.invalid');
+      expect(android.pqrsEmail, 'pqrs@example.invalid');
+      expect(android.engineeringWhatsapp, '573014021883');
+      expect(android.engineeringEmail, 'ingenieria@example.invalid');
     });
+
+    test(
+      'M2 · RF-039/099 · lee versiones y URLs de los documentos legales',
+      () {
+        final entity = RemoteConfigDto.fromJson(const {
+          'legal': {
+            'terms': {'version': '2026-01', 'url': 'https://x.test/terminos'},
+            'privacyPolicy': {'version': '2026-02', 'url': 'https://x.test/p'},
+            'dataRightsChannel': {'url': null, 'email': 'datos@x.test'},
+            'accountDeletionNotice': 'texto',
+          },
+        }).toEntity(platform: 'android');
+        expect(entity.termsVersion, '2026-01');
+        expect(entity.termsUrl, 'https://x.test/terminos');
+        expect(entity.privacyPolicyVersion, '2026-02');
+        expect(entity.privacyPolicyUrl, 'https://x.test/p');
+        expect(entity.dataRightsUrl, isNull);
+        expect(entity.dataRightsEmail, 'datos@x.test');
+        expect(entity.accountDeletionNotice, 'texto');
+      },
+    );
 
     test('M0 · D-08 · un /config vacío deja TODO apagado (falla cerrado)', () {
       final entity = RemoteConfigDto.fromJson(const {})
@@ -167,6 +197,8 @@ void main() {
       expect(entity.btuCalculatorEnabled, isFalse);
       expect(entity.checkoutAllowedHosts, isEmpty);
       expect(entity.minSupportedVersion, isNull);
+      expect(entity.termsVersion, isNull);
+      expect(entity.privacyPolicyUrl, isNull);
     });
 
     test('defaults usa el WhatsApp público del flavor y nada habilitado', () {

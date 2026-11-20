@@ -1,39 +1,48 @@
 {
   "@@locale": "es",
   "appTitle": "IPR Partes y Repuestos",
-  "@appTitle": { "description": "Nombre de la app mostrado en el selector de aplicaciones." },
-
+  "@appTitle": {
+    "description": "Nombre de la app mostrado en el selector de aplicaciones."
+  },
   "tabHome": "Inicio",
   "tabCatalog": "Catálogo",
   "tabCart": "Carrito",
+  "tabCartWithCount": "Carrito, {count, plural, =1{1 producto} other{{count} productos}}",
+  "@tabCartWithCount": {
+    "description": "Etiqueta accesible de la pestaña Carrito con la cantidad de unidades",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "tabAccount": "Cuenta",
-
   "placeholderTitle": "En construcción",
   "placeholderBody": "Esta pantalla se construye en una rebanada posterior del plan de implementación.",
-
   "actionRetry": "Reintentar",
   "actionContactWhatsApp": "Escribir por WhatsApp",
   "actionUpdateApp": "Actualizar la app",
-
   "stateLoading": "Cargando",
   "stateEmptyTitle": "No hay resultados",
   "stateEmptyBody": "No encontramos información para mostrar.",
   "staleBanner": "Mostrando información guardada; puede no estar actualizada.",
-
   "updateRequiredTitle": "Actualiza la app para continuar",
   "updateRequiredBody": "Esta versión de la app ya no es compatible. Instala la versión más reciente desde la tienda.",
-
   "priceConsult": "Más información",
   "priceTaxIncluded": "IVA incluido",
   "priceSemantics": "{amount} pesos, IVA incluido",
-  "@priceSemantics": { "placeholders": { "amount": { "type": "String" } } },
+  "@priceSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "priceOnRequestSemantics": "Precio bajo consulta. Más información por WhatsApp",
-
   "stockInStock": "En stock",
   "stockOutOfStock": "Agotado",
   "stockOnBackorder": "Bajo pedido",
   "stockUnknown": "Disponibilidad por confirmar",
-
   "failureNoConnection": "No tienes conexión. Revisa tu internet.",
   "failureTimeout": "La respuesta está tardando. Intenta de nuevo.",
   "failureNotFound": "Este contenido ya no está disponible.",

@@ -1,0 +1,15 @@
+{
+  "data": {
+    "lines": [
+      {
+        "id": 4521,
+        "quantity": 1,
+        "status": "discontinued",
+        "product": null,
+        "lineSubtotal": null
+      }
+    ],
+    "informativeSubtotal": { "amount": 0, "currency": "COP", "taxIncluded": true },
+    "checkoutAllowed": true
+  }
+}

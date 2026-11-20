@@ -1,0 +1,10 @@
+{
+  "data": {
+    "checkoutRef": "3f2b8c1e-5a4d-4e6f-9b7a-1c2d3e4f5a6b",
+    "checkoutUrl": "https://staging.invalid/?ipr_ticket=AbCdEfGhIjKlMnOpQrStUvWxYz012345",
+    "expiresAt": "2026-11-20T15:01:00Z",
+    "expiresIn": 60,
+    "allowedHosts": ["staging.invalid"],
+    "returnUrlPrefix": "https://staging.invalid/app/pedido"
+  }
+}

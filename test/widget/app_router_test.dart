@@ -7,6 +7,7 @@ import 'package:ipr_mobile/core/config/remote_config_controller.dart';
 import 'package:ipr_mobile/core/session/session_controller.dart';
 import 'package:ipr_mobile/core/session/session_state.dart';
 import 'package:ipr_mobile/core/storage/cache_store.dart';
+import 'package:ipr_mobile/core/storage/durable_store.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../mocks/fake_session_remote.dart';
@@ -30,9 +31,12 @@ Future<ProviderContainer> pumpIprApp(WidgetTester tester) async {
       secure: InMemorySecureKeyValue(),
       preferences: InMemoryPreferencesStore(),
       cache: MemoryCacheStore(),
-    ),
+      durable: MemoryDurableStore(),
+    )..addAll(integrationOverrides()),
   );
   addTearDown(container.dispose);
+  // Como en `bootstrap`: la sesión se lee del almacén antes del primer cuadro.
+  await container.read(sessionControllerProvider.notifier).restore();
   await tester.pumpWidget(
     UncontrolledProviderScope(container: container, child: const IprApp()),
   );

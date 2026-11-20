@@ -23,11 +23,25 @@ abstract class RemoteConfig with _$RemoteConfig {
     String? whatsappDefaultMessage,
     String? phoneDisplay,
     String? phoneDial,
+    String? salesEmail,
+    String? pqrsEmail,
+    String? engineeringWhatsapp,
+    String? engineeringEmail,
 
     /// Avisos de la ficha (RF-032): envío nacional y garantía.
     String? shippingNotice,
     String? warrantyNotice,
     String? priceOnRequestNotice,
+
+    /// Documentos legales publicados (RF-039, RF-099). Sin versión o sin URL
+    /// no se puede registrar la aceptación: la UI no ofrece el registro.
+    String? termsVersion,
+    String? termsUrl,
+    String? privacyPolicyVersion,
+    String? privacyPolicyUrl,
+    String? dataRightsUrl,
+    String? dataRightsEmail,
+    String? accountDeletionNotice,
   }) = _RemoteConfig;
 
   /// Valores previos a la primera respuesta: todo apagado y WhatsApp de

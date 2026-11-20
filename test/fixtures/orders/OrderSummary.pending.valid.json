@@ -1,0 +1,11 @@
+{
+  "id": 1002,
+  "number": "1002",
+  "status": "on-hold",
+  "statusLabel": "En verificación",
+  "paymentState": "pending",
+  "createdAt": "2026-11-20T09:15:00Z",
+  "currency": "COP",
+  "total": 120000,
+  "itemCount": 1
+}

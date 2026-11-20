@@ -1,0 +1,146 @@
+{
+  "profileGuestTitle": "Inicia sesión o crea tu cuenta",
+  "profileGuestBody": "Puedes explorar el catálogo sin cuenta. Con una cuenta consultas tus pedidos y gestionas tus datos y direcciones.",
+  "profileLogin": "Iniciar sesión",
+  "profileRegister": "Crear cuenta",
+
+  "profileSignedInTitle": "Sesión iniciada",
+  "profileSignedInBody": "Desde aquí gestionas tus pedidos, tus datos y tus direcciones.",
+
+  "profileSectionAccount": "Mi cuenta",
+  "profileOrders": "Mis pedidos",
+  "profileData": "Mis datos",
+  "profileAddresses": "Direcciones",
+  "profileDataRights": "Derechos sobre mis datos",
+  "profileDeleteAccount": "Eliminar cuenta",
+
+  "profileSectionHelp": "Ayuda e información",
+  "profileLegal": "Términos y política de datos",
+
+  "profileLogout": "Cerrar sesión",
+  "profileLoggingOut": "Cerrando sesión",
+  "profileLoggedOut": "Sesión cerrada",
+  "profileLogoutFailed": "No pudimos cerrar la sesión. Intenta de nuevo.",
+
+  "profileScreenTitle": "Mis datos",
+  "profileNamesSection": "Nombre y apellido",
+  "profileFirstNameLabel": "Nombre",
+  "profileLastNameLabel": "Apellido",
+  "profileSaveNames": "Guardar nombre",
+  "profileNamesSaved": "Guardamos tus datos.",
+  "profileEmailSection": "Correo electrónico",
+  "profileEmailLabel": "Correo electrónico",
+  "profileCurrentPasswordLabel": "Contraseña actual",
+  "profileSaveEmail": "Cambiar correo",
+  "profileEmailSaved": "Actualizamos tu correo.",
+  "profileEmailConflict": "No pudimos actualizar el correo con los datos ingresados. Verifica e intenta de nuevo.",
+  "profileEmailUnchanged": "Escribe un correo distinto al actual.",
+  "profileChangePasswordTile": "Cambiar contraseña",
+
+  "profilePasswordTitle": "Cambiar contraseña",
+  "profilePasswordIntro": "Por seguridad, escribe tu contraseña actual para confirmar el cambio.",
+  "profileNewPasswordLabel": "Contraseña nueva (mínimo 8 caracteres)",
+  "profileConfirmPasswordLabel": "Confirmar contraseña nueva",
+  "profilePasswordSave": "Actualizar contraseña",
+  "profilePasswordSaved": "Actualizamos tu contraseña.",
+  "profilePasswordShow": "Mostrar contraseña",
+  "profilePasswordHide": "Ocultar contraseña",
+
+  "profileSubmitting": "Guardando",
+  "profileWaitSeconds": "{seconds, plural, =1{1 s} other{{seconds} s}}",
+  "@profileWaitSeconds": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+  "profileWaitMinutesSeconds": "{minutes} min {seconds} s",
+  "@profileWaitMinutesSeconds": {
+    "placeholders": {
+      "minutes": { "type": "int" },
+      "seconds": { "type": "int" }
+    }
+  },
+  "profileSubmitWait": "Espera {wait}",
+  "@profileSubmitWait": {
+    "placeholders": {
+      "wait": { "type": "String" }
+    }
+  },
+  "profileRateLimitedWait": "Demasiados intentos. Espera {wait} antes de volver a intentar.",
+  "@profileRateLimitedWait": {
+    "placeholders": {
+      "wait": { "type": "String" }
+    }
+  },
+  "profileCurrentPasswordInvalid": "La contraseña actual no es correcta.",
+
+  "profileErrorRequired": "Este campo es obligatorio.",
+  "profileErrorTooLong": "Máximo {max} caracteres.",
+  "@profileErrorTooLong": {
+    "placeholders": {
+      "max": { "type": "int" }
+    }
+  },
+  "profileErrorEmailInvalid": "Escribe un correo válido.",
+  "profileErrorPasswordShort": "Debe tener al menos 8 caracteres.",
+  "profileErrorPasswordMismatch": "Las contraseñas no coinciden.",
+  "profileErrorNationalId": "Escribe una cédula o NIT válido (3 a 30 caracteres: dígitos, puntos o guiones).",
+  "profileErrorPhone": "Escribe un teléfono válido (7 a 20 caracteres).",
+  "profileErrorDepartment": "Selecciona un departamento válido.",
+  "profileErrorCity": "Selecciona un municipio o ciudad.",
+
+  "profileAddressesTitle": "Direcciones",
+  "profileAddressBillingTab": "Facturación",
+  "profileAddressShippingTab": "Envío",
+  "profileAddressCountryLabel": "País: Colombia",
+  "profileAddressNationalIdLabel": "Cédula o NIT",
+  "profileAddressNationalIdOptionalLabel": "Cédula o NIT (opcional)",
+  "profileAddressCompanyLabel": "Empresa (opcional)",
+  "profileAddressLine1Label": "Dirección",
+  "profileAddressLine2Label": "Complemento / apartamento / oficina (opcional)",
+  "profileAddressDepartmentLabel": "Departamento",
+  "profileAddressCityLabel": "Ciudad / municipio",
+  "profileAddressCitySelectFirst": "Selecciona primero un departamento",
+  "profileAddressPostcodeLabel": "Código postal (opcional)",
+  "profileAddressPhoneLabel": "Teléfono",
+  "profileAddressPhoneOptionalLabel": "Teléfono (opcional)",
+  "profileAddressSaveBilling": "Guardar facturación",
+  "profileAddressSaveShipping": "Guardar envío",
+  "profileAddressSaved": "Guardamos la dirección.",
+
+  "profileDeleteTitle": "Eliminar cuenta",
+  "profileDeleteWarningTitle": "Antes de continuar",
+  "profileDeleteNoticeUnavailable": "No pudimos cargar el detalle completo de retención desde el servidor. Al confirmar, cerraremos tu sesión en todos los dispositivos y registraremos tu solicitud de eliminación.",
+  "profileDeleteNoticeRetry": "Recargar información",
+  "profileDeleteConfirmCheckbox": "Entiendo qué datos se eliminan y cuáles se conservan, y confirmo que quiero eliminar mi cuenta.",
+  "profileDeleteConfirmRequired": "Marca la casilla de confirmación para continuar.",
+  "profileDeletePasswordIntro": "Escribe tu contraseña actual para autorizar la eliminación.",
+  "profileDeleteSubmit": "Eliminar mi cuenta",
+  "profileDeleteDeleting": "Eliminando cuenta",
+  "profileDeleteCancel": "Cancelar",
+  "profileDeleteSuccess": "Registramos la eliminación de tu cuenta y cerramos tu sesión.",
+  "profileDeleteFailed": "No pudimos completar la eliminación. Tu cuenta sigue activa; intenta de nuevo.",
+
+  "profileDataRightsTitle": "Derechos sobre mis datos",
+  "profileDataRightsIntro": "Desde aquí puedes consultar los canales publicados por IPR para ejercer tus derechos de consulta, rectificación, actualización o supresión de datos personales.",
+  "profileDataRightsDirectDeletionTitle": "Eliminación directa de cuenta",
+  "profileDataRightsDirectDeletionBody": "Si deseas eliminar tu cuenta y revocar tus sesiones, puedes hacerlo directamente desde la app.",
+  "profileDataRightsDirectDeletionButton": "Ir a eliminar cuenta",
+  "profileDataRightsChannelTitle": "Canal corporativo de atención",
+  "profileDataRightsOpenPortal": "Abrir canal de derechos en el navegador",
+  "profileDataRightsEmailLabel": "Escribir a {email}",
+  "@profileDataRightsEmailLabel": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "profileDataRightsEmailCopied": "Copiamos el correo {email}.",
+  "@profileDataRightsEmailCopied": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "profileDataRightsCopyEmail": "Copiar correo",
+  "profileDataRightsUnavailable": "El canal corporativo de derechos no está publicado en este momento. Intenta de nuevo en unos minutos o contáctanos por WhatsApp.",
+  "profileDataRightsOpenFailed": "No pudimos abrir el enlace en el navegador."
+}

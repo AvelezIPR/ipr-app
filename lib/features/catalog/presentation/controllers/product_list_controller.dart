@@ -116,6 +116,10 @@ class ProductListController extends Notifier<UiState<ProductListData>> {
 
   @override
   UiState<ProductListData> build() {
+    final initial = scope.initialChoice;
+    _filters = initial == null
+        ? ProductFilters.empty
+        : ProductFilters(choices: [initial]);
     ref.onDispose(_cancel.cancel);
     unawaited(Future.microtask(_loadFirst));
     return const UiLoading();

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ipr_mobile/core/config/remote_config_controller.dart';
 import 'package:ipr_mobile/core/providers.dart';
+import 'package:ipr_mobile/features/home/presentation/controllers/home_cart_badge_provider.dart';
 import 'package:ipr_mobile/features/home/presentation/controllers/home_controllers.dart';
 import 'package:ipr_mobile/features/home/presentation/widgets/home_blocks.dart';
 import 'package:ipr_mobile/features/home/presentation/widgets/home_section.dart';
@@ -49,6 +50,10 @@ class HomeScreen extends ConsumerWidget {
     final display = ref.watch(
       remoteConfigProvider.select((s) => s.config.phoneDisplay),
     );
+    final btuEnabled = ref.watch(
+      remoteConfigProvider.select((s) => s.config.btuCalculatorEnabled),
+    );
+    final cartCount = ref.watch(homeCartCountProvider);
 
     return SafeArea(
       bottom: false,
@@ -63,9 +68,35 @@ class HomeScreen extends ConsumerWidget {
             IprSpace.s6,
           ),
           children: [
-            Semantics(
-              header: true,
-              child: Text(l10n.appTitle, style: theme.textTheme.headlineSmall),
+            Row(
+              children: [
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      l10n.appTitle,
+                      style: theme.textTheme.headlineSmall,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  tooltip: l10n.homeTopHelpTooltip,
+                  icon: const Icon(Icons.help_outline),
+                  onPressed: () => unawaited(context.push(Routes.support)),
+                ),
+                IconButton(
+                  tooltip: cartCount == 0
+                      ? l10n.homeTopCartTooltip
+                      : l10n.homeTopCartTooltipWithCount(cartCount),
+                  icon: cartCount == 0
+                      ? const Icon(Icons.shopping_cart_outlined)
+                      : Badge(
+                          label: Text(cartCount > 99 ? '99+' : '$cartCount'),
+                          child: const Icon(Icons.shopping_cart_outlined),
+                        ),
+                  onPressed: () => context.go(Routes.cart),
+                ),
+              ],
             ),
             if (anyStale) ...[
               const SizedBox(height: IprSpace.s3),
@@ -177,6 +208,14 @@ class HomeScreen extends ConsumerWidget {
               label: l10n.homeShortcutBranches,
               onTap: () => unawaited(context.push(Routes.branches)),
             ),
+            if (btuEnabled) ...[
+              const SizedBox(height: IprSpace.s2),
+              ShortcutTile(
+                icon: Icons.calculate_outlined,
+                label: l10n.homeShortcutBtu,
+                onTap: () => unawaited(context.push(Routes.btu)),
+              ),
+            ],
             if (dial != null && dial.isNotEmpty) ...[
               const SizedBox(height: IprSpace.s2),
               ShortcutTile(

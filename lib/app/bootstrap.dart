@@ -12,6 +12,7 @@ import 'package:ipr_mobile/core/lifecycle/app_lifecycle_observer.dart';
 import 'package:ipr_mobile/core/providers.dart';
 import 'package:ipr_mobile/core/session/session_controller.dart';
 import 'package:ipr_mobile/core/storage/cache_store.dart';
+import 'package:ipr_mobile/core/storage/durable_store.dart';
 import 'package:ipr_mobile/core/storage/hive_bootstrap.dart';
 import 'package:ipr_mobile/core/storage/preferences_store.dart';
 import 'package:ipr_mobile/core/storage/secure_key_value.dart';
@@ -32,6 +33,7 @@ Future<void> bootstrap(Flavor flavor) async {
   final secure = FlutterSecureKeyValue();
   await clearSecureStorageOnFirstLaunch(preferences: prefs, secure: secure);
   final cache = HiveCacheStore(await openCacheBox());
+  final durable = HiveDurableStore(await openCartBox());
 
   final info = await PackageInfo.fromPlatform();
   final version = info.version.split('+').first;
@@ -44,7 +46,8 @@ Future<void> bootstrap(Flavor flavor) async {
       secure: secure,
       preferences: prefs,
       cache: cache,
-    ),
+      durable: durable,
+    )..addAll(integrationOverrides()),
   );
 
   _installErrorHooks(container);

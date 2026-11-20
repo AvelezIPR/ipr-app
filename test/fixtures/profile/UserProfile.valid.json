@@ -1,0 +1,33 @@
+{
+  "data": {
+    "id": 42,
+    "email": "qa.cliente.01@example.test",
+    "firstName": "Ana",
+    "lastName": "Prueba",
+    "displayName": "Ana Prueba",
+    "billing": {
+      "firstName": "Ana",
+      "lastName": "Prueba",
+      "company": "",
+      "nationalId": "000-000-001",
+      "address1": "Calle 10 # 20-30",
+      "address2": "Apto 401",
+      "department": "ANT",
+      "city": "Medellín",
+      "postcode": "050001",
+      "phone": "3000000000"
+    },
+    "shipping": {
+      "firstName": "Ana",
+      "lastName": "Prueba",
+      "company": "",
+      "nationalId": null,
+      "address1": "Carrera 50 # 12-34",
+      "address2": "",
+      "department": "BOG",
+      "city": "Bogotá",
+      "postcode": "",
+      "phone": null
+    }
+  }
+}

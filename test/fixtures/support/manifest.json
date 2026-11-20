@@ -1,0 +1,8 @@
+{
+  "comment": "Fixtures sintéticos de la feature support (POST /pqrs). Ningún dato real.",
+  "fixtures": [
+    { "file": "PqrsRequest.valid.json", "schema": "PqrsRequest", "valid": true },
+    { "file": "PqrsRequest.short-name.json", "schema": "PqrsRequest", "valid": false },
+    { "file": "Problem.429-pqrs.json", "schema": "Problem", "valid": true }
+  ]
+}

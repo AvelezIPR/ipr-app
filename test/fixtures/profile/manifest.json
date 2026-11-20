@@ -1,0 +1,21 @@
+{
+  "comment": "Fixtures sintéticos de la feature profile (GET/PATCH /me, /me/email, /me/password, /me/addresses/{type}, /me/deletion). Ningún dato real.",
+  "fixtures": [
+    { "file": "UserProfile.valid.json", "schema": "UserProfile", "path": "data", "valid": true },
+    { "file": "UserProfile.no-addresses.valid.json", "schema": "UserProfile", "path": "data", "valid": true },
+    { "file": "UserProfile.missing-email.json", "schema": "UserProfile", "path": "data", "valid": false },
+    { "file": "UpdateProfileRequest.valid.json", "schema": "UpdateProfileRequest", "valid": true },
+    { "file": "UpdateProfileRequest.extra-field.json", "schema": "UpdateProfileRequest", "valid": false },
+    { "file": "ChangeEmailRequest.valid.json", "schema": "ChangeEmailRequest", "valid": true },
+    { "file": "ChangePasswordRequest.valid.json", "schema": "ChangePasswordRequest", "valid": true },
+    { "file": "ChangePasswordRequest.short.json", "schema": "ChangePasswordRequest", "valid": false },
+    { "file": "AddressInput.billing.valid.json", "schema": "AddressInput", "valid": true },
+    { "file": "AddressInput.shipping.valid.json", "schema": "AddressInput", "valid": true },
+    { "file": "AddressInput.bad-phone.json", "schema": "AddressInput", "valid": false },
+    { "file": "AccountDeletionRequest.valid.json", "schema": "AccountDeletionRequest", "valid": true },
+    { "file": "AccountDeletionRequest.with-user-id.json", "schema": "AccountDeletionRequest", "valid": false },
+    { "file": "AccountDeletionStatus.valid.json", "schema": "AccountDeletionStatus", "path": "data", "valid": true },
+    { "file": "Problem.403-current-password.json", "schema": "Problem", "valid": true },
+    { "file": "Problem.409-email-in-use.json", "schema": "Problem", "valid": true }
+  ]
+}

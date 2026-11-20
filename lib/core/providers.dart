@@ -23,6 +23,7 @@ import 'package:ipr_mobile/core/session/auth_interceptor.dart';
 import 'package:ipr_mobile/core/session/session_controller.dart';
 import 'package:ipr_mobile/core/session/token_store.dart';
 import 'package:ipr_mobile/core/storage/cache_store.dart';
+import 'package:ipr_mobile/core/storage/durable_store.dart';
 import 'package:ipr_mobile/core/storage/preferences_store.dart';
 import 'package:ipr_mobile/core/storage/secure_key_value.dart';
 
@@ -36,6 +37,11 @@ final preferencesStoreProvider = Provider<PreferencesStore>(
 );
 final cacheStoreProvider = Provider<CacheStore>(
   (ref) => throw UnimplementedError('cacheStoreProvider sin override'),
+);
+
+/// Almacén duradero sin PII (carrito, RF-049).
+final durableStoreProvider = Provider<DurableStore>(
+  (ref) => throw UnimplementedError('durableStoreProvider sin override'),
 );
 
 /// `android` o `ios`.

@@ -14,6 +14,7 @@ final class RemoteConfigDto {
     this.contact,
     this.checkout,
     this.notices,
+    this.legal,
   });
 
   factory fromJson(Map<String, dynamic> json) =>
@@ -25,6 +26,7 @@ final class RemoteConfigDto {
   final ContactDto? contact;
   final CheckoutConfigDto? checkout;
   final NoticesDto? notices;
+  final LegalDto? legal;
 
   /// Mapeo tolerante a la entidad; [platform] es `android` o `ios`.
   RemoteConfig toEntity({required String platform}) => RemoteConfig(
@@ -41,9 +43,20 @@ final class RemoteConfigDto {
     whatsappDefaultMessage: contact?.whatsapp?.defaultMessage,
     phoneDisplay: contact?.phone?.display,
     phoneDial: contact?.phone?.dial,
+    salesEmail: contact?.salesEmail,
+    pqrsEmail: contact?.pqrsEmail,
+    engineeringWhatsapp: contact?.engineering?.whatsapp,
+    engineeringEmail: contact?.engineering?.email,
     shippingNotice: notices?.shipping,
     warrantyNotice: notices?.warranty,
     priceOnRequestNotice: notices?.priceOnRequest,
+    termsVersion: legal?.terms?.version,
+    termsUrl: legal?.terms?.url,
+    privacyPolicyVersion: legal?.privacyPolicy?.version,
+    privacyPolicyUrl: legal?.privacyPolicy?.url,
+    dataRightsUrl: legal?.dataRightsChannel?.url,
+    dataRightsEmail: legal?.dataRightsChannel?.email,
+    accountDeletionNotice: legal?.accountDeletionNotice,
   );
 }
 
@@ -77,12 +90,32 @@ final class FeaturesDto {
 
 @JsonSerializable(createToJson: false)
 final class ContactDto {
-  const new({this.whatsapp, this.phone});
+  const new({
+    this.whatsapp,
+    this.phone,
+    this.salesEmail,
+    this.pqrsEmail,
+    this.engineering,
+  });
 
   factory fromJson(Map<String, dynamic> json) => _$ContactDtoFromJson(json);
 
   final WhatsAppDto? whatsapp;
   final PhoneDto? phone;
+  final String? salesEmail;
+  final String? pqrsEmail;
+  final EngineeringContactDto? engineering;
+}
+
+@JsonSerializable(createToJson: false)
+final class EngineeringContactDto {
+  const new({this.whatsapp, this.email});
+
+  factory fromJson(Map<String, dynamic> json) =>
+      _$EngineeringContactDtoFromJson(json);
+
+  final String? whatsapp;
+  final String? email;
 }
 
 @JsonSerializable(createToJson: false)
@@ -125,4 +158,43 @@ final class NoticesDto {
   final String? shipping;
   final String? warranty;
   final String? priceOnRequest;
+}
+
+@JsonSerializable(createToJson: false)
+final class LegalDto {
+  const new({
+    this.terms,
+    this.privacyPolicy,
+    this.dataRightsChannel,
+    this.accountDeletionNotice,
+  });
+
+  factory fromJson(Map<String, dynamic> json) => _$LegalDtoFromJson(json);
+
+  final LegalDocumentDto? terms;
+  final LegalDocumentDto? privacyPolicy;
+  final DataRightsChannelDto? dataRightsChannel;
+  final String? accountDeletionNotice;
+}
+
+@JsonSerializable(createToJson: false)
+final class LegalDocumentDto {
+  const new({this.version, this.url});
+
+  factory fromJson(Map<String, dynamic> json) =>
+      _$LegalDocumentDtoFromJson(json);
+
+  final String? version;
+  final String? url;
+}
+
+@JsonSerializable(createToJson: false)
+final class DataRightsChannelDto {
+  const new({this.url, this.email});
+
+  factory fromJson(Map<String, dynamic> json) =>
+      _$DataRightsChannelDtoFromJson(json);
+
+  final String? url;
+  final String? email;
 }

@@ -1,0 +1,83 @@
+{
+  "authenticationLoginTitle": "Iniciar sesión",
+  "@authenticationLoginTitle": { "description": "Título de la pantalla de inicio de sesión (PT-14, RF-040)." },
+  "authenticationRegisterTitle": "Crear cuenta",
+  "@authenticationRegisterTitle": { "description": "Título de la pantalla de registro (PT-15, RF-038)." },
+  "authenticationRecoveryTitle": "Recuperar contraseña",
+  "@authenticationRecoveryTitle": { "description": "Título de la pantalla de recuperación (PT-17, RF-042)." },
+
+  "authenticationBackToHome": "Volver al inicio",
+  "authenticationSessionExpiredNotice": "Tu sesión terminó. Inicia sesión de nuevo. Tu carrito sigue igual.",
+  "@authenticationSessionExpiredNotice": { "description": "Aviso superior del login cuando la sesión terminó (AC-044-5)." },
+
+  "authenticationFieldLogin": "Correo o usuario",
+  "authenticationFieldEmail": "Correo electrónico",
+  "authenticationFieldFirstName": "Nombres",
+  "authenticationFieldLastName": "Apellidos",
+  "authenticationFieldPassword": "Contraseña",
+  "authenticationFieldNewPassword": "Contraseña (mínimo 8 caracteres)",
+  "authenticationFieldConfirmPassword": "Confirmar contraseña",
+  "authenticationPasswordShow": "Mostrar contraseña",
+  "authenticationPasswordHide": "Ocultar contraseña",
+
+  "authenticationErrorLoginRequired": "Escribe tu correo o tu usuario.",
+  "authenticationErrorPasswordRequired": "Escribe tu contraseña.",
+  "authenticationErrorEmailRequired": "Escribe tu correo electrónico.",
+  "authenticationErrorEmailInvalid": "Revisa el correo: debe tener el formato nombre@dominio.com.",
+  "authenticationErrorFirstNameRequired": "Escribe tus nombres.",
+  "authenticationErrorLastNameRequired": "Escribe tus apellidos.",
+  "authenticationErrorNewPasswordRequired": "Crea una contraseña.",
+  "authenticationErrorPasswordTooShort": "La contraseña debe tener al menos {min} caracteres.",
+  "@authenticationErrorPasswordTooShort": { "placeholders": { "min": { "type": "int" } } },
+  "authenticationErrorConfirmRequired": "Repite la contraseña para confirmarla.",
+  "authenticationErrorPasswordMismatch": "Las contraseñas no coinciden.",
+  "authenticationErrorTooLong": "Es demasiado largo: máximo {max} caracteres.",
+  "@authenticationErrorTooLong": { "placeholders": { "max": { "type": "int" } } },
+  "authenticationErrorAcceptanceRequired": "Debes aceptar los términos y la política de tratamiento de datos para continuar.",
+  "authenticationErrorServerField": "Revisa este dato.",
+  "@authenticationErrorServerField": { "description": "Texto de respaldo cuando el servidor señala un campo sin mensaje." },
+
+  "authenticationSubmitting": "Enviando, espera un momento",
+  "authenticationSubmitWait": "Disponible en {time}",
+  "@authenticationSubmitWait": {
+    "description": "Texto del botón deshabilitado durante la espera por demasiados intentos.",
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "authenticationLoginSubmit": "Iniciar sesión",
+  "authenticationLoginForgotLink": "¿Olvidaste tu contraseña?",
+  "authenticationLoginRegisterLink": "¿No tienes cuenta? Regístrate",
+  "authenticationLoginLegalLink": "Términos y política de datos",
+  "authenticationLoginInvalidCredentials": "Correo o contraseña incorrectos.",
+  "@authenticationLoginInvalidCredentials": { "description": "Mensaje ÚNICO ante cuenta inexistente, contraseña errónea, rol bloqueado o cuenta en eliminación (AC-040-2, AC-048-1). No debe cambiar según el caso." },
+
+  "authenticationRateLimitedMessage": "Demasiados intentos. Espera un momento antes de intentarlo de nuevo.",
+  "@authenticationRateLimitedMessage": { "description": "429: no indica si la cuenta existe (AC-045-7)." },
+  "authenticationRateLimitedCountdown": "Podrás volver a intentarlo en {time}.",
+  "@authenticationRateLimitedCountdown": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+
+  "authenticationRegisterSubmit": "Registrarme",
+  "authenticationRegisterLoginLink": "¿Ya tienes cuenta? Inicia sesión",
+  "authenticationAcceptanceLabel": "Acepto los términos y condiciones y la política de tratamiento de datos.",
+  "authenticationTermsLink": "Leer los términos y condiciones",
+  "authenticationPrivacyLink": "Leer la política de tratamiento de datos",
+  "authenticationLegalUnavailableTitle": "No podemos crear la cuenta ahora",
+  "authenticationLegalUnavailableBody": "No pudimos cargar la versión vigente de los términos y la política de datos, y sin ella no se puede registrar la aceptación. Reintenta cuando tengas conexión.",
+  "authenticationRegisterConflictNotice": "No pudimos completar el registro con estos datos. Si ya tienes una cuenta, inicia sesión o recupera tu contraseña.",
+  "@authenticationRegisterConflictNotice": { "description": "Mensaje NEUTRAL ante 409: no confirma que la cuenta exista. Comportamiento definitivo pendiente de H-03 (PA-02); ver RegisterConflictPolicy." },
+  "authenticationRegisterConflictLogin": "Iniciar sesión",
+  "authenticationRegisterConflictRecover": "Recuperar contraseña",
+  "authenticationDiscardTitle": "¿Descartar los cambios?",
+  "authenticationDiscardBody": "Lo que escribiste en el formulario se perderá.",
+  "authenticationDiscardCancel": "Seguir editando",
+  "authenticationDiscardConfirm": "Descartar",
+
+  "authenticationRecoveryIntro": "Escribe el correo de tu cuenta y te enviaremos un enlace para crear una nueva contraseña.",
+  "authenticationRecoverySubmit": "Enviar enlace",
+  "authenticationRecoverySentTitle": "Revisa tu correo",
+  "authenticationRecoverySentBody": "Si el correo está registrado, te enviamos un enlace para crear una nueva contraseña. Ábrelo desde tu correo para completar el cambio.",
+  "@authenticationRecoverySentBody": { "description": "Mensaje uniforme: idéntico exista o no la cuenta (AC-042-4, AC-045-5)." },
+  "authenticationBackToLogin": "Volver a iniciar sesión"
+}

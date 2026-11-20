@@ -73,5 +73,8 @@
   "catalogBrandSearchClear": "Borrar búsqueda",
   "catalogBrandSearchSubmit": "Buscar",
 
-  "catalogSaleTitle": "Liquidaciones"
+  "catalogSaleTitle": "Liquidaciones",
+  "catalogBtuFilterLabel": "Capacidad BTU",
+  "catalogBtuOptionLabel": "{capacity} BTU",
+  "@catalogBtuOptionLabel": { "placeholders": { "capacity": { "type": "String" } } }
 }

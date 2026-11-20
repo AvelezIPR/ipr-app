@@ -8,10 +8,14 @@ abstract final class HiveBoxes {
 }
 
 /// Inicializa Hive en el directorio de soporte de la app y abre la caja de
-/// caché. La caja `cart` se abre en la rebanada M3.
+/// caché. La caja `cart` se abre con [openCartBox].
 Future<Box<String>> openCacheBox() async {
   final dir = await getApplicationSupportDirectory();
   Hive.init(dir.path);
   final box = await Hive.openBox<String>(HiveBoxes.cache);
   return box;
 }
+
+/// Abre la caja `cart` (carrito local, sin PII). Debe llamarse después de
+/// [openCacheBox], que inicializa Hive.
+Future<Box<String>> openCartBox() => Hive.openBox<String>(HiveBoxes.cart);

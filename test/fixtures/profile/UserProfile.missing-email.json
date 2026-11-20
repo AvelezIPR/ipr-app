@@ -1,0 +1,10 @@
+{
+  "data": {
+    "id": 42,
+    "firstName": "Ana",
+    "lastName": "Prueba",
+    "displayName": "Ana Prueba",
+    "billing": null,
+    "shipping": null
+  }
+}

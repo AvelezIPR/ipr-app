@@ -1,0 +1,24 @@
+{
+  "comment": "Cuerpos y respuestas de POST /checkout y GET /checkout/{checkoutRef}. Datos sintéticos: ningún dato real; el ticket es un valor inventado de 32 caracteres. Los inválidos prueban que el validador detecta incumplimientos (precio, campos extra, URL ausente).",
+  "fixtures": [
+    { "file": "CartItemsRequest.valid.json", "schema": "CartItemsRequest", "valid": true },
+    { "file": "CartItemsRequest.with-price.json", "schema": "CartItemsRequest", "valid": false },
+    { "file": "CartItemsRequest.empty.json", "schema": "CartItemsRequest", "valid": false },
+    { "file": "CartItemsRequest.quantity-zero.json", "schema": "CartItemsRequest", "valid": false },
+    { "file": "CartItemsRequest.extra-top-level.json", "schema": "CartItemsRequest", "valid": false },
+    { "file": "CheckoutSession.valid.json", "schema": "CheckoutSession", "path": "data", "valid": true },
+    { "file": "CheckoutSession.no-url.json", "schema": "CheckoutSession", "path": "data", "valid": false },
+    { "file": "CheckoutStatus.awaiting-order.valid.json", "schema": "CheckoutStatus", "path": "data", "valid": true },
+    { "file": "CheckoutStatus.paid.valid.json", "schema": "CheckoutStatus", "path": "data", "valid": true },
+    { "file": "CheckoutStatus.pending.valid.json", "schema": "CheckoutStatus", "path": "data", "valid": true },
+    { "file": "CheckoutStatus.failed.valid.json", "schema": "CheckoutStatus", "path": "data", "valid": true },
+    { "file": "CheckoutStatus.cancelled.valid.json", "schema": "CheckoutStatus", "path": "data", "valid": true },
+    { "file": "CheckoutStatus.refunded.valid.json", "schema": "CheckoutStatus", "path": "data", "valid": true },
+    { "file": "CheckoutStatus.unknown.valid.json", "schema": "CheckoutStatus", "path": "data", "valid": true },
+    { "file": "CheckoutStatus.bad-state.json", "schema": "CheckoutStatus", "path": "data", "valid": false },
+    { "file": "Problem.409-ticket-used.json", "schema": "Problem", "valid": true },
+    { "file": "Problem.502-upstream.json", "schema": "Problem", "valid": true },
+    { "file": "Problem.503-feature-disabled.json", "schema": "Problem", "valid": true },
+    { "file": "Problem.429-rate-limited.json", "schema": "Problem", "valid": true }
+  ]
+}

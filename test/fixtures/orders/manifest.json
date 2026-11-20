@@ -1,0 +1,12 @@
+{
+  "comment": "Fixtures sintéticos de la feature orders (GET /orders, GET /orders/{orderId}). Ningún dato real.",
+  "fixtures": [
+    { "file": "OrderSummary.paid.valid.json", "schema": "OrderSummary", "valid": true },
+    { "file": "OrderSummary.pending.valid.json", "schema": "OrderSummary", "valid": true },
+    { "file": "OrderSummary.bad-payment-state.json", "schema": "OrderSummary", "valid": false },
+    { "file": "OrderDetail.valid.json", "schema": "OrderDetail", "path": "data", "valid": true },
+    { "file": "OrderDetail.missing-items.json", "schema": "OrderDetail", "path": "data", "valid": false },
+    { "file": "PageMeta.orders.json", "schema": "PageMeta", "valid": true },
+    { "file": "Problem.404-not-found.json", "schema": "Problem", "valid": true }
+  ]
+}

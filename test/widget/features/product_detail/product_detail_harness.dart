@@ -38,15 +38,16 @@ const kSlug = 'compresor-scroll-24000-btu';
 
 /// Espía de la costura del carrito.
 final class FakeAddToCart implements AddToCartAction {
-  new({this.result = const Ok(null)});
+  new({this.result = const Ok(AddToCartOutcome())});
 
-  Result<void> result;
+  Result<AddToCartOutcome> result;
   final List<({int productId, int quantity})> calls = [];
 
   @override
-  Future<Result<void>> add({
+  Future<Result<AddToCartOutcome>> add({
     required int productId,
     required int quantity,
+    ProductSummary? snapshot,
   }) async {
     calls.add((productId: productId, quantity: quantity));
     return result;

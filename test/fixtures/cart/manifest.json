@@ -1,0 +1,11 @@
+{
+  "comment": "Fixtures de la feature cart: POST /cart/validate. Cuerpo de la petición (CartItemsRequest: solo {id, quantity}) y respuesta ({data: CartValidation}). Datos sintéticos (host .invalid).",
+  "fixtures": [
+    { "file": "CartValidation.mixed.json", "schema": "CartValidation", "path": "data", "valid": true, "comment": "las 5 situaciones: available, out_of_stock, on_backorder, price_on_request y not_found" },
+    { "file": "CartValidation.all-available.json", "schema": "CartValidation", "path": "data", "valid": true },
+    { "file": "CartValidation.price-changed.json", "schema": "CartValidation", "path": "data", "valid": true },
+    { "file": "CartValidation.unknown-status.json", "schema": "CartValidation", "path": "data", "valid": false, "comment": "status fuera del enum: la app lo tolera como no disponible (bloquea el pago)" },
+    { "file": "CartItemsRequest.valid.json", "schema": "CartItemsRequest", "valid": true },
+    { "file": "CartItemsRequest.with-price.json", "schema": "CartItemsRequest", "valid": false, "comment": "el contrato rechaza cualquier campo extra (precio): la app jamás lo envía (IR-01)" }
+  ]
+}

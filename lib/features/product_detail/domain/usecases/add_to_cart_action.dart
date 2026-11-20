@@ -1,14 +1,26 @@
 import 'package:ipr_mobile/core/network/result.dart';
+import 'package:ipr_mobile/shared/domain/product_summary.dart';
 
-/// Costura hacia el carrito (M3). La ficha **no** conoce el carrito: pide
-/// añadir un producto y una cantidad a través de esta interfaz. En M1 no hay
-/// implementación registrada y el botón "Agregar al carrito" no se muestra.
-///
-/// La implementación (en `features/cart`) valida el tope de 100 líneas, la
-/// fusión de cantidades y la persistencia local; aquí solo se conoce el
-/// resultado.
+/// Resultado de añadir al carrito.
+final class AddToCartOutcome {
+  const new({this.quantityLimited = false});
+
+  /// La cantidad pedida (o la suma con lo que ya había) superó el máximo por
+  /// producto y se acotó; la ficha lo informa (AC-029-5).
+  final bool quantityLimited;
+}
+
+/// Costura hacia el carrito. La ficha **no** conoce el carrito: pide añadir un
+/// producto y una cantidad a través de esta interfaz. La implementación real
+/// vive en `data/cart_backed_add_to_cart_action.dart`; en las pruebas de la
+/// ficha se sustituye por un doble.
 abstract interface class AddToCartAction {
-  /// Añade [quantity] unidades del producto [productId]. `Ok` si quedó en el
-  /// carrito; `Err` con el motivo si no.
-  Future<Result<void>> add({required int productId, required int quantity});
+  /// Añade [quantity] unidades del producto [productId]. [snapshot] es el
+  /// producto tal como lo vio el usuario, para pintar la línea sin red.
+  /// `Ok` si quedó en el carrito; `Err` con el motivo si no.
+  Future<Result<AddToCartOutcome>> add({
+    required int productId,
+    required int quantity,
+    ProductSummary? snapshot,
+  });
 }

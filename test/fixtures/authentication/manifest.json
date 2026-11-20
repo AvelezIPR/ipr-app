@@ -1,0 +1,80 @@
+{
+  "comment": "Cuerpos y respuestas de /auth/login, /auth/register y /auth/password/forgot. Datos sintéticos: ningún dato real; los tokens siguen el patrón del contrato (ipra_/iprr_ + 43 caracteres base64url).",
+  "fixtures": [
+    {
+      "file": "AuthSessionResponse.valid.json",
+      "schema": "AuthSessionResponse",
+      "valid": true
+    },
+    {
+      "file": "AuthSessionResponse.bad-access-token.json",
+      "schema": "AuthSessionResponse",
+      "valid": false
+    },
+    {
+      "file": "AuthSessionResponse.no-user.json",
+      "schema": "AuthSessionResponse",
+      "valid": false
+    },
+    {
+      "file": "LoginRequest.valid.json",
+      "schema": "LoginRequest",
+      "valid": true
+    },
+    {
+      "file": "LoginRequest.no-password.json",
+      "schema": "LoginRequest",
+      "valid": false
+    },
+    {
+      "file": "RegisterRequest.valid.json",
+      "schema": "RegisterRequest",
+      "valid": true
+    },
+    {
+      "file": "RegisterRequest.not-accepted.json",
+      "schema": "RegisterRequest",
+      "valid": false
+    },
+    {
+      "file": "RegisterRequest.extra-field.json",
+      "schema": "RegisterRequest",
+      "valid": false
+    },
+    {
+      "file": "RegisterRequest.short-password.json",
+      "schema": "RegisterRequest",
+      "valid": false
+    },
+    {
+      "file": "ForgotPasswordRequest.valid.json",
+      "schema": "ForgotPasswordRequest",
+      "valid": true
+    },
+    {
+      "file": "AcceptedResponse.valid.json",
+      "schema": "AcceptedResponse",
+      "valid": true
+    },
+    {
+      "file": "Problem.401-invalid-credentials.json",
+      "schema": "Problem",
+      "valid": true
+    },
+    {
+      "file": "Problem.429-rate-limited.json",
+      "schema": "Problem",
+      "valid": true
+    },
+    {
+      "file": "Problem.400-validation.json",
+      "schema": "Problem",
+      "valid": true
+    },
+    {
+      "file": "Problem.409-conflict.json",
+      "schema": "Problem",
+      "valid": true
+    }
+  ]
+}

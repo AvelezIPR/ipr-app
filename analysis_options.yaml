@@ -10,6 +10,7 @@ analyzer:
     - lib/l10n/app_localizations*.dart
     # Generado por ci/gen_coverage_helper.dart (importa todo lib/ para medir)
     - test/coverage_helper_test.dart
+    - web/**
   errors:
     # Infracciones de seguridad o de arquitectura nunca son "info".
     invalid_annotation_target: ignore

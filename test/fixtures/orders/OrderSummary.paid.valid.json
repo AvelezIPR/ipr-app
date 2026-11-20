@@ -1,0 +1,11 @@
+{
+  "id": 1001,
+  "number": "1001",
+  "status": "processing",
+  "statusLabel": "En preparación",
+  "paymentState": "paid",
+  "createdAt": "2026-11-19T18:30:00Z",
+  "currency": "COP",
+  "total": 450000,
+  "itemCount": 2
+}

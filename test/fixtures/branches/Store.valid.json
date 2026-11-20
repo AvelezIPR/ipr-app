@@ -1,0 +1,18 @@
+{
+  "slug": "sede-prueba-centro",
+  "city": "Medellín",
+  "name": "QA-SEDE-1 Centro",
+  "address": "Calle 0 # 0-00, Local 1, Medellín",
+  "upcoming": false,
+  "phones": [
+    { "type": "landline", "display": "(604) 3604440", "dial": "+576043604440" },
+    { "type": "sales_parts", "display": "300 000 0001", "dial": "3000000001" },
+    { "type": "sales_ac", "display": "300 000 0002", "dial": "3000000002" },
+    { "type": "mobile", "display": "300 000 0003", "dial": "3000000003" }
+  ],
+  "whatsapp": { "number": "573000000009" },
+  "imageUrl": "https://img.example.com/sede-1.jpg",
+  "mapsQuery": "Calle 0 # 0-00, Medellín",
+  "coordinates": null,
+  "openingHours": null
+}

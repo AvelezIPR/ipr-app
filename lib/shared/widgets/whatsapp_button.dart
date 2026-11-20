@@ -35,8 +35,12 @@ Future<void> openWhatsApp(
   BuildContext context,
   WidgetRef ref, {
   required String message,
+  String? phoneOverride,
 }) async {
-  final number = whatsAppNumberOf(ref);
+  final custom = phoneOverride?.trim();
+  final number = (custom != null && custom.isNotEmpty)
+      ? custom
+      : whatsAppNumberOf(ref);
   final launcher = ref.read(externalLauncherProvider);
   final opened = await launcher.open(whatsAppUri(number, text: message));
   if (opened || !context.mounted) return;
@@ -86,12 +90,20 @@ class WhatsAppButton extends ConsumerWidget {
     required this.label,
     required this.message,
     super.key,
+    this.phoneOverride,
+    this.onBeforeOpen,
     this.filled = true,
     this.expand = true,
   });
 
   final String label;
   final String message;
+
+  /// Número alternativo (p. ej. sede específica o canal de ingeniería).
+  final String? phoneOverride;
+
+  /// Gancho opcional ejecutado justo antes de abrir WhatsApp (p. ej. RF-065).
+  final VoidCallback? onBeforeOpen;
 
   /// Primario (relleno) o secundario (contorno).
   final bool filled;
@@ -101,7 +113,18 @@ class WhatsAppButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    void onPressed() => unawaited(openWhatsApp(context, ref, message: message));
+    void onPressed() {
+      onBeforeOpen?.call();
+      unawaited(
+        openWhatsApp(
+          context,
+          ref,
+          message: message,
+          phoneOverride: phoneOverride,
+        ),
+      );
+    }
+
     const icon = ExcludeSemantics(child: Icon(Icons.chat_outlined));
     final text = Flexible(child: Text(label, textAlign: TextAlign.center));
     final content = Row(

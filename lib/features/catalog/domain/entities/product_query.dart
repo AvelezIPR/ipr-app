@@ -17,12 +17,19 @@ enum ListKind {
 /// valor).
 @immutable
 final class ListScope {
-  const new category(String value) : kind = ListKind.category, slug = value;
-  const new brand(String value) : kind = ListKind.brand, slug = value;
-  const new sale() : kind = ListKind.sale, slug = null;
+  const new category(String value)
+    : kind = ListKind.category,
+      slug = value,
+      initialChoice = null;
+  const new brand(String value)
+    : kind = ListKind.brand,
+      slug = value,
+      initialChoice = null;
+  const new sale() : kind = ListKind.sale, slug = null, initialChoice = null;
 
-  /// Sin categoría: el listado general de `/catalog/list` sin parámetro.
-  const new all() : kind = ListKind.category, slug = null;
+  /// Sin categoría: el listado general de `/catalog/list` (opcionalmente con un
+  /// filtro inicial de atributo, p. ej. capacidad BTU desde la calculadora).
+  const new all({this.initialChoice}) : kind = ListKind.category, slug = null;
 
   final ListKind kind;
 
@@ -30,18 +37,24 @@ final class ListScope {
   /// listado general.
   final String? slug;
 
+  /// Filtro inicial aplicado en la primera carga (RF-089).
+  final FilterChoice? initialChoice;
+
   String? get categorySlug => kind == ListKind.category ? slug : null;
   String? get brandSlug => kind == ListKind.brand ? slug : null;
 
   @override
   bool operator ==(Object other) =>
-      other is ListScope && other.kind == kind && other.slug == slug;
+      other is ListScope &&
+      other.kind == kind &&
+      other.slug == slug &&
+      other.initialChoice == initialChoice;
 
   @override
-  int get hashCode => Object.hash(kind, slug);
+  int get hashCode => Object.hash(kind, slug, initialChoice);
 
   @override
-  String toString() => 'ListScope($kind, $slug)';
+  String toString() => 'ListScope($kind, $slug, $initialChoice)';
 }
 
 /// Una página pedida de un listado.

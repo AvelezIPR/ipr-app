@@ -1,0 +1,11 @@
+{
+  "id": 1003,
+  "number": "1003",
+  "status": "custom",
+  "statusLabel": "Estado nuevo",
+  "paymentState": "unexpected_gateway_state",
+  "createdAt": "2026-11-20T10:00:00Z",
+  "currency": "COP",
+  "total": 85000,
+  "itemCount": 1
+}

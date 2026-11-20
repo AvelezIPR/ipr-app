@@ -1,0 +1,14 @@
+{
+  "comment": "Fixtures sintéticos de la feature branches (GET /stores). Ningún dato real.",
+  "fixtures": [
+    { "file": "Store.valid.json", "schema": "Store", "valid": true },
+    { "file": "Store.upcoming.json", "schema": "Store", "valid": true },
+    { "file": "Store.missing-whatsapp.json", "schema": "Store", "valid": true },
+    {
+      "file": "Store.bad-dial.json",
+      "schema": "Store",
+      "valid": false,
+      "comment": "dial fuera de patrón en el contrato; la app omite el teléfono inválido sin romper la sede"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "data": {
+    "id": 43,
+    "email": "qa.cliente.02@example.test",
+    "firstName": "Luis",
+    "lastName": "Prueba",
+    "displayName": "Luis Prueba",
+    "billing": null,
+    "shipping": null
+  }
+}

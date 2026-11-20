@@ -1,0 +1,26 @@
+{
+  "data": {
+    "lines": [
+      {
+        "id": 4521,
+        "quantity": 1,
+        "status": "available",
+        "product": {
+          "id": 4521,
+          "slug": "compresor-scroll-24000-btu",
+          "name": "Compresor scroll 24.000 BTU R410A",
+          "sku": "QA-0001",
+          "brand": { "name": "Copeland", "slug": "copeland" },
+          "price": { "status": "priced", "amount": 110000, "regularAmount": null, "onSale": false, "discountPercent": null, "currency": "COP", "taxIncluded": true },
+          "availability": "in_stock",
+          "purchasable": true,
+          "image": null,
+          "categorySlugs": ["compresores"]
+        },
+        "lineSubtotal": 110000
+      }
+    ],
+    "informativeSubtotal": { "amount": 110000, "currency": "COP", "taxIncluded": true },
+    "checkoutAllowed": true
+  }
+}

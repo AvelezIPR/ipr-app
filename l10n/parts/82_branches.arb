@@ -1,0 +1,26 @@
+{
+  "branchesTitle": "Sedes",
+  "branchesEmptyTitle": "No hay sedes disponibles por ahora",
+  "branchesEmptyBody": "Vuelve a intentar en unos minutos o escríbenos por WhatsApp.",
+  "branchesUpcomingBadge": "Próximamente",
+  "branchesUpcomingBody": "Esta sede estará disponible próximamente. Aún no tiene canales de atención habilitados.",
+  "branchesOpenDetailsSemantics": "Abrir ficha de la sede {name}",
+  "@branchesOpenDetailsSemantics": { "placeholders": { "name": { "type": "String" } } },
+
+  "branchesDetailTitle": "Detalle de sede",
+  "branchesAddressLabel": "Dirección",
+  "branchesPhonesLabel": "Teléfonos",
+  "branchesPhoneLandline": "Fijo / PBX",
+  "branchesPhoneSalesParts": "Ventas de repuestos",
+  "branchesPhoneSalesAc": "Ventas de aire acondicionado",
+  "branchesPhoneMobile": "Celular corporativo",
+  "branchesPhoneMobileSecondary": "Celular corporativo adicional",
+  "branchesCallAction": "Llamar a {display}",
+  "@branchesCallAction": { "placeholders": { "display": { "type": "String" } } },
+  "branchesWhatsappAction": "Escribir por WhatsApp",
+  "branchesWhatsappMessage": "Hola IPR, deseo comunicarme con la sede {branchName}.",
+  "@branchesWhatsappMessage": { "placeholders": { "branchName": { "type": "String" } } },
+  "branchesDirectionsAction": "Cómo llegar",
+  "branchesCallFailed": "No pudimos abrir el marcador del teléfono.",
+  "branchesMapsFailed": "No pudimos abrir el mapa para esta dirección."
+}

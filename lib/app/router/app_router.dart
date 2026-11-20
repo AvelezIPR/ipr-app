@@ -7,11 +7,18 @@ import 'package:ipr_mobile/app/router/routes.dart';
 import 'package:ipr_mobile/core/config/remote_config_controller.dart';
 import 'package:ipr_mobile/core/session/session_controller.dart';
 import 'package:ipr_mobile/core/session/session_state.dart';
+import 'package:ipr_mobile/features/authentication/authentication.dart';
+import 'package:ipr_mobile/features/branches/branches.dart';
+import 'package:ipr_mobile/features/cart/cart.dart';
 import 'package:ipr_mobile/features/catalog/catalog.dart';
+import 'package:ipr_mobile/features/checkout/checkout.dart';
 import 'package:ipr_mobile/features/home/home.dart';
+import 'package:ipr_mobile/features/orders/orders.dart';
 import 'package:ipr_mobile/features/product_detail/product_detail.dart';
+import 'package:ipr_mobile/features/profile/profile.dart';
 import 'package:ipr_mobile/features/search/search.dart';
-import 'package:ipr_mobile/l10n/app_localizations.dart';
+import 'package:ipr_mobile/features/support/support.dart';
+import 'package:ipr_mobile/features/technical_tools/technical_tools.dart';
 
 /// Notifica al router cuando cambia la sesión o la exigencia de actualizar.
 final class _RouterRefresh extends ChangeNotifier {
@@ -69,14 +76,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     allowedHost: ref.read(appConfigProvider).deepLinkHost,
   );
 
-  Widget screen(
-    BuildContext context,
-    String Function(AppLocalizations) title,
-  ) => PlaceholderScreen(title: title(AppLocalizations.of(context)));
-
-  GoRoute simple(String path, String Function(AppLocalizations) title) =>
-      GoRoute(path: path, builder: (c, s) => screen(c, title));
-
   return GoRouter(
     initialLocation: Routes.home,
     refreshListenable: refresh,
@@ -105,35 +104,37 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: Routes.cart,
-                builder: (c, s) => PlaceholderScreen(
-                  title: AppLocalizations.of(c).tabCart,
-                  showAppBar: false,
-                ),
-              ),
+              GoRoute(path: Routes.cart, builder: (c, s) => const CartScreen()),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
                 path: Routes.account,
-                builder: (c, s) => PlaceholderScreen(
-                  title: AppLocalizations.of(c).tabAccount,
-                  showAppBar: false,
-                ),
+                builder: (c, s) => const AccountScreen(),
               ),
             ],
           ),
         ],
       ),
-      simple(Routes.login, (l) => l.tabAccount),
-      simple(Routes.register, (l) => l.tabAccount),
-      simple(Routes.passwordRecovery, (l) => l.tabAccount),
+      GoRoute(
+        path: Routes.login,
+        builder: (c, s) => LoginScreen(from: s.uri.queryParameters['from']),
+      ),
+      GoRoute(
+        path: Routes.register,
+        builder: (c, s) => RegisterScreen(from: s.uri.queryParameters['from']),
+      ),
+      GoRoute(
+        path: Routes.passwordRecovery,
+        builder: (c, s) => const PasswordRecoveryScreen(),
+      ),
       GoRoute(
         path: Routes.catalogList,
-        builder: (c, s) =>
-            ProductListScreen(categorySlug: s.uri.queryParameters['category']),
+        builder: (c, s) => ProductListScreen(
+          categorySlug: s.uri.queryParameters['category'],
+          btuSlug: s.uri.queryParameters['btu'],
+        ),
       ),
       GoRoute(path: Routes.brands, builder: (c, s) => const BrandsScreen()),
       GoRoute(
@@ -150,19 +151,54 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '${Routes.productPrefix}/:slug',
         builder: (c, s) => ProductDetailScreen(slug: s.pathParameters['slug']!),
       ),
-      simple(Routes.checkout, (l) => l.tabCart),
-      simple(Routes.checkoutResult, (l) => l.tabCart),
-      simple(Routes.orders, (l) => l.tabAccount),
-      simple('${Routes.orders}/:number', (l) => l.tabAccount),
-      simple(Routes.profile, (l) => l.tabAccount),
-      simple(Routes.addresses, (l) => l.tabAccount),
-      simple(Routes.deleteAccount, (l) => l.tabAccount),
-      simple(Routes.branches, (l) => l.placeholderTitle),
-      simple(Routes.btu, (l) => l.placeholderTitle),
-      simple(Routes.support, (l) => l.placeholderTitle),
-      simple(Routes.pqrs, (l) => l.placeholderTitle),
-      simple(Routes.legal, (l) => l.placeholderTitle),
-      simple(Routes.engineering, (l) => l.placeholderTitle),
+      GoRoute(path: Routes.checkout, builder: (c, s) => const CheckoutScreen()),
+      GoRoute(
+        path: Routes.checkoutResult,
+        builder: (c, s) => CheckoutResultScreen(
+          order: s.uri.queryParameters['order'],
+          status: s.uri.queryParameters['status'],
+        ),
+      ),
+      GoRoute(path: Routes.orders, builder: (c, s) => const OrdersScreen()),
+      GoRoute(
+        path: '${Routes.orders}/:orderId',
+        builder: (c, s) {
+          final id = int.tryParse(s.pathParameters['orderId'] ?? '');
+          return (id != null && id > 0)
+              ? OrderDetailScreen(orderId: id)
+              : const OrdersScreen();
+        },
+      ),
+      GoRoute(path: Routes.profile, builder: (c, s) => const ProfileScreen()),
+      GoRoute(
+        path: Routes.changePassword,
+        builder: (c, s) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
+        path: Routes.addresses,
+        builder: (c, s) => const AddressesScreen(),
+      ),
+      GoRoute(
+        path: Routes.deleteAccount,
+        builder: (c, s) => const DeleteAccountScreen(),
+      ),
+      GoRoute(
+        path: Routes.dataRights,
+        builder: (c, s) => const DataRightsScreen(),
+      ),
+      GoRoute(path: Routes.branches, builder: (c, s) => const BranchesScreen()),
+      GoRoute(
+        path: '${Routes.branches}/:slug',
+        builder: (c, s) => BranchDetailScreen(slug: s.pathParameters['slug']!),
+      ),
+      GoRoute(path: Routes.btu, builder: (c, s) => const BtuCalculatorScreen()),
+      GoRoute(path: Routes.support, builder: (c, s) => const HelpScreen()),
+      GoRoute(path: Routes.pqrs, builder: (c, s) => const PqrsScreen()),
+      GoRoute(path: Routes.legal, builder: (c, s) => const LegalScreen()),
+      GoRoute(
+        path: Routes.engineering,
+        builder: (c, s) => const EngineeringScreen(),
+      ),
       GoRoute(
         path: Routes.updateRequired,
         builder: (c, s) => const UpdateRequiredScreen(),

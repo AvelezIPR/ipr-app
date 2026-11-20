@@ -1,0 +1,68 @@
+{
+  "ordersListTitle": "Mis pedidos",
+  "ordersEmptyTitle": "Aún no tienes pedidos",
+  "ordersEmptyBody": "Cuando realices una compra verás aquí el historial y el estado de cada pedido.",
+  "ordersEmptyAction": "Explorar catálogo",
+  "ordersOrderNumber": "Pedido #{number}",
+  "@ordersOrderNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersItemCount": "{count, plural, =1{1 producto} other{{count} productos}}",
+  "@ordersItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ordersLoadMoreError": "No pudimos cargar más pedidos.",
+  "ordersLoadingMore": "Cargando más pedidos",
+  "ordersDetailTitle": "Pedido #{number}",
+  "@ordersDetailTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailFallbackTitle": "Detalle del pedido",
+  "ordersDetailNotFoundTitle": "Pedido no encontrado",
+  "ordersDetailNotFoundBody": "No encontramos este pedido o no está disponible para tu cuenta.",
+  "ordersDetailBackToList": "Volver a mis pedidos",
+  "ordersDetailDate": "Fecha",
+  "ordersDetailStatus": "Estado",
+  "ordersDetailPaymentMethod": "Método de pago",
+  "ordersDetailProductsSection": "Productos",
+  "ordersDetailQuantity": "Cantidad: {quantity}",
+  "@ordersDetailQuantity": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "ordersDetailSku": "Ref. {sku}",
+  "@ordersDetailSku": {
+    "placeholders": {
+      "sku": {
+        "type": "String"
+      }
+    }
+  },
+  "ordersDetailSubtotal": "Subtotal",
+  "ordersDetailShipping": "Envío",
+  "ordersDetailDiscount": "Descuento",
+  "ordersDetailTax": "Impuestos",
+  "ordersDetailTotal": "Total",
+  "ordersDetailPaymentFallback": "Por confirmar",
+  "ordersPaymentStatePaid": "Pagado",
+  "ordersPaymentStatePending": "Pago pendiente",
+  "ordersPaymentStateFailed": "Pago rechazado",
+  "ordersPaymentStateCancelled": "Pago cancelado",
+  "ordersPaymentStateRefunded": "Reembolsado",
+  "ordersPaymentStateUnknown": "En proceso"
+}
