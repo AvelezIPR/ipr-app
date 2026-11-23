@@ -83,7 +83,8 @@ void main(List<String> args) {
   final output = '${const JsonEncoder.withIndent('  ').convert(merged)}\n';
   final target = File('l10n/app_es.arb');
   if (check) {
-    if (!target.existsSync() || target.readAsStringSync() != output) {
+    if (!target.existsSync() ||
+        target.readAsStringSync().replaceAll('\r\n', '\n') != output) {
       stderr.writeln(
         'merge_arb: l10n/app_es.arb no está al día. Ejecuta dart run tool/merge_arb.dart',
       );

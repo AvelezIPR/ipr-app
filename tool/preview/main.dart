@@ -4,17 +4,21 @@
 // del contrato, no productos reales.
 //
 //   flutter run -d chrome -t tool/preview/main.dart
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ipr_mobile/app/app.dart';
 import 'package:ipr_mobile/app/providers.dart';
 import 'package:ipr_mobile/core/config/app_config.dart';
+import 'package:ipr_mobile/core/config/remote_config_controller.dart';
+import 'package:ipr_mobile/core/session/session_controller.dart';
 import 'package:ipr_mobile/core/storage/cache_store.dart';
 import 'package:ipr_mobile/core/storage/durable_store.dart';
 import 'package:ipr_mobile/core/storage/preferences_store.dart';
 import 'package:ipr_mobile/core/storage/secure_key_value.dart';
 
-final class _MemoryPrefs implements PreferencesStore {
+final class MemoryPrefs implements PreferencesStore {
   final Map<String, Object> _data = {};
 
   @override
@@ -34,7 +38,7 @@ final class _MemoryPrefs implements PreferencesStore {
   Future<void> remove(String key) async => _data.remove(key);
 }
 
-final class _MemorySecure implements SecureKeyValue {
+final class MemorySecure implements SecureKeyValue {
   final Map<String, String> _data = {};
 
   @override
@@ -50,30 +54,46 @@ final class _MemorySecure implements SecureKeyValue {
   Future<void> deleteAll() async => _data.clear();
 }
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  final config = AppConfig.fromMap(const {
+ProviderContainer createPreviewContainer({
+  String apiBaseUrl = 'http://127.0.0.1:8787/mobile/v1',
+  SecureKeyValue? secure,
+  PreferencesStore? preferences,
+  CacheStore? cache,
+  DurableStore? durable,
+}) {
+  final config = AppConfig.fromMap({
     'environment': 'dev',
-    'apiBaseUrl': 'http://127.0.0.1:8787/mobile/v1',
+    'apiBaseUrl': apiBaseUrl,
     'deepLinkHost': 'dev.invalid',
     'checkoutAllowedHosts': 'dev.invalid',
     'mediaHosts': 'dev.invalid',
     'supportWhatsApp': '573000000000',
   });
+  return ProviderContainer(
+    overrides: coreOverrides(
+      config: config,
+      appVersion: '1.0.0',
+      platform: 'android',
+      secure: secure ?? MemorySecure(),
+      preferences: preferences ?? MemoryPrefs(),
+      cache: cache ?? MemoryCacheStore(),
+      durable: durable ?? MemoryDurableStore(),
+    )..addAll(integrationOverrides()),
+  );
+}
+
+Future<void> bootstrapPreviewContainer(ProviderContainer container) async {
+  await container.read(sessionControllerProvider.notifier).restore();
+  final remote = container.read(remoteConfigProvider.notifier);
+  await remote.loadCached();
+  unawaited(remote.refreshIfStale());
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final container = createPreviewContainer();
+  await bootstrapPreviewContainer(container);
   runApp(
-    UncontrolledProviderScope(
-      container: ProviderContainer(
-        overrides: coreOverrides(
-          config: config,
-          appVersion: '1.0.0',
-          platform: 'android',
-          secure: _MemorySecure(),
-          preferences: _MemoryPrefs(),
-          cache: MemoryCacheStore(),
-          durable: MemoryDurableStore(),
-        )..addAll(integrationOverrides()),
-      ),
-      child: const IprApp(),
-    ),
+    UncontrolledProviderScope(container: container, child: const IprApp()),
   );
 }

@@ -183,6 +183,7 @@ class _PqrsFormBodyState extends ConsumerState<_PqrsFormBody> {
           const SizedBox(height: IprSpace.s4),
           DropdownButtonFormField<PqrsType>(
             initialValue: _type,
+            isExpanded: true,
             decoration: InputDecoration(labelText: l10n.supportPqrsTypeLabel),
             items: [
               for (final value in PqrsType.values)
@@ -209,6 +210,7 @@ class _PqrsFormBodyState extends ConsumerState<_PqrsFormBody> {
               errorText: state.fieldErrors[PqrsField.name] == null
                   ? null
                   : l10n.supportPqrsErrorName,
+              errorMaxLines: 4,
             ),
             onChanged: (_) => controller.clearFieldError(PqrsField.name),
           ),
@@ -223,6 +225,7 @@ class _PqrsFormBodyState extends ConsumerState<_PqrsFormBody> {
               errorText: state.fieldErrors[PqrsField.email] == null
                   ? null
                   : l10n.supportPqrsErrorEmail,
+              errorMaxLines: 4,
             ),
             onChanged: (_) => controller.clearFieldError(PqrsField.email),
           ),
@@ -237,6 +240,7 @@ class _PqrsFormBodyState extends ConsumerState<_PqrsFormBody> {
               errorText: state.fieldErrors[PqrsField.phone] == null
                   ? null
                   : l10n.supportPqrsErrorPhone,
+              errorMaxLines: 4,
             ),
             onChanged: (_) => controller.clearFieldError(PqrsField.phone),
           ),
@@ -250,6 +254,7 @@ class _PqrsFormBodyState extends ConsumerState<_PqrsFormBody> {
               errorText: state.fieldErrors[PqrsField.orderReference] == null
                   ? null
                   : l10n.supportPqrsErrorOrderRef,
+              errorMaxLines: 4,
             ),
             onChanged: (_) =>
                 controller.clearFieldError(PqrsField.orderReference),
@@ -270,6 +275,7 @@ class _PqrsFormBodyState extends ConsumerState<_PqrsFormBody> {
               errorText: state.fieldErrors[PqrsField.message] == null
                   ? null
                   : l10n.supportPqrsErrorMessage,
+              errorMaxLines: 4,
             ),
             onChanged: (_) => controller.clearFieldError(PqrsField.message),
           ),

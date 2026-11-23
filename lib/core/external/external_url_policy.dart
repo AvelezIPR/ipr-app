@@ -24,8 +24,17 @@ final class ExternalUrlPolicy {
       case 'https':
         final host = uri.host.toLowerCase();
         if (uri.hasPort && uri.port != 443) return false;
-        if (host == 'www.google.com') return uri.path.startsWith('/maps');
-        return _httpsHosts.contains(host) || extraHttpsHosts.contains(host);
+        if (host == 'www.google.com') {
+          if (uri.pathSegments.contains('..') ||
+              uri.path.contains('%2e') ||
+              uri.path.contains('%2E')) {
+            return false;
+          }
+          final path = uri.normalizePath().path;
+          return path == '/maps' || path.startsWith('/maps/');
+        }
+        return _httpsHosts.contains(host) ||
+            extraHttpsHosts.any((h) => h.toLowerCase() == host);
       case 'tel':
         return _phone.hasMatch(uri.path);
       case 'whatsapp':

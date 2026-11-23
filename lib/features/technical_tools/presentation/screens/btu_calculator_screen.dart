@@ -128,6 +128,7 @@ class _BtuCalculatorBodyState extends ConsumerState<_BtuCalculatorBody> {
           const SizedBox(height: IprSpace.s3),
           DropdownButtonFormField<ClimateZone>(
             initialValue: state.climate,
+            isExpanded: true,
             decoration: InputDecoration(
               labelText: l10n.technicalToolsBtuClimateLabel,
             ),
@@ -184,7 +185,11 @@ class _DecimalField extends StatelessWidget {
   Widget build(BuildContext context) => TextField(
     controller: controller,
     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-    decoration: InputDecoration(labelText: label, errorText: errorText),
+    decoration: InputDecoration(
+      labelText: label,
+      errorText: errorText,
+      errorMaxLines: 4,
+    ),
     onChanged: onChanged,
   );
 }
@@ -207,7 +212,11 @@ class _IntegerField extends StatelessWidget {
     controller: controller,
     keyboardType: TextInputType.number,
     inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9+-.,]'))],
-    decoration: InputDecoration(labelText: label, errorText: errorText),
+    decoration: InputDecoration(
+      labelText: label,
+      errorText: errorText,
+      errorMaxLines: 4,
+    ),
     onChanged: onChanged,
   );
 }
@@ -236,6 +245,7 @@ class _BtuResultSection extends ConsumerWidget {
             children: [
               Semantics(
                 header: true,
+                container: true,
                 child: Text(
                   l10n.technicalToolsBtuResultTitle,
                   style: theme.textTheme.titleMedium,

@@ -47,7 +47,7 @@ final class DeepLinkPolicy {
   /// ¿Esta URI viene de fuera de la app (tiene host) o apunta al espacio de
   /// enlaces `/app/`?
   bool isDeepLink(Uri uri) =>
-      uri.host.isNotEmpty || uri.path.startsWith('/app');
+      uri.hasScheme || uri.host.isNotEmpty || uri.path.startsWith('/app');
 
   DeepLinkDecision decide(Uri uri) {
     if (uri.host.isNotEmpty || uri.hasScheme) {
