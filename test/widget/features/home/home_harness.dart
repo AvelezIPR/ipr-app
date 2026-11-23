@@ -22,6 +22,7 @@ const _marker = 'DESTINO ';
 
 const _destinations = [
   '/search',
+  '/catalog',
   '/catalog/list',
   '/catalog/brands',
   '/catalog/brands/:slug',

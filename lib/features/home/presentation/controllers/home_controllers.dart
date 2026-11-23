@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_brand.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_category.dart';
+import 'package:ipr_mobile/features/home/domain/entities/home_city.dart';
 import 'package:ipr_mobile/features/home/domain/entities/section_data.dart';
 import 'package:ipr_mobile/features/home/domain/repositories/home_repository.dart';
 import 'package:ipr_mobile/features/home/home_providers.dart';
@@ -74,6 +75,14 @@ class HomeBrandsController extends HomeSectionController<HomeBrand> {
   }) => repository.brands(forceRefresh: forceRefresh);
 }
 
+class HomeCitiesController extends HomeSectionController<HomeCity> {
+  @override
+  Future<Result<SectionData<List<HomeCity>>>> fetch(
+    HomeRepository repository, {
+    required bool forceRefresh,
+  }) => repository.cities(forceRefresh: forceRefresh);
+}
+
 class HomeFeaturedController extends HomeSectionController<ProductSummary> {
   @override
   Future<Result<SectionData<List<ProductSummary>>>> fetch(
@@ -92,15 +101,21 @@ final homeBrandsProvider =
       HomeBrandsController.new,
     );
 
+final homeCitiesProvider =
+    NotifierProvider<HomeCitiesController, UiState<List<HomeCity>>>(
+      HomeCitiesController.new,
+    );
+
 final homeFeaturedProvider =
     NotifierProvider<HomeFeaturedController, UiState<List<ProductSummary>>>(
       HomeFeaturedController.new,
     );
 
-/// Recarga las tres secciones saltando la caché vigente (pull-to-refresh).
+/// Recarga las cuatro secciones saltando la caché vigente (pull-to-refresh).
 /// Cada una es independiente: un fallo no interrumpe a las otras.
 Future<void> refreshHome(WidgetRef ref) => Future.wait([
   ref.read(homeCategoriesProvider.notifier).load(forceRefresh: true),
   ref.read(homeBrandsProvider.notifier).load(forceRefresh: true),
   ref.read(homeFeaturedProvider.notifier).load(forceRefresh: true),
+  ref.read(homeCitiesProvider.notifier).load(forceRefresh: true),
 ]);

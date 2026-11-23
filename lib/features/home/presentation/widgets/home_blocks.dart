@@ -60,10 +60,18 @@ class SearchEntry extends StatelessWidget {
 
 /// Acceso a una categoría raíz (RF-002).
 class CategoryTile extends StatelessWidget {
-  const new({required this.category, required this.onTap, super.key});
+  const new({
+    required this.category,
+    required this.onTap,
+    super.key,
+    this.position,
+  });
 
   final HomeCategory category;
   final VoidCallback onTap;
+
+  /// Posición (1…n) que se muestra como número decorativo; `null` = ícono.
+  final int? position;
 
   @override
   Widget build(BuildContext context) {
@@ -89,10 +97,20 @@ class CategoryTile extends StatelessWidget {
               padding: const EdgeInsets.all(IprSpace.s3),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.category_outlined,
-                    color: theme.colorScheme.primary,
-                  ),
+                  if (position == null)
+                    Icon(
+                      Icons.category_outlined,
+                      color: theme.colorScheme.primary,
+                    )
+                  else
+                    ExcludeSemantics(
+                      child: Text(
+                        position.toString().padLeft(2, '0'),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
                   const SizedBox(width: IprSpace.s2),
                   Expanded(
                     child: Text(

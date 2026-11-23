@@ -8,12 +8,13 @@ import 'package:ipr_mobile/core/storage/cache_store.dart';
 import 'package:ipr_mobile/features/home/data/mappers/home_mappers.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_brand.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_category.dart';
+import 'package:ipr_mobile/features/home/domain/entities/home_city.dart';
 import 'package:ipr_mobile/features/home/domain/entities/section_data.dart';
 import 'package:ipr_mobile/features/home/domain/repositories/home_repository.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
 
-/// Implementación sobre `/mobile/v1` (`listCategories`, `listBrands` y
-/// `listProducts`) con caché SWR (`flutter_app_architecture.md` §7.4).
+/// Implementación sobre `/mobile/v1` (`listCategories`, `listBrands`,
+/// `listProducts` y `listStores`) con caché SWR (`flutter_app_architecture.md` §7.4).
 ///
 /// * Dato guardado vigente (y sin `forceRefresh`) → se devuelve sin red.
 /// * Dato guardado caducado → se pide a la red; si falla, se devuelve el dato
@@ -26,6 +27,7 @@ final class ApiHomeRepository implements HomeRepository {
   static const categoriesKey = 'home.categories.v1';
   static const brandsKey = 'home.brands.v1';
   static const featuredKey = 'home.featured.v1';
+  static const citiesKey = 'home.cities.v1';
 
   /// "Más vendidos": `listProducts` con `sort=popularity`. El criterio real
   /// de selección y la cantidad son DESCONOCIDOS (PA-05): se muestra lo que
@@ -69,6 +71,17 @@ final class ApiHomeRepository implements HomeRepository {
     policy: CachePolicy.listing,
     request: const ApiRequest.get('/products', query: featuredQuery),
     parse: mapProducts,
+    forceRefresh: forceRefresh,
+  );
+
+  @override
+  Future<Result<SectionData<List<HomeCity>>>> cities({
+    bool forceRefresh = false,
+  }) => _load(
+    key: citiesKey,
+    policy: CachePolicy.taxonomy,
+    request: const ApiRequest.get('/stores'),
+    parse: mapCities,
     forceRefresh: forceRefresh,
   );
 

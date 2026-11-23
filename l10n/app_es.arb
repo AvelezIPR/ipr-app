@@ -163,6 +163,44 @@
   "homeShortcutBranches": "Sedes",
   "homeShortcutCall": "Llamar a la línea de atención",
   "homeCallFailed": "No pudimos abrir el marcador del teléfono.",
+  "homeLogoSemantics": "Logo de IPR",
+  "homeHeroTitle": "Todo para aire acondicionado, refrigeración y ventilación",
+  "homeHeroBody": "Equipos, partes y repuestos con asesoría técnica en todo el país.",
+  "homeHeroCta": "Ver el catálogo",
+  "homeBranchesTitle": "Nuestras sedes",
+  "homeBranchesSummary": "{branches, plural, =1{1 sede} other{{branches} sedes}} en {cities, plural, =1{1 ciudad} other{{cities} ciudades}}",
+  "@homeBranchesSummary": {
+    "placeholders": {
+      "branches": {
+        "type": "int"
+      },
+      "cities": {
+        "type": "int"
+      }
+    }
+  },
+  "homeBranchesCity": "{city} · {count, plural, =1{1 sede} other{{count} sedes}}",
+  "@homeBranchesCity": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeBranchesCityUpcoming": "{city} · próximamente",
+  "@homeBranchesCityUpcoming": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "homeBranchesSeeAll": "Ver todas las sedes",
+  "homeBtuTagline": "Calcula los BTU que necesita tu espacio antes de comprar.",
+  "homeBtuCta": "Abrir la calculadora",
   "homeSectionLoadingSemantics": "Cargando {section}",
   "@homeSectionLoadingSemantics": {
     "placeholders": {

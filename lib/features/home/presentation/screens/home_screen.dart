@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ipr_mobile/core/config/remote_config_controller.dart';
 import 'package:ipr_mobile/core/providers.dart';
+import 'package:ipr_mobile/features/home/domain/entities/home_city.dart';
 import 'package:ipr_mobile/features/home/presentation/controllers/home_cart_badge_provider.dart';
 import 'package:ipr_mobile/features/home/presentation/controllers/home_controllers.dart';
 import 'package:ipr_mobile/features/home/presentation/widgets/home_blocks.dart';
+import 'package:ipr_mobile/features/home/presentation/widgets/home_brand_blocks.dart';
 import 'package:ipr_mobile/features/home/presentation/widgets/home_section.dart';
 import 'package:ipr_mobile/features/home/presentation/widgets/tile_grid.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
@@ -42,6 +44,7 @@ class HomeScreen extends ConsumerWidget {
     final categories = ref.watch(homeCategoriesProvider);
     final featured = ref.watch(homeFeaturedProvider);
     final brands = ref.watch(homeBrandsProvider);
+    final cities = ref.watch(homeCitiesProvider);
     final anyStale =
         _isStale(categories) || _isStale(featured) || _isStale(brands);
     final dial = ref.watch(
@@ -70,12 +73,14 @@ class HomeScreen extends ConsumerWidget {
           children: [
             Row(
               children: [
+                const IprLogoMark(),
+                const SizedBox(width: IprSpace.s3),
                 Expanded(
                   child: Semantics(
                     header: true,
                     child: Text(
                       l10n.appTitle,
-                      style: theme.textTheme.headlineSmall,
+                      style: theme.textTheme.titleLarge,
                     ),
                   ),
                 ),
@@ -111,6 +116,8 @@ class HomeScreen extends ConsumerWidget {
               label: l10n.sharedWhatsappAdvice,
               message: l10n.sharedWhatsappMsgAdvice,
             ),
+            const SizedBox(height: IprSpace.s4),
+            HomeHeroCard(onCatalog: () => context.go(Routes.catalog)),
             HomeSection(
               title: l10n.homeCategoriesTitle,
               state: categories,
@@ -125,9 +132,10 @@ class HomeScreen extends ConsumerWidget {
               ),
               builder: (context, items) => TileGrid(
                 children: [
-                  for (final category in items)
+                  for (final (index, category) in items.indexed)
                     CategoryTile(
                       category: category,
+                      position: index + 1,
                       onTap: () => unawaited(
                         context.push(Routes.categoryList(category.slug)),
                       ),
@@ -169,6 +177,26 @@ class HomeScreen extends ConsumerWidget {
               message: l10n.sharedWhatsappMsgQuote,
               filled: false,
             ),
+            if (cities case UiData<List<HomeCity>>(:final value))
+              if (value.isNotEmpty) ...[
+                const SizedBox(height: IprSpace.s5),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    l10n.homeBranchesTitle,
+                    style: theme.textTheme.titleLarge,
+                  ),
+                ),
+                const SizedBox(height: IprSpace.s2),
+                HomeBranchesSummary(
+                  cities: value,
+                  onTap: () => unawaited(context.push(Routes.branches)),
+                ),
+              ],
+            if (btuEnabled) ...[
+              const SizedBox(height: IprSpace.s5),
+              HomeBtuCard(onTap: () => unawaited(context.push(Routes.btu))),
+            ],
             HomeSection(
               title: l10n.homeBrandsTitle,
               state: brands,
@@ -208,14 +236,6 @@ class HomeScreen extends ConsumerWidget {
               label: l10n.homeShortcutBranches,
               onTap: () => unawaited(context.push(Routes.branches)),
             ),
-            if (btuEnabled) ...[
-              const SizedBox(height: IprSpace.s2),
-              ShortcutTile(
-                icon: Icons.calculate_outlined,
-                label: l10n.homeShortcutBtu,
-                onTap: () => unawaited(context.push(Routes.btu)),
-              ),
-            ],
             if (dial != null && dial.isNotEmpty) ...[
               const SizedBox(height: IprSpace.s2),
               ShortcutTile(

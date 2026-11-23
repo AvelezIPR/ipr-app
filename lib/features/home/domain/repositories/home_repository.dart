@@ -1,6 +1,7 @@
 import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_brand.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_category.dart';
+import 'package:ipr_mobile/features/home/domain/entities/home_city.dart';
 import 'package:ipr_mobile/features/home/domain/entities/section_data.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
 
@@ -24,6 +25,11 @@ abstract interface class HomeRepository {
 
   /// Productos del bloque "más vendidos" (RF-003).
   Future<Result<SectionData<List<ProductSummary>>>> featuredProducts({
+    bool forceRefresh = false,
+  });
+
+  /// Ciudades con sedes (resumen del bloque "Nuestras sedes").
+  Future<Result<SectionData<List<HomeCity>>>> cities({
     bool forceRefresh = false,
   });
 }

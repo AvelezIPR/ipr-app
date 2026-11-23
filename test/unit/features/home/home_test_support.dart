@@ -5,6 +5,7 @@ import 'package:ipr_mobile/core/errors/app_failure.dart';
 import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_brand.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_category.dart';
+import 'package:ipr_mobile/features/home/domain/entities/home_city.dart';
 import 'package:ipr_mobile/features/home/domain/entities/section_data.dart';
 import 'package:ipr_mobile/features/home/domain/repositories/home_repository.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
@@ -32,17 +33,21 @@ class FakeHomeRepository implements HomeRepository {
     List<Result<SectionData<List<HomeCategory>>>>? categoryResults,
     List<Result<SectionData<List<HomeBrand>>>>? brandResults,
     List<Result<SectionData<List<ProductSummary>>>>? featuredResults,
+    List<Result<SectionData<List<HomeCity>>>>? cityResults,
   }) : categoryResults = [...?categoryResults],
        brandResults = [...?brandResults],
-       featuredResults = [...?featuredResults];
+       featuredResults = [...?featuredResults],
+       cityResults = [...?cityResults];
 
   final List<Result<SectionData<List<HomeCategory>>>> categoryResults;
   final List<Result<SectionData<List<HomeBrand>>>> brandResults;
   final List<Result<SectionData<List<ProductSummary>>>> featuredResults;
+  final List<Result<SectionData<List<HomeCity>>>> cityResults;
 
   final List<bool> categoryCalls = [];
   final List<bool> brandCalls = [];
   final List<bool> featuredCalls = [];
+  final List<bool> cityCalls = [];
 
   T _next<T>(List<T> queue, T fallback) {
     if (queue.isEmpty) return fallback;
@@ -71,5 +76,16 @@ class FakeHomeRepository implements HomeRepository {
   }) {
     featuredCalls.add(forceRefresh);
     return Future.value(_next(featuredResults, const Err(UnknownFailure())));
+  }
+
+  /// Por defecto, sin ciudades (el bloque de sedes no se pinta).
+  @override
+  Future<Result<SectionData<List<HomeCity>>>> cities({
+    bool forceRefresh = false,
+  }) {
+    cityCalls.add(forceRefresh);
+    return Future.value(
+      _next(cityResults, const Ok(SectionData<List<HomeCity>>([]))),
+    );
   }
 }

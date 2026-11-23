@@ -1,6 +1,7 @@
 import 'package:ipr_mobile/features/home/data/dtos/home_dtos.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_brand.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_category.dart';
+import 'package:ipr_mobile/features/home/domain/entities/home_city.dart';
 import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
@@ -34,6 +35,30 @@ List<HomeBrand> mapBrands(List<Map<String, dynamic>> items) => [
         (dto.hasLanding ?? false))
       HomeBrand(slug: dto.slug!, name: dto.name!),
 ];
+
+/// Ciudades con sedes, agrupadas desde `/stores`. Se descartan las sedes sin
+/// ciudad. Primero las ciudades con más sedes abiertas (empate: por nombre) y
+/// al final las que solo tienen sedes por abrir.
+List<HomeCity> mapCities(List<Map<String, dynamic>> items) {
+  final open = <String, int>{};
+  for (final dto in items.map(StoreCityDto.fromJson)) {
+    final city = dto.city;
+    if (city == null || city.isEmpty) continue;
+    open[city] = (open[city] ?? 0) + ((dto.upcoming ?? false) ? 0 : 1);
+  }
+  return [
+    for (final entry in open.entries)
+      HomeCity(
+        name: entry.key,
+        branchCount: entry.value,
+        upcoming: entry.value == 0,
+      ),
+  ]..sort((a, b) {
+    if (a.upcoming != b.upcoming) return a.upcoming ? 1 : -1;
+    final byCount = b.branchCount.compareTo(a.branchCount);
+    return byCount != 0 ? byCount : a.name.compareTo(b.name);
+  });
+}
 
 /// Productos. Mapeo tolerante: sin `id`, `slug` o `name` se descarta; precio
 /// 0/ausente → [OnRequest] (nunca "$0"); disponibilidad desconocida →
