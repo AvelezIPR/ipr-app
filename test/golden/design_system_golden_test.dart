@@ -7,6 +7,7 @@ import 'package:ipr_mobile/core/errors/app_failure.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/ipr_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/ipr_theme.dart';
+import 'package:ipr_mobile/shared/design_system/tokens/typography_tokens.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
@@ -14,16 +15,60 @@ import 'package:ipr_mobile/shared/widgets/price_widgets.dart';
 import 'package:ipr_mobile/shared/widgets/state_widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
+/// Tema claro con la fuente determinista `'Ahem'` en todo [TextTheme], estilos
+/// de botones, barra de navegación y [IprTextStyles] para evitar que el
+/// `MaterialApp` interno anule el `'Ahem'` de Alchemist y caiga en fuentes
+/// de respaldo distintas entre Windows y Ubuntu en CI.
+ThemeData _ciTheme() {
+  final base = IprTheme.light();
+  const ahem = 'Ahem';
+  final textTheme = base.textTheme.apply(fontFamily: ahem);
+  final extensions = base.extensions.values
+      .map(
+        (ext) => ext is IprTextStyles
+            ? IprTextStyles(
+                priceCard: ext.priceCard.copyWith(fontFamily: ahem),
+                monoSku: ext.monoSku.copyWith(fontFamily: ahem),
+              )
+            : ext,
+      )
+      .toList(growable: false);
+  return base.copyWith(
+    platform: TargetPlatform.android,
+    textTheme: textTheme,
+    extensions: extensions,
+    filledButtonTheme: FilledButtonThemeData(
+      style: base.filledButtonTheme.style?.copyWith(
+        textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: base.outlinedButtonTheme.style?.copyWith(
+        textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: base.textButtonTheme.style?.copyWith(
+        textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
+      ),
+    ),
+    navigationBarTheme: base.navigationBarTheme.copyWith(
+      labelTextStyle: WidgetStatePropertyAll(textTheme.labelMedium),
+    ),
+  );
+}
+
 /// Monta [child] con el tema y la localización de la app a una escala de texto.
 ///
-/// `alchemist` usa el Material antiguo; el tema de la app es el de
-/// `material_ui`, por eso cada escenario lleva su propio `MaterialApp`.
+/// `_scene` usa un `MaterialApp` propio para fijar `locale`,
+/// `iprLocalizationsDelegates` y `textScaler`; por eso aplica `_ciTheme()` para
+/// conservar la fuente `'Ahem'` en todos los estilos del tema.
 Widget _scene(Widget child, {required double textScale}) => SizedBox(
   width: 360,
   height: 280,
   child: MaterialApp(
     debugShowCheckedModeBanner: false,
-    theme: IprTheme.light(),
+    theme: _ciTheme(),
     locale: iprLocale,
     localizationsDelegates: iprLocalizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
@@ -44,6 +89,7 @@ void main() {
   AlchemistConfig.runWithConfig(
     config: const AlchemistConfig(
       platformGoldensConfig: PlatformGoldensConfig(enabled: false),
+      ciGoldensConfig: CiGoldensConfig(diffThreshold: 0.01),
     ),
     run: () {
       for (final scale in [1.0, 2.0]) {
