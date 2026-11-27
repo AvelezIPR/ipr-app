@@ -25,7 +25,7 @@ final class PiiScrubber {
     // Correos.
     (RegExp(r'[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}'), '<email>'),
     // Teléfonos y documentos: 6 o más dígitos, con separadores comunes.
-    (RegExp(r'\+?\d[\d\s().\-]{5,}\d'), '<number>'),
+    (RegExp(r'\+?\d[\d\s().\-]{4,}\d'), '<number>'),
   ];
 
   /// Depura [input]. Nunca lanza.

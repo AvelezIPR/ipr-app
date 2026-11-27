@@ -8,8 +8,9 @@ import 'package:material_ui/material_ui.dart';
 ///
 /// * La opción elegida se marca con relleno **y** con un ícono de visto, no
 ///   solo con color (RNF-076); tocarla de nuevo la quita.
-/// * Una opción que no existe combinada con lo ya elegido sale deshabilitada
-///   y el lector de pantalla lo dice.
+/// * Una opción compatible en otra combinación sigue habilitada, muestra un
+///   indicador de cambio y anuncia al lector de pantalla que requiere cambiar
+///   otra opción. Solo se deshabilita una opción inexistente en todo el producto.
 /// * Cada botón mide al menos 48 dp.
 class VariantSelector extends StatelessWidget {
   const new({required this.selection, required this.onToggle, super.key});
@@ -34,17 +35,26 @@ class VariantSelector extends StatelessWidget {
             runSpacing: IprSpace.s2,
             children: [
               for (final option in axis.options)
-                _OptionButton(
-                  label: option.label,
-                  selected: selection.chosen[axis.slug] == option.value,
-                  enabled: selection.isOptionAvailable(axis.slug, option.value),
-                  onTap: () => onToggle(axis.slug, option.value),
-                ),
+                _buildOption(axis.slug, option.value, option.label),
             ],
           ),
           const SizedBox(height: IprSpace.s3),
         ],
       ],
+    );
+  }
+
+  Widget _buildOption(String axisSlug, String value, String label) {
+    final selected = selection.chosen[axisSlug] == value;
+    final enabled = selection.hasAnyVariantFor(axisSlug, value);
+    final requiresAxisChange =
+        enabled && !selected && !selection.isOptionAvailable(axisSlug, value);
+    return _OptionButton(
+      label: label,
+      selected: selected,
+      enabled: enabled,
+      requiresAxisChange: requiresAxisChange,
+      onTap: () => onToggle(axisSlug, value),
     );
   }
 }
@@ -54,12 +64,14 @@ class _OptionButton extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.enabled,
+    required this.requiresAxisChange,
     required this.onTap,
   });
 
   final String label;
   final bool selected;
   final bool enabled;
+  final bool requiresAxisChange;
   final VoidCallback onTap;
 
   @override
@@ -69,19 +81,21 @@ class _OptionButton extends StatelessWidget {
     final scheme = theme.colorScheme;
     final background = selected
         ? scheme.primary
-        : enabled
-        ? scheme.surface
-        : scheme.surfaceContainer;
+        : !enabled
+        ? scheme.surfaceContainer
+        : requiresAxisChange
+        ? scheme.surfaceContainerLow
+        : scheme.surface;
     final foreground = selected
         ? scheme.onPrimary
-        : enabled
-        ? scheme.onSurface
-        : scheme.onSurfaceVariant;
+        : !enabled || requiresAxisChange
+        ? scheme.onSurfaceVariant
+        : scheme.onSurface;
     final border = selected
         ? scheme.primary
-        : enabled
-        ? scheme.outline
-        : scheme.outlineVariant;
+        : !enabled || requiresAxisChange
+        ? scheme.outlineVariant
+        : scheme.outline;
     return Semantics(
       button: true,
       selected: selected,
@@ -92,6 +106,8 @@ class _OptionButton extends StatelessWidget {
           ? l10n.productDetailVariantUnavailable
           : selected
           ? l10n.productDetailVariantRemoveHint
+          : requiresAxisChange
+          ? l10n.productDetailVariantSwitchHint
           : null,
       onTap: enabled || selected ? onTap : null,
       child: Material(
@@ -120,6 +136,9 @@ class _OptionButton extends StatelessWidget {
                 children: [
                   if (selected) ...[
                     Icon(Icons.check, size: 18, color: foreground),
+                    const SizedBox(width: IprSpace.s1),
+                  ] else if (requiresAxisChange) ...[
+                    Icon(Icons.swap_horiz, size: 16, color: foreground),
                     const SizedBox(width: IprSpace.s1),
                   ],
                   Flexible(

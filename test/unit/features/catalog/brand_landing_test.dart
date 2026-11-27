@@ -235,4 +235,118 @@ void main() {
       );
     });
   });
+
+  group('W3-01 · entidades BrandLanding (igualdad, hashCode y helpers)', () {
+    test(
+      'BrandBlockType.tryParse reconoce todos los valores y rechaza otros',
+      () {
+        for (final type in BrandBlockType.values) {
+          expect(BrandBlockType.tryParse(type.name), type);
+        }
+        expect(BrandBlockType.tryParse('unknown'), isNull);
+        expect(BrandBlockType.tryParse(null), isNull);
+        expect(BrandBlockType.tryParse(42), isNull);
+      },
+    );
+
+    test('BrandBlockItem compara por valor y expone hashCode', () {
+      const a = BrandBlockItem(title: 'T', body: 'B');
+      const b = BrandBlockItem(title: 'T', body: 'B');
+      const c = BrandBlockItem(title: 'T', body: 'Otro');
+      expect(a, b);
+      expect(a.hashCode, b.hashCode);
+      expect(a == c, isFalse);
+    });
+
+    test('BrandBlock compara por valor, hasCta y lista de items', () {
+      const target = HomeTarget(HomeTargetKind.engineering);
+      const item1 = BrandBlockItem(title: 'P1', body: 'R1');
+      const item2 = BrandBlockItem(title: 'P2', body: 'R2');
+
+      const base = BrandBlock(
+        type: BrandBlockType.hero,
+        title: 'Daikin',
+        subtitle: 'Sub',
+        body: 'Cuerpo',
+        imageUrl: 'https://iprpartesyrepuestos.com/a.png',
+        accentArgb: 0xFF0B2A3F,
+        items: [item1],
+        ctaLabel: 'Ir',
+        target: target,
+      );
+      const same = BrandBlock(
+        type: BrandBlockType.hero,
+        title: 'Daikin',
+        subtitle: 'Sub',
+        body: 'Cuerpo',
+        imageUrl: 'https://iprpartesyrepuestos.com/a.png',
+        accentArgb: 0xFF0B2A3F,
+        items: [BrandBlockItem(title: 'P1', body: 'R1')],
+        ctaLabel: 'Ir',
+        target: target,
+      );
+
+      expect(base, same);
+      expect(base.hashCode, same.hashCode);
+      expect(base.hasCta, isTrue);
+
+      const onlyLabel = BrandBlock(type: BrandBlockType.cta, ctaLabel: 'Ir');
+      const onlyTarget = BrandBlock(type: BrandBlockType.cta, target: target);
+      expect(onlyLabel.hasCta, isFalse);
+      expect(onlyTarget.hasCta, isFalse);
+
+      expect(
+        base ==
+            const BrandBlock(
+              type: BrandBlockType.hero,
+              title: 'Daikin',
+              subtitle: 'Sub',
+              body: 'Cuerpo',
+              imageUrl: 'https://iprpartesyrepuestos.com/a.png',
+              accentArgb: 0xFF0B2A3F,
+              items: [item2],
+              ctaLabel: 'Ir',
+              target: target,
+            ),
+        isFalse,
+      );
+      expect(
+        base ==
+            const BrandBlock(
+              type: BrandBlockType.hero,
+              title: 'Daikin',
+              subtitle: 'Sub',
+              body: 'Cuerpo',
+              imageUrl: 'https://iprpartesyrepuestos.com/a.png',
+              accentArgb: 0xFF0B2A3F,
+              items: [item1, item2],
+              ctaLabel: 'Ir',
+              target: target,
+            ),
+        isFalse,
+      );
+      expect(
+        base == const BrandBlock(type: BrandBlockType.text, title: 'Daikin'),
+        isFalse,
+      );
+    });
+
+    test('BrandLanding compara por valor, isEmpty y hashCode', () {
+      const block = BrandBlock(type: BrandBlockType.text, body: 'Hola');
+      const a = BrandLanding(slug: 'daikin', blocks: [block]);
+      const b = BrandLanding(
+        slug: 'daikin',
+        blocks: [BrandBlock(type: BrandBlockType.text, body: 'Hola')],
+      );
+      const otherSlug = BrandLanding(slug: 'elitech', blocks: [block]);
+      const empty = BrandLanding(slug: 'daikin', blocks: []);
+
+      expect(a.isEmpty, isFalse);
+      expect(empty.isEmpty, isTrue);
+      expect(a, b);
+      expect(a.hashCode, b.hashCode);
+      expect(a == otherSlug, isFalse);
+      expect(a == empty, isFalse);
+    });
+  });
 }

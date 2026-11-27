@@ -31,6 +31,11 @@ class SearchResultsView extends StatelessWidget {
     final rows = (items.length / columns).ceil();
     final hasFooter = listing.hasMore || listing.loadMoreFailure != null;
 
+    Widget card(ProductSummary product) => _OfferOverlay(
+      visible: product.onSale,
+      child: ProductCard(product: product, onTap: () => onProductTap(product)),
+    );
+
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(
         IprSpace.s4,
@@ -57,26 +62,87 @@ class SearchResultsView extends StatelessWidget {
           final start = (index - 1) * columns;
           return Padding(
             padding: const EdgeInsets.only(bottom: IprSpace.s3),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (var c = 0; c < columns; c++) ...[
-                  if (c > 0) const SizedBox(width: IprSpace.s3),
-                  Expanded(
-                    child: start + c < items.length
-                        ? ProductCard(
-                            product: items[start + c],
-                            onTap: () => onProductTap(items[start + c]),
-                          )
-                        : const SizedBox.shrink(),
+            child: columns == 1
+                ? card(items[start])
+                : IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var c = 0; c < columns; c++) ...[
+                          if (c > 0) const SizedBox(width: IprSpace.s3),
+                          Expanded(
+                            child: start + c < items.length
+                                ? card(items[start + c])
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
-                ],
-              ],
-            ),
           );
         }
         return _Footer(listing: listing, onLoadMore: onLoadMore);
       },
+    );
+  }
+}
+
+/// Insignia "Oferta" (texto + ícono, no solo color) sobre la tarjeta cuando
+/// el producto está en oferta; el precio regular tachado y el especial los
+/// pinta la tarjeta.
+class _OfferOverlay extends StatelessWidget {
+  const new({required this.visible, required this.child});
+
+  final bool visible;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!visible) return child;
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        child,
+        PositionedDirectional(
+          top: IprSpace.s3,
+          start: IprSpace.s3,
+          child: IgnorePointer(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(IprRadius.sm),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: IprSpace.s2,
+                  vertical: IprSpace.s1,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ExcludeSemantics(
+                      child: Icon(
+                        Icons.local_offer,
+                        size: 14,
+                        color: theme.colorScheme.onErrorContainer,
+                      ),
+                    ),
+                    const SizedBox(width: IprSpace.s1),
+                    Text(
+                      l10n.sharedProductOnSale,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onErrorContainer,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

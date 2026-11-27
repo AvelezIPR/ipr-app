@@ -45,9 +45,11 @@ class ProductListScreen extends ConsumerWidget {
             valueLabel: l10n.catalogBtuOptionLabel(btuFormatted),
           );
     final categories = ref.watch(categoriesProvider);
-    final name = slug != null && categories is UiData<List<CategoryNode>>
-        ? findCategory(categories.value, slug)?.name
+    final categoryNode =
+        slug != null && categories is UiData<List<CategoryNode>>
+        ? findCategory(categories.value, slug)
         : null;
+    final name = categoryNode?.name;
     final scope = slug != null
         ? ListScope.category(slug)
         : ListScope.all(initialChoice: initialChoice);
@@ -62,7 +64,12 @@ class ProductListScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ProductResults(scope: scope, mode: ResultsMode.category),
+      body: ProductResults(
+        scope: scope,
+        mode: ResultsMode.category,
+        categoryName: name,
+        subcategories: categoryNode?.children ?? const [],
+      ),
     );
   }
 }

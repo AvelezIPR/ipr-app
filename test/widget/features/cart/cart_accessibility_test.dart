@@ -1,6 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/features/cart/domain/entities/cart_validation.dart';
+import 'package:ipr_mobile/shared/domain/money.dart';
+import 'package:ipr_mobile/shared/domain/price_status.dart';
+import 'package:ipr_mobile/shared/domain/stock_status.dart';
+import 'package:ipr_mobile/shared/widgets/whatsapp_button.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'cart_harness.dart';
@@ -223,5 +227,100 @@ void main() {
         expect(find.byIcon(Icons.block), findsWidgets);
       },
     );
+  });
+
+  group('asesoría WhatsApp en agotado, bajo pedido y sin precio', () {
+    Future<CartEnv> pumpAdvisorLines(
+      WidgetTester tester, {
+      double textScale = 1,
+      Size size = const Size(360, 2400),
+    }) => pumpCart(
+      tester,
+      lines: [
+        lineOf(4533, 1, price: 89900, name: 'Capacitor'),
+        lineOf(4540, 1, price: 350000, name: 'Válvula'),
+        lineOf(4551, 1, price: 0, name: 'Tarjeta'),
+      ],
+      validation: FakeCartValidationRepository([
+        Ok(
+          validationOf([
+            ValidatedCartLine(
+              id: 4533,
+              quantity: 1,
+              status: CartLineStatus.outOfStock,
+              product: productOf(
+                id: 4533,
+                name: 'Capacitor',
+                sku: 'QA-0007',
+                stock: StockStatus.outOfStock,
+                price: const Priced(Money(89900)),
+              ),
+            ),
+            ValidatedCartLine(
+              id: 4540,
+              quantity: 1,
+              status: CartLineStatus.onBackorder,
+              product: productOf(
+                id: 4540,
+                name: 'Válvula',
+                sku: 'QA-0008',
+                stock: StockStatus.onBackorder,
+                price: const Priced(Money(350000)),
+              ),
+            ),
+            ValidatedCartLine(
+              id: 4551,
+              quantity: 1,
+              status: CartLineStatus.priceOnRequest,
+              product: productOf(
+                id: 4551,
+                name: 'Tarjeta',
+                sku: 'QA-0009',
+                price: const OnRequest(),
+              ),
+            ),
+          ], checkoutAllowed: false),
+        ),
+      ]),
+      textScale: textScale,
+      size: size,
+    );
+
+    for (final size in const [Size(360, 800), Size(320, 568)]) {
+      testWidgets(
+        'legibilidad al 200 % sin desborde · ${size.width.toInt()}x${size.height.toInt()}',
+        (tester) async {
+          await pumpAdvisorLines(tester, textScale: 2, size: size);
+          expect(tester.takeException(), isNull);
+          await scrollTo(tester, find.text('Más información'));
+          expect(tester.takeException(), isNull);
+          expect(find.text('Más información'), findsOneWidget);
+        },
+      );
+    }
+
+    testWidgets(
+      'todas las líneas muestran un único botón de asesoría visible',
+      (tester) async {
+        await pumpAdvisorLines(tester);
+        expect(find.byType(WhatsAppButton), findsNWidgets(3));
+        expect(find.text('Asesoría por WhatsApp'), findsNWidgets(2));
+        expect(find.text('Más información'), findsOneWidget);
+      },
+    );
+
+    for (final entry in <String, AccessibilityGuideline>{
+      'androidTapTargetGuideline': androidTapTargetGuideline,
+      'iOSTapTargetGuideline': iOSTapTargetGuideline,
+      'labeledTapTargetGuideline': labeledTapTargetGuideline,
+      'textContrastGuideline': textContrastGuideline,
+    }.entries) {
+      testWidgets('${entry.key} con botones visibles', (tester) async {
+        final handle = tester.ensureSemantics();
+        await pumpAdvisorLines(tester);
+        await expectLater(tester, meetsGuideline(entry.value));
+        handle.dispose();
+      });
+    }
   });
 }

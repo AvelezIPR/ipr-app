@@ -107,6 +107,7 @@ class HomeBranchesSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final open = cities.where((c) => !c.upcoming).toList(growable: false);
     final branches = open.fold<int>(0, (sum, c) => sum + c.branchCount);
     final stats = <_Stat>[
@@ -143,18 +144,31 @@ class HomeBranchesSummary extends StatelessWidget {
           runSpacing: IprSpace.s2,
           children: [
             for (final city in cities)
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                  shape: const StadiumBorder(),
+              if (city.upcoming)
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: scheme.secondaryContainer,
+                    foregroundColor: scheme.onSecondaryContainer,
+                    side: BorderSide(color: scheme.outline),
+                    shape: const StadiumBorder(),
+                  ),
+                  onPressed: onTap,
+                  icon: const ExcludeSemantics(
+                    child: Icon(Icons.schedule_outlined, size: 18),
+                  ),
+                  label: Text(l10n.homeBranchesCityUpcoming(city.name)),
+                )
+              else
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: scheme.surface,
+                    shape: const StadiumBorder(),
+                  ),
+                  onPressed: onTap,
+                  child: Text(
+                    l10n.homeBranchesCity(city.name, city.branchCount),
+                  ),
                 ),
-                onPressed: onTap,
-                child: Text(
-                  city.upcoming
-                      ? l10n.homeBranchesCityUpcoming(city.name)
-                      : l10n.homeBranchesCity(city.name, city.branchCount),
-                ),
-              ),
           ],
         ),
         Align(
@@ -172,11 +186,17 @@ class HomeBranchesSummary extends StatelessWidget {
 /// Una cifra de la banda: cifra grande, etiqueta y su ícono. [value] ya viene
 /// redactado ("14", "+30 años", "Líder del sector HVAC-R*").
 class _Stat {
-  const new({required this.icon, required this.value, required this.label});
+  const new({
+    required this.icon,
+    required this.value,
+    required this.label,
+    this.onTap,
+  });
 
   final IconData icon;
   final String value;
   final String label;
+  final VoidCallback? onTap;
 
   /// Cifras largas (frases) usan un tipo más pequeño para no romper la banda.
   bool get isPhrase => value.length > 10;
@@ -186,17 +206,26 @@ class _Stat {
 /// W2-02, D-07): las mismas de la portada de la web ("+30 años", "31 sedes",
 /// "+10.000 referencias"…), redactadas por Marketing y **no fijas en la app**.
 class HomeInstitutionalStats extends StatelessWidget {
-  const new({required this.stats, super.key});
+  const new({required this.stats, super.key, this.onOpenTarget});
 
   final List<HomeStat> stats;
+  final ValueChanged<HomeTarget>? onOpenTarget;
 
   @override
   Widget build(BuildContext context) {
+    final open = onOpenTarget;
     return _StatsBand(
       columns: 2,
       stats: [
         for (final stat in stats)
-          _Stat(icon: _iconFor(stat), value: stat.spoken, label: stat.label),
+          _Stat(
+            icon: _iconFor(stat),
+            value: stat.spoken,
+            label: stat.label,
+            onTap: open != null && stat.target != null
+                ? () => open(stat.target!)
+                : null,
+          ),
       ],
     );
   }
@@ -246,7 +275,7 @@ class _StatsBand extends StatelessWidget {
       ),
       child: stacked
           ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 for (final (i, item) in items.indexed) ...[
                   if (i > 0) const SizedBox(height: IprSpace.s4),
@@ -302,6 +331,8 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final onPrimary = theme.colorScheme.onPrimary;
+    final onTap = stat.onTap;
+    final interactive = onTap != null;
     final number = Text(
       stat.value,
       style:
@@ -314,29 +345,72 @@ class _StatItem extends StatelessWidget {
       stat.label,
       style: theme.textTheme.bodySmall?.copyWith(color: onPrimary),
     );
+    final body = horizontal
+        ? Row(
+            children: [
+              IprGlassIcon(icon: stat.icon, size: 40),
+              const SizedBox(width: IprSpace.s3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [number, label],
+                ),
+              ),
+              if (interactive) ...[
+                const SizedBox(width: IprSpace.s2),
+                Icon(Icons.arrow_forward, size: 18, color: onPrimary),
+              ],
+            ],
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IprGlassIcon(icon: stat.icon, size: 36),
+                  if (interactive) ...[
+                    const Spacer(),
+                    Icon(Icons.arrow_forward, size: 18, color: onPrimary),
+                  ],
+                ],
+              ),
+              const SizedBox(height: IprSpace.s2),
+              number,
+              label,
+            ],
+          );
+    final content = ConstrainedBox(
+      constraints: const BoxConstraints(
+        minHeight: IprSpace.minTapTarget,
+        minWidth: IprSpace.minTapTarget,
+      ),
+      child: Padding(padding: const EdgeInsets.all(IprSpace.s1), child: body),
+    );
+    if (onTap == null) {
+      return Semantics(
+        container: true,
+        label: '${stat.value} ${stat.label}',
+        excludeSemantics: true,
+        child: content,
+      );
+    }
     return Semantics(
       container: true,
+      button: true,
       label: '${stat.value} ${stat.label}',
       excludeSemantics: true,
-      child: horizontal
-          ? Row(
-              children: [
-                IprGlassIcon(icon: stat.icon, size: 40),
-                const SizedBox(width: IprSpace.s3),
-                Flexible(child: number),
-                const SizedBox(width: IprSpace.s2),
-                Flexible(child: label),
-              ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                IprGlassIcon(icon: stat.icon, size: 36),
-                const SizedBox(height: IprSpace.s2),
-                number,
-                label,
-              ],
-            ),
+      onTap: onTap,
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: BorderRadius.circular(IprRadius.lg),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          splashColor: const Color(0x26FFFFFF),
+          highlightColor: const Color(0x14FFFFFF),
+          child: content,
+        ),
+      ),
     );
   }
 }

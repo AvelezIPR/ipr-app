@@ -42,6 +42,7 @@
   "homeHeroTitle": "Todo para aire acondicionado, refrigeración y ventilación",
   "homeHeroBody": "Equipos, partes y repuestos con asesoría técnica en todo el país.",
   "homeHeroCta": "Ver el catálogo",
+  "homeSeeAllCatalog": "Ver todo el catálogo",
 
   "homeBranchesTitle": "Nuestras sedes",
   "homeBranchesSummary": "{branches, plural, =1{1 sede} other{{branches} sedes}} en {cities, plural, =1{1 ciudad} other{{cities} ciudades}}",

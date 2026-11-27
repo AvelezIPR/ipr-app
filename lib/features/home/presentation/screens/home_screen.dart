@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ipr_mobile/core/config/home_content.dart';
 import 'package:ipr_mobile/core/config/remote_config_controller.dart';
 import 'package:ipr_mobile/core/providers.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_brand.dart';
@@ -69,6 +70,19 @@ class HomeScreen extends ConsumerWidget {
       for (final banner in home.banners)
         if (isHomeTargetAvailable(banner.target, btuEnabled: btuEnabled))
           banner,
+    ];
+    final stats = [
+      for (final stat in home.stats)
+        if (stat.target != null &&
+            !isHomeTargetAvailable(stat.target!, btuEnabled: btuEnabled))
+          HomeStat(
+            id: stat.id,
+            value: stat.value,
+            unit: stat.unit,
+            label: stat.label,
+          )
+        else
+          stat,
     ];
     final highlights = [
       for (final highlight in home.highlights)
@@ -152,9 +166,13 @@ class HomeScreen extends ConsumerWidget {
               ],
               const SizedBox(height: IprSpace.s4),
               HomeHeroCard(onCatalog: () => context.go(Routes.catalog)),
-              if (home.stats.isNotEmpty) ...[
+              if (stats.isNotEmpty) ...[
                 const SizedBox(height: IprSpace.s4),
-                HomeInstitutionalStats(stats: home.stats),
+                HomeInstitutionalStats(
+                  stats: stats,
+                  onOpenTarget: (target) =>
+                      unawaited(openHomeTarget(context, ref, target)),
+                ),
               ],
               HomeSection(
                 title: l10n.homeCategoriesTitle,
@@ -168,16 +186,20 @@ class HomeScreen extends ConsumerWidget {
                   title: l10n.homeCategoriesEmptyTitle,
                   body: l10n.homeCategoriesEmptyBody,
                 ),
-                builder: (context, items) => TileGrid(
-                  children: [
-                    for (final category in items)
-                      CategoryTile(
-                        category: category,
-                        onTap: () => unawaited(
-                          context.push(Routes.categoryList(category.slug)),
+                builder: (context, items) => _SectionWithCatalogCta(
+                  label: l10n.homeSeeAllCatalog,
+                  onPressed: () => context.go(Routes.catalog),
+                  child: TileGrid(
+                    children: [
+                      for (final category in items)
+                        CategoryTile(
+                          category: category,
+                          onTap: () => unawaited(
+                            context.push(Routes.categoryList(category.slug)),
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               HomeSection(
@@ -189,16 +211,20 @@ class HomeScreen extends ConsumerWidget {
                       .read(homeFeaturedProvider.notifier)
                       .load(forceRefresh: true),
                 ),
-                builder: (context, items) => TileGrid(
-                  children: [
-                    for (final product in items.take(homeFeaturedShown))
-                      ProductCard(
-                        product: product,
-                        onTap: () => unawaited(
-                          context.push(Routes.product(product.slug)),
+                builder: (context, items) => _SectionWithCatalogCta(
+                  label: l10n.homeSeeAllCatalog,
+                  onPressed: () => context.go(Routes.catalog),
+                  child: TileGrid(
+                    children: [
+                      for (final product in items.take(homeFeaturedShown))
+                        ProductCard(
+                          product: product,
+                          onTap: () => unawaited(
+                            context.push(Routes.product(product.slug)),
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: IprSpace.s5),
@@ -337,6 +363,34 @@ class _QuotePanel extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Envuelve una grilla de sección con el acceso directo al catálogo completo.
+class _SectionWithCatalogCta extends StatelessWidget {
+  const new({
+    required this.label,
+    required this.onPressed,
+    required this.child,
+  });
+
+  final String label;
+  final VoidCallback onPressed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        child,
+        const SizedBox(height: IprSpace.s2),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton(onPressed: onPressed, child: Text(label)),
+        ),
+      ],
     );
   }
 }

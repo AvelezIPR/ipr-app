@@ -97,6 +97,45 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets(
+      'chip upcoming muestra ícono + texto diferenciado y cumple accesibilidad',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await pumpHome(tester, repository: _repo(), size: _tall);
+
+        expect(find.byIcon(Icons.schedule_outlined), findsOneWidget);
+        expect(find.text('Cartagena · próximamente'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.widgetWithText(OutlinedButton, 'Cartagena · próximamente'),
+            matching: find.byIcon(Icons.schedule_outlined),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.widgetWithText(OutlinedButton, 'Medellín · 9 sedes'),
+            matching: find.byIcon(Icons.schedule_outlined),
+          ),
+          findsNothing,
+        );
+
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        handle.dispose();
+
+        await pumpHome(
+          tester,
+          repository: _repo(),
+          textScale: 2,
+          size: const Size(360, 9000),
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
+
     testWidgets('el singular se escribe bien (1 sede en 1 ciudad)', (
       tester,
     ) async {

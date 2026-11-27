@@ -113,6 +113,11 @@ void main() {
     ) async {
       final visited = <String>[];
       await pumpCatalog(tester, const CatalogScreen(), bff, visited: visited);
+      expect(find.text('Ofertas'), findsOneWidget);
+      expect(
+        find.text('Precios especiales y ofertas vigentes'),
+        findsOneWidget,
+      );
       await tester.tap(find.text('Marcas'));
       await settle(tester);
       await goBack(tester);
@@ -123,6 +128,20 @@ void main() {
       await settle(tester);
       expect(visited, ['/catalog/brands', '/catalog/sale', '/search']);
     });
+
+    testWidgets(
+      'al desplegar una categoría padre, "Ver todo en ..." navega a su listado',
+      (tester) async {
+        final visited = <String>[];
+        await pumpCatalog(tester, const CatalogScreen(), bff, visited: visited);
+        await tester.tap(_toggle('aire-acondicionado'));
+        await settle(tester);
+        expect(find.text('Ver todo en Aire acondicionado'), findsOneWidget);
+        await tester.tap(find.text('Ver todo en Aire acondicionado'));
+        await settle(tester);
+        expect(visited, ['/catalog/list?category=aire-acondicionado']);
+      },
+    );
 
     testWidgets(
       'AC-010-4 · sin sesión: ninguna solicitud lleva Authorization',

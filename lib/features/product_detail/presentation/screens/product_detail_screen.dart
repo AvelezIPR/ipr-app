@@ -111,12 +111,17 @@ class _ProductBodyState extends State<_ProductBody> {
     if (oldWidget.product != widget.product) {
       final fresh = _initialSelection(widget.product);
       final previous = _selection;
-      if (fresh != null && previous != null) {
-        var next = fresh;
+      if (fresh != null && previous != null && previous.chosen.isNotEmpty) {
+        var next = VariantSelection(
+          axes: widget.product.variantAxes,
+          variants: widget.product.variants,
+        );
         for (final entry in previous.chosen.entries) {
-          next = next.toggle(entry.key, entry.value);
+          if (next.isOptionAvailable(entry.key, entry.value)) {
+            next = next.toggle(entry.key, entry.value);
+          }
         }
-        _selection = next;
+        _selection = next.chosen.isEmpty ? fresh : next;
       } else {
         _selection = fresh;
       }
@@ -125,7 +130,10 @@ class _ProductBodyState extends State<_ProductBody> {
 
   static VariantSelection? _initialSelection(ProductDetail product) =>
       product.isVariable
-      ? VariantSelection(axes: product.variantAxes, variants: product.variants)
+      ? VariantSelection.initial(
+          axes: product.variantAxes,
+          variants: product.variants,
+        )
       : null;
 
   @override

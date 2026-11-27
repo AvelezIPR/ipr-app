@@ -15,6 +15,14 @@
     "description": "Último renglón de las sugerencias: ejecuta la búsqueda completa.",
     "placeholders": { "term": { "type": "String" } }
   },
+  "searchSuggestionsSeeAllWithTotal": "Ver todos los resultados para “{term}” ({total})",
+  "@searchSuggestionsSeeAllWithTotal": {
+    "description": "Último renglón de las sugerencias con el total de coincidencias.",
+    "placeholders": {
+      "term": { "type": "String" },
+      "total": { "type": "int" }
+    }
+  },
   "searchSuggestionSemantics": "{name}. SKU {sku}. Abrir producto.",
   "@searchSuggestionSemantics": {
     "placeholders": { "name": { "type": "String" }, "sku": { "type": "String" } }

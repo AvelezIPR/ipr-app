@@ -122,6 +122,7 @@ class _CategoryBranch extends StatelessWidget {
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              _SeeAllRow(node: node, depth: depth),
               for (final child in node.children)
                 _CategoryBranch(
                   node: child,
@@ -284,4 +285,72 @@ class _CategoryRow extends StatelessWidget {
 
   void _openList(BuildContext context) =>
       unawaited(context.push(Routes.categoryList(node.slug)));
+}
+
+class _SeeAllRow extends StatelessWidget {
+  const new({required this.node, required this.depth});
+
+  final CategoryNode node;
+  final int depth;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final style = _LevelStyle.of(depth);
+    final label = l10n.catalogSeeAllIn(node.name);
+    void openAll() => unawaited(context.push(Routes.categoryList(node.slug)));
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: style.background,
+        border: Border(
+          left: BorderSide(width: 4, color: style.accent),
+          bottom: BorderSide(color: scheme.outlineVariant),
+        ),
+      ),
+      child: Semantics(
+        button: true,
+        excludeSemantics: true,
+        label: label,
+        onTap: openAll,
+        child: InkWell(
+          key: ValueKey('category-see-all-${node.slug}'),
+          onTap: openAll,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: IprSpace.minTapTarget),
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: IprSpace.s4 + IprSpace.s3 * (depth + 1),
+                end: IprSpace.s4,
+                top: IprSpace.s3,
+                bottom: IprSpace.s3,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: scheme.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: IprSpace.s2),
+                  ExcludeSemantics(
+                    child: Icon(
+                      Icons.arrow_forward,
+                      size: 18,
+                      color: scheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

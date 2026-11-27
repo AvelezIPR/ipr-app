@@ -2,11 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ipr_mobile/features/catalog/catalog.dart';
 import 'package:ipr_mobile/shared/widgets/product_card.dart';
 import 'package:ipr_mobile/shared/widgets/state_widgets.dart';
+import 'package:ipr_mobile/shared/widgets/whatsapp_button.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../fixtures/catalog/catalog_fixtures.dart';
 import '../../../fixtures/catalog/fake_catalog_bff.dart';
 import '../../../mocks/fake_http_adapter.dart';
+import '../../../mocks/test_providers.dart';
 import 'catalog_harness.dart';
 
 Finder cards() => find.byType(ProductCard);
@@ -314,6 +316,24 @@ void main() {
       await expectLater(tester, meetsGuideline(textContrastGuideline));
       handle.dispose();
     });
+
+    testWidgets(
+      'muestra insignia Oferta en landing de marca cuando product.onSale es true',
+      (tester) async {
+        bff.on(
+          '/products',
+          (_) => FakeHttpAdapter.json(
+            productPage([
+              product(1, base: 'ProductSummary.on-sale.json'),
+              product(2),
+            ], total: 2),
+          ),
+        );
+        await pumpCatalog(tester, screen, bff);
+        expect(find.text('Oferta'), findsOneWidget);
+        expect(find.text(r'Antes $ 2.350.000'), findsOneWidget);
+      },
+    );
   });
 
   group('TC-135 · AC-018 · liquidaciones', () {
@@ -332,11 +352,21 @@ void main() {
     }
 
     testWidgets(
-      'AC-018-1 · precio regular tachado, especial e insignia Oferta',
+      'AC-018-1 · precio regular tachado, especial, insignia Oferta y banner WhatsApp',
       (tester) async {
+        final launcher = FakeExternalLauncher();
         serveSale();
-        await pumpCatalog(tester, screen, bff);
+        await pumpCatalog(tester, screen, bff, launcher: launcher);
         expect(find.text('Liquidaciones'), findsOneWidget);
+        expect(
+          find.text('Ofertas especiales por tiempo limitado'),
+          findsOneWidget,
+        );
+        expect(find.byType(WhatsAppButton), findsOneWidget);
+        expect(
+          tester.widget<WhatsAppButton>(find.byType(WhatsAppButton)).message,
+          '¡Hola IPR! Quiero aprovechar las liquidaciones.',
+        );
         expect(find.text(r'Antes $ 2.350.000'), findsNWidgets(2));
         expect(find.text(r'$ 1.890.000'), findsNWidgets(2));
         expect(find.text('Oferta'), findsNWidgets(2));
@@ -345,6 +375,13 @@ void main() {
           find.text(r'Antes $ 2.350.000').first,
         );
         expect(regular.style?.decoration, TextDecoration.lineThrough);
+
+        await tester.tap(find.text('Escríbenos por WhatsApp'));
+        await tester.pump();
+        expect(
+          launcher.opened.single.queryParameters['text'],
+          '¡Hola IPR! Quiero aprovechar las liquidaciones.',
+        );
       },
     );
 
@@ -416,13 +453,55 @@ void main() {
       expect(bff.to('/liquidaciones'), hasLength(2));
     });
 
-    testWidgets('AC-018-6 · sin ofertas: "No hay liquidaciones vigentes"', (
-      tester,
-    ) async {
-      bff.on('/liquidaciones', (_) => FakeHttpAdapter.json(productPage([])));
-      await pumpCatalog(tester, screen, bff);
-      expect(find.text('No hay liquidaciones vigentes'), findsOneWidget);
-    });
+    testWidgets(
+      'AC-018-6 · sin ofertas: muestra vacío con Explorar el catálogo y WhatsApp',
+      (tester) async {
+        bff.on('/liquidaciones', (_) => FakeHttpAdapter.json(productPage([])));
+        final visited = <String>[];
+        final launcher = FakeExternalLauncher();
+        await pumpCatalog(
+          tester,
+          screen,
+          bff,
+          visited: visited,
+          launcher: launcher,
+        );
+        expect(find.text('No hay liquidaciones vigentes'), findsOneWidget);
+        expect(find.text('Explorar el catálogo'), findsOneWidget);
+        expect(find.text('Escríbenos por WhatsApp'), findsOneWidget);
+        expect(find.byType(WhatsAppButton), findsOneWidget);
+        expect(
+          tester.widget<WhatsAppButton>(find.byType(WhatsAppButton)).message,
+          '¡Hola IPR! Quiero aprovechar las liquidaciones.',
+        );
+
+        await tester.tap(find.text('Escríbenos por WhatsApp'));
+        await tester.pump();
+        expect(
+          launcher.opened.single.queryParameters['text'],
+          '¡Hola IPR! Quiero aprovechar las liquidaciones.',
+        );
+
+        await tester.tap(find.text('Explorar el catálogo'));
+        await settle(tester);
+        expect(visited, ['/catalog']);
+      },
+    );
+
+    testWidgets(
+      'estado vacío de liquidaciones al 200 % y guías de accesibilidad',
+      (tester) async {
+        bff.on('/liquidaciones', (_) => FakeHttpAdapter.json(productPage([])));
+        final handle = tester.ensureSemantics();
+        await pumpCatalog(tester, screen, bff, textScale: 2);
+        expect(find.text('Explorar el catálogo'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        handle.dispose();
+      },
+    );
 
     testWidgets('AC-009 · 503 con Reintentar; no es "sin liquidaciones"', (
       tester,

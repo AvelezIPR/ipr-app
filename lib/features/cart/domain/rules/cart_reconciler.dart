@@ -27,7 +27,9 @@ final class CartReconciliation {
 ///   valor original se descarta.
 /// * Las líneas sin instantánea previa no generan aviso (no hay con qué
 ///   comparar).
-/// * Cantidades: mandan las locales; el servidor no las cambia.
+/// * Cantidades: mandan las locales, pero [Cart.withSnapshots] las acota al
+///   rango vigente del servidor (recorta al nuevo `maxQuantity` o eleva al
+///   `minQuantity` si los límites del producto cambiaron).
 CartReconciliation reconcileCart({
   required Cart cart,
   required CartValidation validation,

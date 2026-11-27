@@ -184,12 +184,12 @@ Future<Response> _handle(
   }
 
   // Cuerpo: se valida contra el esquema del contrato.
+  Object? requestJson;
   final body = route.operation['requestBody'];
   if (body is Map<String, dynamic> && body['required'] == true) {
     final text = await request.readAsString();
-    Object? json;
     try {
-      json = jsonDecode(text);
+      requestJson = jsonDecode(text);
     } on FormatException {
       return problem(400, 'validation_failed');
     }
@@ -197,7 +197,7 @@ Future<Response> _handle(
         ((body['content'] as Map<String, dynamic>)['application/json']
                 as Map<String, dynamic>)['schema']
             as Map<String, dynamic>;
-    final errors = contract.validate(json, schema);
+    final errors = contract.validate(requestJson, schema);
     if (errors.isNotEmpty) {
       return problem(
         400,
@@ -242,6 +242,7 @@ Future<Response> _handle(
       path: path,
       query: request.url.queryParameters,
       example: payload,
+      requestBody: requestJson,
     );
     if (demoJson != null) {
       final errors = contract.validate(demoJson, schema);
@@ -252,7 +253,8 @@ Future<Response> _handle(
       }
       payload = demoJson;
     } else if (route.template == '/products/{slug}' ||
-        route.template == '/brands/{slug}') {
+        route.template == '/brands/{slug}' ||
+        route.template == '/orders/{orderId}') {
       return problem(404, 'not_found');
     }
   }

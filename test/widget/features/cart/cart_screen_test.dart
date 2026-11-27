@@ -9,6 +9,7 @@ import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 import 'package:ipr_mobile/shared/widgets/state_widgets.dart';
+import 'package:ipr_mobile/shared/widgets/whatsapp_button.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'cart_harness.dart';
@@ -527,6 +528,51 @@ void main() {
         expect(isEnabled(tester, payButton), isTrue);
       },
     );
+
+    testWidgets(
+      'agotado con precio muestra aviso de estado y WhatsApp con nombre y SKU',
+      (tester) async {
+        final launcher = FakeExternalLauncher();
+        await pumpCart(
+          tester,
+          launcher: launcher,
+          lines: [lineOf(4533, 1, price: 89900, name: 'Capacitor')],
+          validation: _repo([
+            Ok(
+              validationOf([
+                ValidatedCartLine(
+                  id: 4533,
+                  quantity: 1,
+                  status: CartLineStatus.outOfStock,
+                  product: productOf(
+                    id: 4533,
+                    name: 'Capacitor',
+                    sku: 'QA-0007',
+                    stock: StockStatus.outOfStock,
+                    price: const Priced(Money(89900)),
+                  ),
+                ),
+              ], checkoutAllowed: false),
+            ),
+          ]),
+        );
+        expect(find.text('Agotado: quítalo para poder pagar'), findsOneWidget);
+        expect(find.byType(WhatsAppButton), findsOneWidget);
+        expect(find.text('Asesoría por WhatsApp'), findsOneWidget);
+
+        await tester.tap(find.text('Asesoría por WhatsApp'));
+        await tester.pump();
+        expect(launcher.opened.single.host, 'wa.me');
+        expect(
+          launcher.opened.single.queryParameters['text'],
+          contains('Capacitor'),
+        );
+        expect(
+          launcher.opened.single.queryParameters['text'],
+          contains('QA-0007'),
+        );
+      },
+    );
   });
 
   group('TC-047/TC-048 · AC-050-5/6 · sin precio y no encontrado', () {
@@ -624,6 +670,112 @@ void main() {
       );
       expect(isEnabled(tester, payButton), isFalse);
     });
+
+    testWidgets(
+      'bajo pedido con precio muestra aviso de estado y WhatsApp con nombre y SKU',
+      (tester) async {
+        final launcher = FakeExternalLauncher();
+        await pumpCart(
+          tester,
+          launcher: launcher,
+          lines: [lineOf(4540, 1, price: 350000, name: 'Válvula')],
+          validation: _repo([
+            Ok(
+              validationOf([
+                ValidatedCartLine(
+                  id: 4540,
+                  quantity: 1,
+                  status: CartLineStatus.onBackorder,
+                  product: productOf(
+                    id: 4540,
+                    name: 'Válvula',
+                    sku: 'QA-0008',
+                    stock: StockStatus.onBackorder,
+                    price: const Priced(Money(350000)),
+                  ),
+                ),
+              ], checkoutAllowed: false),
+            ),
+          ]),
+        );
+        expect(
+          find.text('Bajo pedido: no se puede comprar en la app'),
+          findsOneWidget,
+        );
+        expect(find.byType(WhatsAppButton), findsOneWidget);
+        expect(find.text('Asesoría por WhatsApp'), findsOneWidget);
+
+        await tester.tap(find.text('Asesoría por WhatsApp'));
+        await tester.pump();
+        expect(launcher.opened.single.host, 'wa.me');
+        expect(
+          launcher.opened.single.queryParameters['text'],
+          contains('Válvula'),
+        );
+        expect(
+          launcher.opened.single.queryParameters['text'],
+          contains('QA-0008'),
+        );
+      },
+    );
+
+    testWidgets(
+      'sin precio con status priceOnRequest muestra un único botón WhatsApp',
+      (tester) async {
+        await pumpCart(
+          tester,
+          lines: [lineOf(4551, 1, price: 0, name: 'Tarjeta')],
+          validation: _repo([
+            Ok(
+              validationOf([
+                ValidatedCartLine(
+                  id: 4551,
+                  quantity: 1,
+                  status: CartLineStatus.priceOnRequest,
+                  product: productOf(
+                    id: 4551,
+                    name: 'Tarjeta',
+                    sku: 'QA-0009',
+                    price: const OnRequest(),
+                  ),
+                ),
+              ], checkoutAllowed: false),
+            ),
+          ]),
+        );
+        expect(find.byType(WhatsAppButton), findsOneWidget);
+        expect(find.text('Más información'), findsOneWidget);
+        expect(find.text('Asesoría por WhatsApp'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'sin precio sin status priceOnRequest (sin conexión) muestra un único botón WhatsApp',
+      (tester) async {
+        final launcher = FakeExternalLauncher();
+        await pumpCart(
+          tester,
+          launcher: launcher,
+          lines: [lineOf(4551, 1, price: 0, name: 'Tarjeta')],
+          validation: _repo([failureOffline]),
+        );
+        expect(find.byType(WhatsAppButton), findsOneWidget);
+        expect(find.text('Más información'), findsOneWidget);
+        expect(find.text('Asesoría por WhatsApp'), findsNothing);
+
+        await tester.tap(find.text('Más información'));
+        await tester.pump();
+        expect(launcher.opened.single.host, 'wa.me');
+        expect(
+          launcher.opened.single.queryParameters['text'],
+          contains('Tarjeta'),
+        );
+        expect(
+          launcher.opened.single.queryParameters['text'],
+          contains('SKU-4551'),
+        );
+      },
+    );
   });
 
   group(

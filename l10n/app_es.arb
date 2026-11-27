@@ -210,6 +210,7 @@
   "homeHeroTitle": "Todo para aire acondicionado, refrigeración y ventilación",
   "homeHeroBody": "Equipos, partes y repuestos con asesoría técnica en todo el país.",
   "homeHeroCta": "Ver el catálogo",
+  "homeSeeAllCatalog": "Ver todo el catálogo",
   "homeBranchesTitle": "Nuestras sedes",
   "homeBranchesSummary": "{branches, plural, =1{1 sede} other{{branches} sedes}} en {cities, plural, =1{1 ciudad} other{{cities} ciudades}}",
   "@homeBranchesSummary": {
@@ -433,6 +434,35 @@
   "catalogBrandSearchClear": "Borrar búsqueda",
   "catalogBrandSearchSubmit": "Buscar",
   "catalogSaleTitle": "Liquidaciones",
+  "catalogSaleHighlightBadge": "Ofertas",
+  "catalogSaleHighlightSubtitle": "Precios especiales y ofertas vigentes",
+  "catalogSaleBannerTitle": "Ofertas especiales por tiempo limitado",
+  "catalogSaleBannerBody": "Consulta referencias en liquidación o cotiza directamente con un asesor.",
+  "catalogSaleWhatsappLabel": "Escríbenos por WhatsApp",
+  "catalogSaleWhatsappMsg": "¡Hola IPR! Quiero aprovechar las liquidaciones.",
+  "catalogEmptySaleExploreAction": "Explorar el catálogo",
+  "catalogEmptyCommercialEyebrow": "Disponible por WhatsApp",
+  "catalogEmptyCommercialTitle": "¡Encuentra aquí los productos de {category}!",
+  "@catalogEmptyCommercialTitle": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogEmptyCommercialFallbackCategory": "esta categoría",
+  "catalogEmptyCommercialBody": "Aunque nuestro catálogo en línea de esta categoría aún está en publicación, contamos con estos productos para ti. Escríbenos y un asesor te cotiza al instante.",
+  "catalogEmptyCommercialWhatsappLabel": "Comprar por WhatsApp",
+  "catalogEmptyCommercialWhatsappMsg": "¡Hola IPR! Quiero comprar productos de la categoría «{category}».",
+  "@catalogEmptyCommercialWhatsappMsg": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogEmptyCommercialWhatsappMsgGeneric": "¡Hola IPR! Quiero comprar productos de esta categoría.",
+  "catalogEmptyCommercialSubcategoriesTitle": "Subcategorías disponibles",
   "catalogBtuFilterLabel": "Capacidad BTU",
   "catalogBtuOptionLabel": "{capacity} BTU",
   "@catalogBtuOptionLabel": {
@@ -460,6 +490,18 @@
     "placeholders": {
       "term": {
         "type": "String"
+      }
+    }
+  },
+  "searchSuggestionsSeeAllWithTotal": "Ver todos los resultados para “{term}” ({total})",
+  "@searchSuggestionsSeeAllWithTotal": {
+    "description": "Último renglón de las sugerencias con el total de coincidencias.",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
       }
     }
   },
@@ -539,6 +581,7 @@
   "productDetailSelectOption": "Selecciona una opción",
   "productDetailSelectOptionHint": "Elige una opción de cada característica para ver el precio y comprar.",
   "productDetailVariantUnavailable": "No disponible con lo que elegiste",
+  "productDetailVariantSwitchHint": "Requiere cambiar otra opción",
   "productDetailVariantRemoveHint": "Toca de nuevo para quitar la opción",
   "productDetailOnSaleBadge": "Oferta",
   "productDetailOutOfStockNotice": "Este producto está agotado.",
@@ -597,6 +640,7 @@
     }
   },
   "productDetailAddToCart": "Agregar al carrito",
+  "productDetailMaxInCart": "Máximo en el carrito",
   "productDetailAddedToCart": "Producto agregado al carrito",
   "productDetailViewCart": "Ver carrito",
   "authenticationLoginTitle": "Iniciar sesión",

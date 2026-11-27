@@ -9,10 +9,12 @@ import 'package:ipr_mobile/features/search/search_providers.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/ipr_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/ipr_theme.dart';
+import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/navigation/routes.dart';
 import 'package:ipr_mobile/shared/widgets/product_card.dart';
+import 'package:ipr_mobile/shared/widgets/product_image.dart';
 import 'package:ipr_mobile/shared/widgets/state_widgets.dart';
 import 'package:ipr_mobile/shared/widgets/whatsapp_button.dart';
 import 'package:material_ui/material_ui.dart';
@@ -151,7 +153,10 @@ void main() {
       expect(find.byType(LinearProgressIndicator), findsNothing);
       expect(find.text('Válvula solenoide 1'), findsOneWidget);
       expect(find.text('Válvula solenoide 2'), findsOneWidget);
-      expect(find.text('Ver todos los resultados para “val”'), findsOneWidget);
+      expect(
+        find.text('Ver todos los resultados para “val” (2)'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('con 1 carácter no hay petición ni panel', (tester) async {
@@ -213,6 +218,42 @@ void main() {
       await type(tester, '');
       expect(find.text('Válvula solenoide 1'), findsNothing);
       expect(find.textContaining('Ver todos los resultados'), findsNothing);
+    });
+
+    testWidgets('sugerencias enriquecidas muestran miniatura, precio y total', (
+      tester,
+    ) async {
+      final h = await pumpSearch(tester);
+      h.repo.autoSuggestions = (q) => Ok(
+        SearchSuggestions(
+          items: [
+            suggestion(
+              1,
+              image: const ImageRef(
+                url: 'https://staging.invalid/img/s-1.jpg',
+                alt: 'Válvula 1',
+              ),
+              price: const Priced(Money(185000)),
+            ),
+            suggestion(2, price: const OnRequest()),
+            suggestion(3),
+          ],
+          total: 12,
+        ),
+      );
+      await type(tester, 'val');
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();
+
+      expect(find.byType(ProductImage), findsOneWidget);
+      expect(find.byIcon(Icons.search), findsWidgets);
+      expect(find.text(r'$ 185.000'), findsOneWidget);
+      expect(find.text('Más información'), findsOneWidget);
+      expect(find.textContaining(r'$ 0'), findsNothing);
+      expect(
+        find.text('Ver todos los resultados para “val” (12)'),
+        findsOneWidget,
+      );
     });
   });
 
@@ -387,6 +428,32 @@ void main() {
         expect(hasFocus(tester), isTrue);
       },
     );
+
+    testWidgets(
+      'cuadrícula alinea filas con IntrinsicHeight y muestra insignia Oferta',
+      (tester) async {
+        final h = await pumpSearch(tester);
+        h.repo.autoSearch = (q, p) => Ok(
+          pageOf([
+            product(
+              1,
+              name: 'Válvula solenoide en oferta con nombre largo para probar altura',
+              regularPrice: const Money(210000),
+              onSale: true,
+            ),
+            product(2, name: 'Filtro corto'),
+          ]),
+        );
+        await type(tester, 'valvula');
+        await submit(tester);
+        await tester.pump();
+
+        expect(find.byType(IntrinsicHeight), findsOneWidget);
+        expect(find.text('Oferta'), findsOneWidget);
+        expect(find.byIcon(Icons.local_offer), findsOneWidget);
+        expect(find.text(r'Antes $ 210.000'), findsOneWidget);
+      },
+    );
   });
 
   group('TC-114 · RF-023 · sin resultados y WhatsApp', () {
@@ -505,6 +572,45 @@ void main() {
 
   group('RNF-068/070/075 · accesibilidad y texto al 200 %', () {
     for (final scale in [1.0, 2.0]) {
+      testWidgets('sugerencias enriquecidas a texto ×$scale sin desbordar', (
+        tester,
+      ) async {
+        final h = await pumpSearch(tester, textScale: scale);
+        h.repo.autoSuggestions = (q) => Ok(
+          SearchSuggestions(
+            items: [
+              suggestion(
+                1,
+                image: const ImageRef(
+                  url: 'https://staging.invalid/img/s-1.jpg',
+                  alt: 'Detector',
+                ),
+                price: const Priced(Money(1445000)),
+              ),
+              suggestion(2, price: const OnRequest()),
+            ],
+            total: 15,
+          ),
+        );
+        await type(tester, 'detector');
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        final seeAll = find.text(
+          'Ver todos los resultados para “detector” (15)',
+        );
+        await tester.scrollUntilVisible(
+          seeAll,
+          120,
+          scrollable: find.descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          ),
+        );
+        expect(tester.takeException(), isNull);
+        expect(seeAll, findsOneWidget);
+      });
+
       testWidgets('resultados a texto ×$scale sin desbordar', (tester) async {
         final h = await pumpSearch(tester, textScale: scale);
         h.repo.autoSearch = (q, p) => Ok(
@@ -512,6 +618,8 @@ void main() {
             product(
               1,
               name: 'Detector de fugas de refrigerante CO2 R744 Elitech',
+              regularPrice: const Money(1650000),
+              onSale: true,
             ),
             product(2, price: const OnRequest()),
             product(3, price: const Priced(Money(1445000))),
@@ -522,6 +630,7 @@ void main() {
         await tester.pump();
         expect(tester.takeException(), isNull);
         expect(find.byType(ProductCard), findsWidgets);
+        expect(find.text('Oferta'), findsOneWidget);
       });
 
       testWidgets('vacío y error a texto ×$scale sin desbordar', (
@@ -578,7 +687,7 @@ void main() {
       await expectLater(tester, meetsGuideline(textContrastGuideline));
 
       h.repo.autoSearch = (q, p) => Ok(pageOf([]));
-      await tester.tap(find.text('Ver todos los resultados para “val”'));
+      await tester.tap(find.text('Ver todos los resultados para “val” (1)'));
       await tester.pump();
       await tester.pump();
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));

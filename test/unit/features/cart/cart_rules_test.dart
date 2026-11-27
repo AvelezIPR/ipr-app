@@ -8,6 +8,7 @@ import 'package:ipr_mobile/features/cart/domain/rules/cart_retention_policy.dart
 import 'package:ipr_mobile/features/cart/domain/rules/checkout_gate.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 
 import 'cart_test_support.dart';
@@ -479,6 +480,44 @@ void main() {
         isFalse,
       );
     });
+
+    test(
+      'reconcileCart recorta o ajusta cantidades al rango vigente del servidor',
+      () {
+        final cart = Cart([lineOf(1, 10), lineOf(2, 1)]);
+        final result = reconcileCart(
+          cart: cart,
+          validation: validationOf([
+            ValidatedCartLine(
+              id: 1,
+              quantity: 10,
+              status: CartLineStatus.available,
+              product: productOf(
+                id: 1,
+                name: 'Producto 1',
+                sku: 'SKU-1',
+                range: const QuantityRange(max: 4),
+              ),
+              lineSubtotal: const Money(400000),
+            ),
+            ValidatedCartLine(
+              id: 2,
+              quantity: 1,
+              status: CartLineStatus.available,
+              product: productOf(
+                id: 2,
+                name: 'Producto 2',
+                sku: 'SKU-2',
+                range: const QuantityRange(min: 3, max: 10),
+              ),
+              lineSubtotal: const Money(300000),
+            ),
+          ]),
+        );
+        expect(result.cart.lineOf(1)!.quantity, 4);
+        expect(result.cart.lineOf(2)!.quantity, 3);
+      },
+    );
   });
 
   group('RF-050/RF-052 · puerta de pago (CartReadiness)', () {

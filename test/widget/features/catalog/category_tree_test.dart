@@ -138,6 +138,28 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('Inverter'), findsOneWidget);
+      expect(find.text('Ver todo en Aire'), findsOneWidget);
+      expect(find.text('Ver todo en Split'), findsOneWidget);
     });
+
+    testWidgets(
+      'muestra "Ver todo en {nombre}" como primer elemento al expandir una rama con hijos',
+      (tester) async {
+        await _pump(tester);
+        expect(find.text('Ver todo en Aire'), findsNothing);
+
+        await tester.tap(_toggle('aire'));
+        await tester.pumpAndSettle();
+        expect(find.text('Ver todo en Aire'), findsOneWidget);
+
+        final seeAllY = tester.getTopLeft(find.text('Ver todo en Aire')).dy;
+        final splitY = tester.getTopLeft(find.text('Split')).dy;
+        expect(seeAllY, lessThan(splitY));
+
+        await tester.tap(_toggle('aire'));
+        await tester.pumpAndSettle();
+        expect(find.text('Ver todo en Aire'), findsNothing);
+      },
+    );
   });
 }

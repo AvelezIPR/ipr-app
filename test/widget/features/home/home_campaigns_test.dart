@@ -8,6 +8,7 @@ import 'package:ipr_mobile/core/config/remote_config_repository.dart'
 import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/features/home/domain/entities/home_city.dart';
 import 'package:ipr_mobile/features/home/domain/entities/section_data.dart';
+import 'package:ipr_mobile/features/home/presentation/widgets/home_brand_blocks.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../mocks/test_providers.dart';
@@ -328,6 +329,113 @@ void main() {
       final handle = tester.ensureSemantics();
       await _pump(tester, HomeContent.empty);
       expect(find.bySemanticsLabel('14 sedes'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('rejilla 2×2 en móvil y 1 columna a texto ×2.0 sin desbordar', (
+      tester,
+    ) async {
+      await _pump(tester, const HomeContent(stats: _stats));
+      final p0 = tester.getTopLeft(find.text('+30 años'));
+      final p1 = tester.getTopLeft(find.text('31'));
+      final p2 = tester.getTopLeft(find.text('+10.000'));
+      final p3 = tester.getTopLeft(find.text('Líder del sector HVAC-R*'));
+      expect(p0.dx, lessThan(p1.dx));
+      expect(p2.dx, lessThan(p3.dx));
+      expect(p0.dy, lessThan(p2.dy));
+      expect(p1.dy, lessThan(p3.dy));
+
+      await _pump(
+        tester,
+        const HomeContent(stats: _stats),
+        textScale: 2,
+        size: const Size(360, 9000),
+      );
+      expect(tester.takeException(), isNull);
+      final s0 = tester.getTopLeft(find.text('+30 años'));
+      final s1 = tester.getTopLeft(find.text('31'));
+      final s2 = tester.getTopLeft(find.text('+10.000'));
+      final s3 = tester.getTopLeft(find.text('Líder del sector HVAC-R*'));
+      expect(s0.dy, lessThan(s1.dy));
+      expect(s1.dy, lessThan(s2.dy));
+      expect(s2.dy, lessThan(s3.dy));
+    });
+
+    testWidgets('cifra con target es botón y navega; sin target no es botón', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      const linkedStats = [
+        HomeStat(
+          id: 'years',
+          value: '+30',
+          unit: 'años',
+          label: 'Importando y distribuyendo',
+        ),
+        HomeStat(
+          id: 'branches',
+          value: '31',
+          label: 'Sedes atendiendo el mercado',
+          target: HomeTarget(HomeTargetKind.branches),
+        ),
+        HomeStat(
+          id: 'references',
+          value: '+10.000',
+          label: 'Referencias HVAC-R',
+          target: HomeTarget(HomeTargetKind.category, 'aire-acondicionado'),
+        ),
+        HomeStat(
+          id: 'btu',
+          value: 'BTU',
+          label: 'Calculadora rápida',
+          target: HomeTarget(HomeTargetKind.calculator),
+        ),
+      ];
+
+      await _pump(tester, const HomeContent(stats: linkedStats));
+      // 2 botones con destino activo (branches + category; btu está apagada).
+      expect(
+        find.descendant(
+          of: find.byType(HomeInstitutionalStats),
+          matching: find.byIcon(Icons.arrow_forward),
+        ),
+        findsNWidgets(2),
+      );
+      expect(
+        tester
+            .getSemantics(
+              find.bySemanticsLabel('+30 años Importando y distribuyendo'),
+            )
+            .flagsCollection
+            .isButton,
+        isFalse,
+      );
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel('BTU Calculadora rápida'))
+            .flagsCollection
+            .isButton,
+        isFalse,
+      );
+      expect(
+        tester.getSemantics(
+          find.bySemanticsLabel('31 Sedes atendiendo el mercado'),
+        ),
+        matchesSemantics(
+          label: '31 Sedes atendiendo el mercado',
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(textContrastGuideline));
+
+      await tester.tap(find.text('31'));
+      await tester.pumpAndSettle();
+      expect(destinationOf(tester), '/branches');
       handle.dispose();
     });
   });

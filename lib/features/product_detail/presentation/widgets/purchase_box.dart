@@ -46,23 +46,37 @@ class _PurchaseBoxState extends ConsumerState<PurchaseBox> {
   void didUpdateWidget(PurchaseBox oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Otra variación puede tener otros límites (W1-06): la cantidad elegida se
-    // lleva al nuevo rango.
+    // lleva al nuevo rango efectivo considerando lo que ya está en el carrito.
     final range = widget.product.summary.quantityRange;
-    if (range != oldWidget.product.summary.quantityRange) {
-      _quantity = range.clamp(_quantity);
+    if (range != oldWidget.product.summary.quantityRange ||
+        widget.product.id != oldWidget.product.id) {
+      final inCart = ref.read(
+        cartQuantityForProductProvider(widget.product.id),
+      );
+      final remaining = range.max - inCart;
+      if (remaining > 0) {
+        final effectiveMin = inCart > 0 ? 1 : range.min.clamp(1, remaining);
+        _quantity = _quantity.clamp(effectiveMin, remaining);
+      }
     }
   }
 
   Future<void> _add() async {
     final action = ref.read(addToCartActionProvider);
     if (action == null || _adding) return;
+    final range = widget.product.summary.quantityRange;
+    final inCart = ref.read(cartQuantityForProductProvider(widget.product.id));
+    final remaining = range.max - inCart;
+    if (remaining <= 0) return;
+    final effectiveMin = inCart > 0 ? 1 : range.min.clamp(1, remaining);
+    final quantity = _quantity.clamp(effectiveMin, remaining);
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.maybeOf(context);
     final router = GoRouter.maybeOf(context);
     setState(() => _adding = true);
     final result = await action.add(
       productId: widget.product.id,
-      quantity: widget.product.summary.quantityRange.clamp(_quantity),
+      quantity: quantity,
       snapshot: widget.product.summary,
     );
     if (!mounted) return;
@@ -93,6 +107,14 @@ class _PurchaseBoxState extends ConsumerState<PurchaseBox> {
     final theme = Theme.of(context);
     final product = widget.product;
     final action = ref.watch(addToCartActionProvider);
+    final inCart = ref.watch(cartQuantityForProductProvider(product.id));
+    final range = product.summary.quantityRange;
+    final remaining = range.max - inCart;
+    final effectiveMin = remaining > 0
+        ? (inCart > 0 ? 1 : range.min.clamp(1, remaining))
+        : 1;
+    final effectiveMax = remaining > 0 ? remaining : 1;
+    final effectiveQuantity = _quantity.clamp(effectiveMin, effectiveMax);
     final canBuy = product.canAddToCart;
     final message = _whatsAppMessage(l10n, product);
 
@@ -135,23 +157,36 @@ class _PurchaseBoxState extends ConsumerState<PurchaseBox> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (canBuy && action != null) ...[
-          QuantitySelector(
-            value: _quantity,
-            minQuantity: product.summary.quantityRange.min,
-            maxQuantity: product.summary.quantityRange.max,
-            onChanged: (value) => setState(() => _quantity = value),
-          ),
-          if (product.summary.quantityRange.isAtMax(_quantity))
+          if (remaining <= 0) ...[
             MaxQuantityNotice(
-              max: product.summary.quantityRange.max,
+              max: range.max,
               productName: product.name,
               whatsAppMessage: message,
             ),
-          const SizedBox(height: IprSpace.s3),
-          FilledButton(
-            onPressed: _adding ? null : () => unawaited(_add()),
-            child: Text(l10n.productDetailAddToCart),
-          ),
+            const SizedBox(height: IprSpace.s3),
+            FilledButton(
+              onPressed: null,
+              child: Text(l10n.productDetailMaxInCart),
+            ),
+          ] else ...[
+            QuantitySelector(
+              value: effectiveQuantity,
+              minQuantity: effectiveMin,
+              maxQuantity: effectiveMax,
+              onChanged: (value) => setState(() => _quantity = value),
+            ),
+            if (effectiveQuantity >= effectiveMax)
+              MaxQuantityNotice(
+                max: range.max,
+                productName: product.name,
+                whatsAppMessage: message,
+              ),
+            const SizedBox(height: IprSpace.s3),
+            FilledButton(
+              onPressed: _adding ? null : () => unawaited(_add()),
+              child: Text(l10n.productDetailAddToCart),
+            ),
+          ],
           const SizedBox(height: IprSpace.s3),
         ],
         if (notice != null) ...[

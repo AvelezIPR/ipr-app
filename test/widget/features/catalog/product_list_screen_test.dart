@@ -2,11 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ipr_mobile/features/catalog/catalog.dart';
 import 'package:ipr_mobile/shared/widgets/product_card.dart';
 import 'package:ipr_mobile/shared/widgets/state_widgets.dart';
+import 'package:ipr_mobile/shared/widgets/whatsapp_button.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../fixtures/catalog/catalog_fixtures.dart';
 import '../../../fixtures/catalog/fake_catalog_bff.dart';
 import '../../../mocks/fake_http_adapter.dart';
+import '../../../mocks/test_providers.dart';
 import 'catalog_harness.dart';
 
 const screen = ProductListScreen(categorySlug: 'minisplit');
@@ -156,6 +158,24 @@ void main() {
         expect(find.byIcon(Icons.image_not_supported_outlined), findsOneWidget);
         expect(find.text('Agotado'), findsOneWidget);
         expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'muestra insignia Oferta en categoría cuando product.onSale es true',
+      (tester) async {
+        bff.on(
+          '/products',
+          (_) => FakeHttpAdapter.json(
+            productPage([
+              product(1, base: 'ProductSummary.on-sale.json'),
+              product(2),
+            ]),
+          ),
+        );
+        await pumpCatalog(tester, screen, bff);
+        expect(find.text('Oferta'), findsOneWidget);
+        expect(find.text(r'Antes $ 2.350.000'), findsOneWidget);
       },
     );
   });
@@ -320,17 +340,105 @@ void main() {
       expect(find.text('Este contenido ya no está disponible.'), findsNothing);
     });
 
-    testWidgets('AC-010-3 · categoría vacía: mensaje y acceso a la búsqueda', (
-      tester,
-    ) async {
-      bff.on('/products', (_) => FakeHttpAdapter.json(productPage([])));
-      final visited = <String>[];
-      await pumpCatalog(tester, screen, bff, visited: visited);
-      expect(find.text('No hay productos en esta categoría'), findsOneWidget);
-      await tester.tap(find.text('Buscar productos'));
-      await settle(tester);
-      expect(visited, ['/search']);
-    });
+    testWidgets(
+      'AC-010-3 · categoría vacía: tarjeta comercial WhatsApp y búsqueda',
+      (tester) async {
+        bff.on('/products', (_) => FakeHttpAdapter.json(productPage([])));
+        final visited = <String>[];
+        final launcher = FakeExternalLauncher();
+        await pumpCatalog(
+          tester,
+          screen,
+          bff,
+          visited: visited,
+          launcher: launcher,
+        );
+        expect(find.text('Disponible por WhatsApp'), findsOneWidget);
+        expect(
+          find.text('¡Encuentra aquí los productos de Minisplit!'),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('Aunque nuestro catálogo en línea'),
+          findsOneWidget,
+        );
+        expect(find.byType(WhatsAppButton), findsOneWidget);
+        expect(
+          tester.widget<WhatsAppButton>(find.byType(WhatsAppButton)).message,
+          '¡Hola IPR! Quiero comprar productos de la categoría «Minisplit».',
+        );
+
+        await tester.tap(find.text('Comprar por WhatsApp'));
+        await tester.pump();
+        expect(launcher.opened.single.host, 'wa.me');
+        expect(
+          launcher.opened.single.queryParameters['text'],
+          '¡Hola IPR! Quiero comprar productos de la categoría «Minisplit».',
+        );
+
+        await tester.tap(find.text('Buscar productos'));
+        await settle(tester);
+        expect(visited, ['/search']);
+      },
+    );
+
+    testWidgets(
+      'categoría vacía con subcategorías hijas muestra botones navegables',
+      (tester) async {
+        bff.on('/products', (_) => FakeHttpAdapter.json(productPage([])));
+        final visited = <String>[];
+        await pumpCatalog(
+          tester,
+          const ProductListScreen(categorySlug: 'aire-acondicionado'),
+          bff,
+          visited: visited,
+        );
+        expect(
+          find.text('¡Encuentra aquí los productos de Aire acondicionado!'),
+          findsOneWidget,
+        );
+        expect(find.text('Subcategorías disponibles'), findsOneWidget);
+        expect(find.text('Minisplit'), findsOneWidget);
+        expect(find.text('Cassette'), findsOneWidget);
+
+        await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
+        await tester.pump();
+        await tester.tap(find.text('Minisplit'));
+        await settle(tester);
+        expect(visited, ['/catalog/list?category=minisplit']);
+      },
+    );
+
+    testWidgets(
+      'categoría vacía sin nombre en el árbol usa texto genérico y WhatsApp',
+      (tester) async {
+        bff.on('/products', (_) => FakeHttpAdapter.json(productPage([])));
+        await pumpCatalog(
+          tester,
+          const ProductListScreen(categorySlug: 'no-esta-en-el-arbol'),
+          bff,
+        );
+        expect(
+          find.text('¡Encuentra aquí los productos de esta categoría!'),
+          findsOneWidget,
+        );
+        expect(
+          tester.widget<WhatsAppButton>(find.byType(WhatsAppButton)).message,
+          '¡Hola IPR! Quiero comprar productos de esta categoría.',
+        );
+      },
+    );
+
+    testWidgets(
+      'catálogo general vacío (sin categoría) conserva EmptyState estándar',
+      (tester) async {
+        bff.on('/products', (_) => FakeHttpAdapter.json(productPage([])));
+        await pumpCatalog(tester, const ProductListScreen(), bff);
+        expect(find.text('No hay productos en esta categoría'), findsOneWidget);
+        expect(find.text('Disponible por WhatsApp'), findsNothing);
+        expect(find.text('Buscar productos'), findsOneWidget);
+      },
+    );
 
     testWidgets(
       'datos guardados con la red caída: listado + aviso de obsoletos',
@@ -718,10 +826,37 @@ void main() {
 
     testWidgets('texto al 200 % con el vacío del listado', (tester) async {
       bff.on('/products', (_) => FakeHttpAdapter.json(productPage([])));
-      await pumpCatalog(tester, screen, bff, textScale: 2);
-      expect(find.text('No hay productos en esta categoría'), findsOneWidget);
+      await pumpCatalog(
+        tester,
+        const ProductListScreen(categorySlug: 'aire-acondicionado'),
+        bff,
+        textScale: 2,
+      );
+      expect(
+        find.text('¡Encuentra aquí los productos de Aire acondicionado!'),
+        findsOneWidget,
+      );
+      expect(find.text('Minisplit'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets(
+      'categoría vacía comercial cumple guías de objetivo táctil, etiquetas y contraste',
+      (tester) async {
+        bff.on('/products', (_) => FakeHttpAdapter.json(productPage([])));
+        final handle = tester.ensureSemantics();
+        await pumpCatalog(
+          tester,
+          const ProductListScreen(categorySlug: 'aire-acondicionado'),
+          bff,
+        );
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        handle.dispose();
+      },
+    );
 
     testWidgets('guías de objetivo táctil, etiquetas y contraste', (
       tester,

@@ -217,6 +217,75 @@ void main() {
       expect(withUnit.spoken, '+30 años');
       expect(without.spoken, '31');
     });
+
+    test('HomeStat.target acepta destinos válidos (branches, category)', () {
+      final content = _content({
+        'stats': [
+          {
+            'id': 'branches',
+            'value': '31',
+            'label': 'Sedes',
+            'target': {'kind': 'branches'},
+          },
+          {
+            'id': 'refs',
+            'value': '+10.000',
+            'label': 'Referencias',
+            'target': {'kind': 'category', 'ref': 'aire-acondicionado'},
+          },
+        ],
+      });
+      expect(
+        content.stats[0].target,
+        const HomeTarget(HomeTargetKind.branches),
+      );
+      expect(
+        content.stats[1].target,
+        const HomeTarget(HomeTargetKind.category, 'aire-acondicionado'),
+      );
+      expect(
+        content.stats[0],
+        const HomeStat(
+          id: 'branches',
+          value: '31',
+          label: 'Sedes',
+          target: HomeTarget(HomeTargetKind.branches),
+        ),
+      );
+      expect(
+        content.stats[0] ==
+            const HomeStat(id: 'branches', value: '31', label: 'Sedes'),
+        isFalse,
+      );
+    });
+
+    test(
+      'HomeStat con target inválido conserva la cifra y deja target en null',
+      () {
+        final content = _content({
+          'stats': [
+            {
+              'id': 'branches',
+              'value': '31',
+              'label': 'Sedes',
+              'target': {'kind': 'desconocido'},
+            },
+            {
+              'id': 'refs',
+              'value': '+10.000',
+              'label': 'Referencias',
+              'target': {'kind': 'category', 'ref': 'INVALIDO'},
+            },
+          ],
+        });
+        expect(content.stats, hasLength(2));
+        expect(content.stats[0].id, 'branches');
+        expect(content.stats[0].value, '31');
+        expect(content.stats[0].target, isNull);
+        expect(content.stats[1].id, 'refs');
+        expect(content.stats[1].target, isNull);
+      },
+    );
   });
 
   group('W2 · /config → RemoteConfig.home', () {

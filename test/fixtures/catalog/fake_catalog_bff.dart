@@ -51,10 +51,14 @@ final class FakeCatalogBff {
 
   /// Overrides para montar widgets y controladores: cliente real sobre el
   /// adaptador falso y una caché en memoria.
-  List<Override> overrides({CacheStore? cache}) {
+  List<Override> overrides({
+    CacheStore? cache,
+    FakeExternalLauncher? launcher,
+  }) {
     final client = buildTestClient(adapter: adapter).client;
     return testOverrides(
       cache: cache,
+      launcher: launcher,
       extra: [apiClientProvider.overrideWithValue(client)],
     );
   }

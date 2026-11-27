@@ -124,6 +124,7 @@ final class HomeStat {
     required this.value,
     required this.label,
     this.unit,
+    this.target,
   });
 
   final String id;
@@ -132,6 +133,7 @@ final class HomeStat {
   final String value;
   final String? unit;
   final String label;
+  final HomeTarget? target;
 
   /// Cifra y unidad juntas, como se leen ("+30 años").
   String get spoken => unit == null ? value : '$value $unit';
@@ -142,10 +144,11 @@ final class HomeStat {
       other.id == id &&
       other.value == value &&
       other.unit == unit &&
-      other.label == label;
+      other.label == label &&
+      other.target == target;
 
   @override
-  int get hashCode => Object.hash(id, value, unit, label);
+  int get hashCode => Object.hash(id, value, unit, label, target);
 }
 
 /// Bloque destacado de la portada (ingeniería, formación…).
@@ -277,6 +280,7 @@ final class HomeContent {
       value: value,
       unit: _text(json['unit'], max: 40),
       label: label,
+      target: HomeTarget.tryFromJson(json['target']),
     );
   }
 

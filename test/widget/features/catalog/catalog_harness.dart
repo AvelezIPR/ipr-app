@@ -9,6 +9,7 @@ import 'package:ipr_mobile/shared/navigation/routes.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../fixtures/catalog/fake_catalog_bff.dart';
+import '../../../mocks/test_providers.dart';
 
 /// Monta [screen] como ruta `/` de un `GoRouter` con destinos de relleno para
 /// el resto de rutas: cada una muestra `DESTINO <ubicación>` y queda en
@@ -21,6 +22,7 @@ Future<GoRouter> pumpCatalog(
   Size size = const Size(360, 800),
   CacheStore? cache,
   List<String>? visited,
+  FakeExternalLauncher? launcher,
 }) async {
   tester.view
     ..physicalSize = size
@@ -43,6 +45,7 @@ Future<GoRouter> pumpCatalog(
   final router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, state) => screen),
+      stub(Routes.catalog),
       stub(Routes.catalogList),
       stub(Routes.brands),
       stub('${Routes.brandPrefix}/:slug'),
@@ -56,7 +59,7 @@ Future<GoRouter> pumpCatalog(
 
   await tester.pumpWidget(
     ProviderScope(
-      overrides: bff.overrides(cache: cache),
+      overrides: bff.overrides(cache: cache, launcher: launcher),
       child: MaterialApp.router(
         theme: IprTheme.light(),
         locale: iprLocale,
