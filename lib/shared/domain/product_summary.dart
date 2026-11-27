@@ -1,6 +1,7 @@
 import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart' as stock_rules;
 import 'package:ipr_mobile/shared/domain/stock_status.dart' show StockStatus;
 import 'package:meta/meta.dart';
@@ -28,6 +29,9 @@ final class ProductSummary {
     this.onSale = false,
     this.image,
     this.categorySlugs = const [],
+    this.hasVariants = false,
+    this.priceFrom,
+    this.quantityRange = QuantityRange.standard,
   });
 
   final int id;
@@ -44,6 +48,16 @@ final class ProductSummary {
   final StockStatus availability;
   final ImageRef? image;
   final List<String> categorySlugs;
+
+  /// Producto variable (medida, voltaje, volumen…): la tarjeta muestra "Desde"
+  /// y "Ver opciones" y la compra se hace en la ficha (W1-01).
+  final bool hasVariants;
+
+  /// Precio mínimo entre las variaciones con precio; solo si [hasVariants].
+  final Money? priceFrom;
+
+  /// Cantidades que se pueden comprar por línea (W1-06).
+  final QuantityRange quantityRange;
 
   /// ¿Se puede ofrecer "Añadir al carrito"? (CR-017: bajo pedido, no).
   bool get canAddToCart =>
@@ -68,7 +82,10 @@ final class ProductSummary {
       other.price == price &&
       other.availability == availability &&
       other.onSale == onSale &&
-      other.regularPrice == regularPrice;
+      other.regularPrice == regularPrice &&
+      other.hasVariants == hasVariants &&
+      other.priceFrom == priceFrom &&
+      other.quantityRange == quantityRange;
 
   @override
   int get hashCode => Object.hash(id, slug, name, sku, price, availability);

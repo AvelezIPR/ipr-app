@@ -1,3 +1,5 @@
+import 'package:ipr_mobile/core/config/engineering_team.dart';
+import 'package:ipr_mobile/core/config/home_content.dart';
 import 'package:ipr_mobile/core/config/remote_config.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -15,6 +17,7 @@ final class RemoteConfigDto {
     this.checkout,
     this.notices,
     this.legal,
+    this.home,
   });
 
   factory fromJson(Map<String, dynamic> json) =>
@@ -27,6 +30,10 @@ final class RemoteConfigDto {
   final CheckoutConfigDto? checkout;
   final NoticesDto? notices;
   final LegalDto? legal;
+
+  /// `home` tal cual llega: se interpreta con [HomeContent.fromJson], que
+  /// descarta lo ilegible sin lanzar.
+  final Object? home;
 
   /// Mapeo tolerante a la entidad; [platform] es `android` o `ios`.
   RemoteConfig toEntity({required String platform}) => RemoteConfig(
@@ -47,6 +54,9 @@ final class RemoteConfigDto {
     pqrsEmail: contact?.pqrsEmail,
     engineeringWhatsapp: contact?.engineering?.whatsapp,
     engineeringEmail: contact?.engineering?.email,
+    engineeringSpecialties: EngineeringTeam.fromJson(
+      contact?.engineering?.specialties,
+    ),
     shippingNotice: notices?.shipping,
     warrantyNotice: notices?.warranty,
     priceOnRequestNotice: notices?.priceOnRequest,
@@ -57,6 +67,7 @@ final class RemoteConfigDto {
     dataRightsUrl: legal?.dataRightsChannel?.url,
     dataRightsEmail: legal?.dataRightsChannel?.email,
     accountDeletionNotice: legal?.accountDeletionNotice,
+    home: HomeContent.fromJson(home),
   );
 }
 
@@ -109,13 +120,17 @@ final class ContactDto {
 
 @JsonSerializable(createToJson: false)
 final class EngineeringContactDto {
-  const new({this.whatsapp, this.email});
+  const new({this.whatsapp, this.email, this.specialties});
 
   factory fromJson(Map<String, dynamic> json) =>
       _$EngineeringContactDtoFromJson(json);
 
   final String? whatsapp;
   final String? email;
+
+  /// Equipo por especialidad tal cual llega (W3-02): se interpreta con
+  /// [EngineeringTeam.fromJson], que descarta lo ilegible sin lanzar.
+  final Object? specialties;
 }
 
 @JsonSerializable(createToJson: false)

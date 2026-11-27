@@ -38,10 +38,14 @@ enum ResultsMode {
 /// la página N conserva las anteriores (AC-009-5); un fallo al aplicar filtros
 /// conserva el listado y los filtros previos (AC-013-5).
 class ProductResults extends ConsumerStatefulWidget {
-  const new({required this.scope, required this.mode, super.key});
+  const new({required this.scope, required this.mode, super.key, this.header});
 
   final ListScope scope;
   final ResultsMode mode;
+
+  /// Contenido que va **dentro** del desplazamiento, antes de los filtros y de
+  /// los productos (p. ej. el contenido editorial de una marca, W3-01).
+  final Widget? header;
 
   @override
   ConsumerState<ProductResults> createState() => _ProductResultsState();
@@ -104,6 +108,8 @@ class _ProductResultsState extends ConsumerState<ProductResults> {
             controller: _scroll,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
+              if (widget.header != null)
+                SliverToBoxAdapter(child: widget.header),
               SliverToBoxAdapter(
                 child: _Toolbar(
                   data: data,
@@ -503,8 +509,8 @@ class _ProductSliver extends StatelessWidget {
 
   static const double _gap = IprSpace.s3;
 
-  /// A partir de esta escala de texto la rejilla de altura fija ya no cabe
-  /// sin recortes (el nombre y el precio se parten): se pasa a una columna.
+  /// A partir de esta escala de texto dos columnas ya no caben sin partir el
+  /// nombre y el precio: se pasa a una columna.
   static const double _gridMaxScale = 1.2;
 
   @override
@@ -539,20 +545,27 @@ class _ProductSliver extends StatelessWidget {
         builder: (context, constraints) {
           final width = constraints.crossAxisExtent;
           final columns = width >= 600 ? 3 : 2;
-          final cell = (width - _gap * (columns - 1)) / columns;
-          // Alto de la tarjeta: imagen cuadrada + relleno + detalle (medido
-          // con nombre largo y precio en oferta: 436 dp a 1,0× con celda de
-          // 158 dp), que crece con el texto del sistema.
-          final extent = cell + 32 + 280 * scale;
-          return SliverGrid.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              mainAxisSpacing: _gap,
-              crossAxisSpacing: _gap,
-              mainAxisExtent: extent,
+          final rows = (items.length / columns).ceil();
+          // Filas que toman el alto de su tarjeta más alta: sin alto fijo, no
+          // sobra hueco bajo tarjetas cortas ni se recorta el texto largo.
+          return SliverList.separated(
+            itemCount: rows,
+            itemBuilder: (context, row) => IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var col = 0; col < columns; col++) ...[
+                    if (col > 0) const SizedBox(width: _gap),
+                    Expanded(
+                      child: row * columns + col < items.length
+                          ? card(items[row * columns + col])
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            itemCount: items.length,
-            itemBuilder: (context, index) => card(items[index]),
+            separatorBuilder: (_, _) => const SizedBox(height: _gap),
           );
         },
       ),

@@ -3,11 +3,14 @@ import 'package:ipr_mobile/shared/domain/product_summary.dart';
 
 /// Resultado de añadir al carrito.
 final class AddToCartOutcome {
-  const new({this.quantityLimited = false});
+  const new({this.quantityLimited = false, this.maxQuantity = 99});
 
   /// La cantidad pedida (o la suma con lo que ya había) superó el máximo por
   /// producto y se acotó; la ficha lo informa (AC-029-5).
   final bool quantityLimited;
+
+  /// Máximo por línea que se aplicó: el del producto o 99 (W1-06).
+  final int maxQuantity;
 }
 
 /// Costura hacia el carrito. La ficha **no** conoce el carrito: pide añadir un

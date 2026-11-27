@@ -4,6 +4,7 @@ import 'package:ipr_mobile/features/cart/domain/entities/cart_validation.dart';
 import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 import 'package:meta/meta.dart';
 
@@ -105,6 +106,11 @@ final class CartLineView {
 
   int get productId => line.productId;
   int get quantity => line.quantity;
+
+  /// Cantidades que admite la línea: las del servidor si ya la revisó (W1-06),
+  /// si no las de la instantánea guardada.
+  QuantityRange get quantityRange =>
+      validated?.product?.quantityRange ?? line.quantityRange;
 
   /// Datos de presentación: lo del servidor si se tiene; si no, la
   /// instantánea guardada.

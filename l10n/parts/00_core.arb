@@ -30,6 +30,9 @@
   "updateRequiredBody": "Esta versión de la app ya no es compatible. Instala la versión más reciente desde la tienda.",
   "priceConsult": "Más información",
   "priceTaxIncluded": "IVA incluido",
+  "priceFrom": "Desde",
+  "priceFromSemantics": "Desde {amount} pesos, IVA incluido",
+  "@priceFromSemantics": { "placeholders": { "amount": { "type": "String" } } },
   "priceSemantics": "{amount} pesos, IVA incluido",
   "@priceSemantics": {
     "placeholders": {

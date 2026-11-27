@@ -169,7 +169,12 @@ void main() {
         matching: find.bySubtype<IconButton>(),
       );
       expect(tester.widget<IconButton>(plus).onPressed, isNull);
-      expect(find.text('Máximo 99 por producto'), findsOneWidget);
+      expect(
+        find.text(
+          'Máximo 99 unidades por producto. Para más, habla con un asesor.',
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('el cambio de cantidad se anuncia (región viva con etiqueta)', (

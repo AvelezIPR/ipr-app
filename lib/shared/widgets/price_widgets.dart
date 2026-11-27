@@ -2,6 +2,7 @@ import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/ipr_colors.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/spacing_tokens.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/typography_tokens.dart';
+import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 import 'package:ipr_mobile/shared/formatting/cop_format.dart';
@@ -44,6 +45,44 @@ class PriceText extends StatelessWidget {
         child: Text(l10n.priceConsult, style: theme.textTheme.titleSmall),
       ),
     };
+  }
+}
+
+/// Precio "Desde $X" de un producto variable (W1-01): el mínimo entre sus
+/// variaciones con precio. Sin ese mínimo (o en cero) muestra "Más
+/// información" y **jamás** "$0" (RF-012). El lector de pantalla recibe
+/// "Desde N pesos, IVA incluido".
+class FromPriceText extends StatelessWidget {
+  const new({required this.from, super.key, this.style});
+
+  final Money? from;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final amount = from;
+    if (amount == null || amount.isZero) {
+      return PriceText(price: const OnRequest(), style: style);
+    }
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final base = style ?? theme.extension<IprTextStyles>()!.priceCard;
+    final muted = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    return Semantics(
+      label: l10n.priceFromSemantics(copSemanticsAmount(amount)),
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l10n.priceFrom, style: muted),
+          Text(formatCop(amount), style: base),
+          Text(l10n.priceTaxIncluded, style: muted),
+        ],
+      ),
+    );
   }
 }
 

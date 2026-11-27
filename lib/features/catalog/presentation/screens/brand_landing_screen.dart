@@ -6,6 +6,7 @@ import 'package:ipr_mobile/features/catalog/domain/entities/brand.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/product_query.dart';
 import 'package:ipr_mobile/features/catalog/presentation/controllers/product_list_controller.dart';
 import 'package:ipr_mobile/features/catalog/presentation/controllers/taxonomy_controllers.dart';
+import 'package:ipr_mobile/features/catalog/presentation/widgets/brand_blocks.dart';
 import 'package:ipr_mobile/features/catalog/presentation/widgets/product_results.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/spacing_tokens.dart';
@@ -15,7 +16,8 @@ import 'package:material_ui/material_ui.dart';
 
 /// Landing de marca (`/catalog/brands/:slug`, RF-016): productos de la marca
 /// con paginación, filtros, orden y **búsqueda interna** restringida a la
-/// marca. El contenido editorial de la landing es de fase 2 (RF-017).
+/// marca. Si el servidor tiene contenido editorial de la marca (RF-017,
+/// W3-01) se muestra arriba de los productos.
 ///
 /// El término de búsqueda lo escribe el usuario: no se registra ni se guarda
 /// en caché.
@@ -69,6 +71,8 @@ class _BrandLandingScreenState extends ConsumerState<BrandLandingScreen> {
 
     final brands = ref.watch(brandsProvider);
     final list = ref.watch(provider);
+    // Contenido editorial opcional (W3-01): sin él, solo los productos.
+    final landing = ref.watch(brandLandingProvider(widget.slug)).value;
     final title = _title(l10n, brands, list);
 
     return Scaffold(
@@ -119,7 +123,13 @@ class _BrandLandingScreenState extends ConsumerState<BrandLandingScreen> {
             ),
           ),
           Expanded(
-            child: ProductResults(scope: _scope, mode: ResultsMode.brand),
+            child: ProductResults(
+              scope: _scope,
+              mode: ResultsMode.brand,
+              header: landing == null
+                  ? null
+                  : BrandLandingBlocks(landing: landing),
+            ),
           ),
         ],
       ),

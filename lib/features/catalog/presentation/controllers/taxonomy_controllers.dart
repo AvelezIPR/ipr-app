@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/misc.dart' show NotifierProviderFamily;
+import 'package:flutter_riverpod/misc.dart'
+    show FutureProviderFamily, NotifierProviderFamily;
 import 'package:ipr_mobile/core/network/request_cancellation.dart';
 import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/features/catalog/catalog_providers.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/brand.dart';
+import 'package:ipr_mobile/features/catalog/domain/entities/brand_landing.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/category_node.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/filter_dimension.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/product_page.dart';
@@ -116,3 +118,16 @@ filterDimensionsProvider = NotifierProvider.autoDispose
       UiState<List<FilterDimension>>,
       String?
     >(FilterDimensionsController.new);
+
+/// Contenido editorial de la landing de una marca (W3-01). Es **opcional**: si
+/// la marca no tiene contenido (404) o algo falla, devuelve `null` y la
+/// pantalla muestra solo los productos; nunca un error por esto.
+final FutureProviderFamily<BrandLanding?, String> brandLandingProvider =
+    FutureProvider.family<BrandLanding?, String>((ref, slug) async {
+      final repository = ref.watch(catalogRepositoryProvider);
+      final result = await repository.brandLanding(slug);
+      return switch (result) {
+        Ok(:final value) when !value.value.isEmpty => value.value,
+        _ => null,
+      };
+    });

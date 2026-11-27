@@ -1,10 +1,11 @@
-import 'package:ipr_mobile/features/cart/domain/entities/cart.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/spacing_tokens.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
+import 'package:ipr_mobile/shared/widgets/max_quantity_notice.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Selector de cantidad de una línea del carrito: `−` / valor / `+`, de 1 a 99
-/// (RF-049, AC-049-2). Cada botón mide al menos 48 dp y lleva una etiqueta con
+/// o el rango del producto (RF-049, AC-049-2, W1-06). Cada botón mide al menos 48 dp y lleva una etiqueta con
 /// el nombre del producto; bajar de 1 está deshabilitado (quitar es otra
 /// acción explícita). El valor es una región viva: el lector de pantalla
 /// anuncia cada cambio.
@@ -14,11 +15,19 @@ class CartQuantityStepper extends StatelessWidget {
     required this.productName,
     required this.onChanged,
     super.key,
+    this.range = QuantityRange.standard,
+    this.whatsAppMessage = '',
   });
 
   final int quantity;
   final String productName;
   final ValueChanged<int> onChanged;
+
+  /// Cantidades que admite el producto; sin dato, 1–99.
+  final QuantityRange range;
+
+  /// Mensaje del asesor por WhatsApp para el aviso del máximo.
+  final String whatsAppMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +47,7 @@ class CartQuantityStepper extends StatelessWidget {
             IconButton.outlined(
               tooltip: l10n.cartQuantityDecrease(productName),
               constraints: constraints,
-              onPressed: quantity > CartLimits.minQuantity
+              onPressed: quantity > range.min
                   ? () => onChanged(quantity - 1)
                   : null,
               icon: const Icon(Icons.remove),
@@ -62,20 +71,18 @@ class CartQuantityStepper extends StatelessWidget {
             IconButton.outlined(
               tooltip: l10n.cartQuantityIncrease(productName),
               constraints: constraints,
-              onPressed: quantity < CartLimits.maxQuantity
+              onPressed: quantity < range.max
                   ? () => onChanged(quantity + 1)
                   : null,
               icon: const Icon(Icons.add),
             ),
           ],
         ),
-        if (quantity >= CartLimits.maxQuantity)
-          Padding(
-            padding: const EdgeInsets.only(top: IprSpace.s1),
-            child: Text(
-              l10n.cartQuantityMaxNote(CartLimits.maxQuantity),
-              style: theme.textTheme.bodySmall,
-            ),
+        if (range.isAtMax(quantity))
+          MaxQuantityNotice(
+            max: range.max,
+            productName: productName,
+            whatsAppMessage: whatsAppMessage,
           ),
       ],
     );

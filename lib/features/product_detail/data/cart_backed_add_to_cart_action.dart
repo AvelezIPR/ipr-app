@@ -22,8 +22,8 @@ final class CartBackedAddToCartAction implements AddToCartAction {
         .read(cartProvider.notifier)
         .addLine(productId, quantity, snapshot: snapshot);
     return switch (result) {
-      CartAdded(:final clamped) => Ok(
-        AddToCartOutcome(quantityLimited: clamped),
+      CartAdded(:final clamped, :final maxQuantity) => Ok(
+        AddToCartOutcome(quantityLimited: clamped, maxQuantity: maxQuantity),
       ),
       CartAddRejected(:final reason) => Err(
         Validation(code: cartRejectionCode(reason)),

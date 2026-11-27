@@ -6,13 +6,13 @@ import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/core/providers.dart';
 import 'package:ipr_mobile/features/cart/cart.dart';
 import 'package:ipr_mobile/features/product_detail/domain/entities/product_detail.dart';
-import 'package:ipr_mobile/features/product_detail/domain/rules/quantity_rules.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/controllers/add_to_cart_provider.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/widgets/quantity_selector.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/spacing_tokens.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 import 'package:ipr_mobile/shared/navigation/routes.dart';
+import 'package:ipr_mobile/shared/widgets/max_quantity_notice.dart';
 import 'package:ipr_mobile/shared/widgets/whatsapp_button.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -26,17 +26,32 @@ import 'package:material_ui/material_ui.dart';
 ///   selector ni compra; aviso del motivo y "Más información" → WhatsApp con
 ///   nombre y SKU (RF-062), con alternativa si falla (RF-063).
 class PurchaseBox extends ConsumerStatefulWidget {
-  const new({required this.product, super.key});
+  const new({required this.product, super.key, this.needsSelection = false});
 
   final ProductDetail product;
+
+  /// Producto variable al que aún no se le eligió una opción (W1-01): el
+  /// botón de compra se muestra desactivado con "Selecciona una opción".
+  final bool needsSelection;
 
   @override
   ConsumerState<PurchaseBox> createState() => _PurchaseBoxState();
 }
 
 class _PurchaseBoxState extends ConsumerState<PurchaseBox> {
-  int _quantity = QuantityRules.min;
+  late int _quantity = widget.product.summary.quantityRange.min;
   bool _adding = false;
+
+  @override
+  void didUpdateWidget(PurchaseBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Otra variación puede tener otros límites (W1-06): la cantidad elegida se
+    // lleva al nuevo rango.
+    final range = widget.product.summary.quantityRange;
+    if (range != oldWidget.product.summary.quantityRange) {
+      _quantity = range.clamp(_quantity);
+    }
+  }
 
   Future<void> _add() async {
     final action = ref.read(addToCartActionProvider);
@@ -47,7 +62,7 @@ class _PurchaseBoxState extends ConsumerState<PurchaseBox> {
     setState(() => _adding = true);
     final result = await action.add(
       productId: widget.product.id,
-      quantity: QuantityRules.clamp(_quantity),
+      quantity: widget.product.summary.quantityRange.clamp(_quantity),
       snapshot: widget.product.summary,
     );
     if (!mounted) return;
@@ -58,7 +73,7 @@ class _PurchaseBoxState extends ConsumerState<PurchaseBox> {
         Ok(:final value) => SnackBar(
           content: Text(
             value.quantityLimited
-                ? cartQuantityLimitedText(l10n)
+                ? cartQuantityLimitedText(l10n, max: value.maxQuantity)
                 : l10n.productDetailAddedToCart,
           ),
           action: SnackBarAction(
@@ -91,14 +106,47 @@ class _PurchaseBoxState extends ConsumerState<PurchaseBox> {
             _ => null,
           };
 
+    if (widget.needsSelection) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (action != null) ...[
+            FilledButton(
+              onPressed: null,
+              child: Text(l10n.productDetailSelectOption),
+            ),
+            const SizedBox(height: IprSpace.s2),
+            Text(
+              l10n.productDetailSelectOptionHint,
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: IprSpace.s3),
+          ],
+          WhatsAppButton(
+            label: l10n.sharedWhatsappAdvice,
+            message: message,
+            filled: false,
+          ),
+        ],
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (canBuy && action != null) ...[
           QuantitySelector(
             value: _quantity,
+            minQuantity: product.summary.quantityRange.min,
+            maxQuantity: product.summary.quantityRange.max,
             onChanged: (value) => setState(() => _quantity = value),
           ),
+          if (product.summary.quantityRange.isAtMax(_quantity))
+            MaxQuantityNotice(
+              max: product.summary.quantityRange.max,
+              productName: product.name,
+              whatsAppMessage: message,
+            ),
           const SizedBox(height: IprSpace.s3),
           FilledButton(
             onPressed: _adding ? null : () => unawaited(_add()),

@@ -5,6 +5,7 @@ import 'package:ipr_mobile/features/cart/domain/entities/cart_line.dart';
 import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 
 /// Formato del carrito en disco: JSON versionado en **una** clave.
@@ -63,6 +64,11 @@ abstract final class CartStorageCodec {
             OnRequest() => null,
           },
           'availability': _availabilityToJson(snapshot.availability),
+          // Solo si el producto tiene límites propios (W1-06).
+          if (!snapshot.quantityRange.isStandard) ...{
+            'minQuantity': snapshot.quantityRange.min,
+            'maxQuantity': snapshot.quantityRange.max,
+          },
         },
     };
   }
@@ -102,6 +108,10 @@ abstract final class CartStorageCodec {
       image: imageUrl is String && imageUrl.isNotEmpty
           ? ImageRef(url: imageUrl, alt: imageAlt is String ? imageAlt : '')
           : null,
+      quantityRange: QuantityRange.fromContract(
+        min: json['minQuantity'],
+        max: json['maxQuantity'],
+      ),
     );
   }
 

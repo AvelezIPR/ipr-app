@@ -5,6 +5,7 @@ import 'package:ipr_mobile/shared/design_system/tokens/typography_tokens.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
 import 'package:ipr_mobile/shared/formatting/cop_format.dart';
+import 'package:ipr_mobile/shared/widgets/ipr_card.dart';
 import 'package:ipr_mobile/shared/widgets/price_widgets.dart';
 import 'package:ipr_mobile/shared/widgets/product_image.dart';
 import 'package:ipr_mobile/shared/widgets/stock_labels.dart';
@@ -31,7 +32,6 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
     final asList = scale >= listVariantScale;
 
@@ -46,41 +46,47 @@ class ProductCard extends StatelessWidget {
       excludeSemantics: true,
       label: _semanticLabel(l10n),
       onTap: onTap,
-      child: Material(
-        color: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(IprRadius.xxl),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(IprSpace.s3),
-            child: asList
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(width: 96, child: image),
-                      const SizedBox(width: IprSpace.s3),
-                      Expanded(child: details),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      image,
-                      const SizedBox(height: IprSpace.s2),
-                      details,
-                    ],
-                  ),
-          ),
+      child: IprCard(
+        onTap: onTap,
+        radius: IprRadius.xxl,
+        child: Padding(
+          padding: const EdgeInsets.all(IprSpace.s3),
+          child: asList
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(width: 96, child: image),
+                    const SizedBox(width: IprSpace.s3),
+                    Expanded(child: details),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    image,
+                    const SizedBox(height: IprSpace.s2),
+                    details,
+                  ],
+                ),
         ),
       ),
     );
   }
 
   String _semanticLabel(AppLocalizations l10n) {
+    if (product.hasVariants) {
+      // Variable: "Desde $X" y "Ver opciones" (la compra se hace en la ficha).
+      final from = product.priceFrom;
+      return l10n.sharedProductCardSemantics(
+        product.name,
+        product.brandName ?? '',
+        product.sku,
+        from == null
+            ? l10n.priceOnRequestSemantics
+            : l10n.priceFromSemantics(copSemanticsAmount(from)),
+        l10n.sharedProductViewOptions,
+      );
+    }
     final price = switch (product.price) {
       Priced(:final amount) => l10n.priceSemantics(copSemanticsAmount(amount)),
       OnRequest() => l10n.priceOnRequestSemantics,
@@ -128,23 +134,78 @@ class _Details extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: IprSpace.s1),
-        Text(
-          l10n.sharedProductSku(product.sku),
-          style: styles.monoSku.copyWith(color: ipr.textSecondary),
-        ),
-        const SizedBox(height: IprSpace.s2),
-        if (strike != null)
+        // Un producto variable no tiene SKU propio: cada opción trae el suyo.
+        if (product.sku.isNotEmpty)
           Text(
-            l10n.sharedProductRegularPrice(formatCop(strike)),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: ipr.textSecondary,
-              decoration: TextDecoration.lineThrough,
-            ),
+            l10n.sharedProductSku(product.sku),
+            style: styles.monoSku.copyWith(color: ipr.textSecondary),
           ),
-        PriceText(price: product.price),
         const SizedBox(height: IprSpace.s2),
-        StockBadge(stock: product.availability),
+        if (product.hasVariants) ...[
+          FromPriceText(from: product.priceFrom),
+          const SizedBox(height: IprSpace.s2),
+          _ViewOptionsTag(label: l10n.sharedProductViewOptions),
+        ] else ...[
+          if (strike != null)
+            Text(
+              l10n.sharedProductRegularPrice(formatCop(strike)),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: ipr.textSecondary,
+                decoration: TextDecoration.lineThrough,
+              ),
+            ),
+          PriceText(price: product.price),
+          const SizedBox(height: IprSpace.s2),
+          StockBadge(stock: product.availability),
+        ],
       ],
+    );
+  }
+}
+
+/// Indicador "Ver opciones" de un producto variable: no es un botón (toda la
+/// tarjeta lo es); avisa que se elige medida, voltaje… en la ficha.
+class _ViewOptionsTag extends StatelessWidget {
+  const new({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(IprRadius.full),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: IprSpace.s3,
+          vertical: IprSpace.s1,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Flexible: a texto grande la etiqueta pasa a otra línea.
+            Flexible(
+              child: Text(
+                label,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+            const SizedBox(width: IprSpace.s1),
+            ExcludeSemantics(
+              child: Icon(
+                Icons.arrow_forward,
+                size: 14,
+                color: theme.colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

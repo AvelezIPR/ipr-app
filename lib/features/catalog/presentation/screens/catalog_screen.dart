@@ -2,13 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ipr_mobile/features/catalog/presentation/controllers/taxonomy_controllers.dart';
 import 'package:ipr_mobile/features/catalog/presentation/widgets/category_tiles.dart';
+import 'package:ipr_mobile/features/catalog/presentation/widgets/category_tree.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/navigation/routes.dart';
 import 'package:ipr_mobile/shared/widgets/state_widgets.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// Pestaña "Catálogo" (PT-02, RF-010): árbol de categorías, una pantalla por
-/// nivel. Pública: sin sesión (RF-037). Datos de la caché de taxonomía
+/// Pestaña "Catálogo" (PT-02, RF-010): árbol de categorías desplegable en la
+/// misma pantalla (como el menú de la web). Pública: sin sesión (RF-037). Datos de la caché de taxonomía
 /// (1 h / 7 d) con aviso si están desactualizados.
 class CatalogScreen extends ConsumerWidget {
   const new({super.key});
@@ -34,7 +35,7 @@ class CatalogScreen extends ConsumerWidget {
         empty: EmptyState(body: l10n.catalogCategoriesEmpty),
         builder: (context, roots) => ListView(
           children: [
-            for (final root in roots) CategoryTile(node: root),
+            CategoryTree(roots: roots),
             const Divider(height: 1),
             CatalogLinkTile(
               icon: Icons.sell_outlined,

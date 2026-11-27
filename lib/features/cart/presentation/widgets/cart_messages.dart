@@ -19,6 +19,7 @@ String cartAddFailureText(AppLocalizations l10n, AppFailure failure) {
   return failureText(l10n, failure);
 }
 
-/// Aviso cuando una cantidad se acotó al máximo por producto (AC-029-5).
-String cartQuantityLimitedText(AppLocalizations l10n) =>
-    l10n.cartAddQuantityLimited(CartLimits.maxQuantity);
+/// Aviso cuando una cantidad se acotó al máximo por producto (AC-029-5). [max]
+/// es el del producto (W1-06); sin él, el general.
+String cartQuantityLimitedText(AppLocalizations l10n, {int? max}) =>
+    l10n.cartAddQuantityLimited(max ?? CartLimits.maxQuantity);

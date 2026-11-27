@@ -106,6 +106,8 @@ class CartLineTile extends StatelessWidget {
                 CartQuantityStepper(
                   quantity: view.quantity,
                   productName: name,
+                  range: view.quantityRange,
+                  whatsAppMessage: _whatsAppMessage(l10n, name, sku),
                   onChanged: onQuantityChanged,
                 ),
                 IconButton(

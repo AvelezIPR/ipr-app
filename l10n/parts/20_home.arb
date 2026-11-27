@@ -7,6 +7,7 @@
 
   "homeSearchHint": "Buscar por nombre, marca o referencia (SKU)",
   "homeSearchSemantics": "Buscar productos por nombre, marca o referencia",
+  "homeSearchButton": "Buscar",
 
   "homeCategoriesTitle": "Categorías",
   "homeCategoriesEmptyTitle": "Aún no hay categorías para mostrar",
@@ -28,6 +29,13 @@
   "homeShortcutBranches": "Sedes",
   "homeShortcutCall": "Llamar a la línea de atención",
   "homeCallFailed": "No pudimos abrir el marcador del teléfono.",
+  "homeLinkFailed": "No pudimos abrir el enlace.",
+
+  "homeBannersLabel": "Campañas de IPR",
+  "homeBannerPrevious": "Campaña anterior",
+  "homeBannerNext": "Campaña siguiente",
+  "homeBannerPosition": "Campaña {index} de {total}",
+  "@homeBannerPosition": { "placeholders": { "index": { "type": "int" }, "total": { "type": "int" } } },
 
   "homeLogoSemantics": "Logo de IPR",
 
@@ -43,6 +51,12 @@
   "homeBranchesCityUpcoming": "{city} · próximamente",
   "@homeBranchesCityUpcoming": { "placeholders": { "city": { "type": "String" } } },
   "homeBranchesSeeAll": "Ver todas las sedes",
+  "homeStatBranches": "{count, plural, =1{sede} other{sedes}}",
+  "@homeStatBranches": { "placeholders": { "count": { "type": "int" } } },
+  "homeStatCities": "{count, plural, =1{ciudad} other{ciudades}}",
+  "@homeStatCities": { "placeholders": { "count": { "type": "int" } } },
+  "homeStatBrands": "{count, plural, =1{marca} other{marcas}}",
+  "@homeStatBrands": { "placeholders": { "count": { "type": "int" } } },
 
   "homeBtuTagline": "Calcula los BTU que necesita tu espacio antes de comprar.",
   "homeBtuCta": "Abrir la calculadora",

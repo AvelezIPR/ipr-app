@@ -184,6 +184,91 @@ void main() {
     });
   });
 
+  group('W1-01 · ProductCard de un producto variable', () {
+    const variable = ProductSummary(
+      id: 4700,
+      slug: 'valvula-solenoide-demo',
+      name: 'Válvula solenoide de prueba',
+      sku: 'VAR-4700',
+      brandName: 'Uniweld',
+      price: Priced(Money(180000)),
+      availability: StockStatus.inStock,
+      hasVariants: true,
+      priceFrom: Money(180000),
+    );
+
+    testWidgets('muestra "Desde", "Ver opciones" y no el stock', (
+      tester,
+    ) async {
+      var taps = 0;
+      await pumpApp(
+        tester,
+        ProductCard(product: variable, onTap: () => taps++),
+        overrides: testOverrides(),
+      );
+      expect(find.text('Desde'), findsOneWidget);
+      expect(find.text(r'$ 180.000'), findsOneWidget);
+      expect(find.text('Ver opciones'), findsOneWidget);
+      // El stock del padre no significa nada: se elige una variación.
+      expect(find.text('En stock'), findsNothing);
+      await tester.tap(find.byType(ProductCard));
+      expect(taps, 1);
+    });
+
+    testWidgets(r'sin precio mínimo muestra "Más información", nunca $0', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        ProductCard(
+          product: const ProductSummary(
+            id: 1,
+            slug: 'x',
+            name: 'Variable sin precios',
+            sku: 'X',
+            price: OnRequest(),
+            availability: StockStatus.inStock,
+            hasVariants: true,
+          ),
+          onTap: () {},
+        ),
+        overrides: testOverrides(),
+      );
+      expect(find.text('Más información'), findsOneWidget);
+      expect(find.text('Ver opciones'), findsOneWidget);
+      expect(find.textContaining(r'$ 0'), findsNothing);
+    });
+
+    testWidgets('la etiqueta de accesibilidad dice "Desde" y "Ver opciones"', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpApp(
+        tester,
+        ProductCard(product: variable, onTap: () {}),
+        overrides: testOverrides(),
+      );
+      expect(
+        find.bySemanticsLabel(
+          'Válvula solenoide de prueba. Uniweld. SKU VAR-4700. '
+          'Desde 180.000 pesos, IVA incluido. Ver opciones.',
+        ),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('al 200 % de texto no desborda', (tester) async {
+      await pumpApp(
+        tester,
+        ProductCard(product: variable, onTap: () {}),
+        textScale: 2,
+        overrides: testOverrides(),
+      );
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('SC-043 · ProductImage solo carga hosts permitidos', () {
     testWidgets(
       'sin imagen o con host no permitido muestra el marcador (sin red)',

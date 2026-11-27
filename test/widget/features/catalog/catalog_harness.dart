@@ -48,6 +48,7 @@ Future<GoRouter> pumpCatalog(
       stub('${Routes.brandPrefix}/:slug'),
       stub(Routes.sale),
       stub(Routes.search),
+      stub(Routes.engineering),
       stub('${Routes.productPrefix}/:slug'),
     ],
   );

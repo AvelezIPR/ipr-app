@@ -1,0 +1,22 @@
+{
+  "id": 4700,
+  "slug": "valvula-solenoide-demo",
+  "name": "Válvula solenoide de prueba",
+  "sku": "VAR-4700",
+  "brand": { "name": "Uniweld", "slug": "uniweld" },
+  "price": {
+    "status": "priced",
+    "amount": 180000,
+    "regularAmount": 180000,
+    "onSale": false,
+    "discountPercent": null,
+    "currency": "COP",
+    "taxIncluded": true
+  },
+  "availability": "in_stock",
+  "purchasable": false,
+  "image": { "url": "https://staging.invalid/media/valvula.jpg", "alt": "Válvula solenoide", "width": 800, "height": 800 },
+  "categorySlugs": ["valvulas"],
+  "hasVariants": true,
+  "priceFrom": 180000
+}

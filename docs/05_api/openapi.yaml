@@ -489,9 +489,14 @@ paths:
       operationId: listCategories
       tags: [catalog]
       summary: Árbol de categorías
+      description: >-
+        El servidor entrega el árbol **ya ordenado y depurado**, igual que el menú de la
+        web (W1-02): orden jerárquico fijo (src/lib/menu-order.ts), sin categorías con
+        `count = 0` salvo que alguna descendiente tenga productos, y sin la categoría por
+        defecto de WooCommerce. La app no reordena ni reclasifica (AC-010-5).
       x-status: proposed
       x-requirements: [RF-002, RF-010]
-      x-reuses: [src/lib/wc/meta.ts (getCategories), src/lib/woocommerce.ts (buildCategoryTree)]
+      x-reuses: [src/lib/wc/meta.ts (getCategories), src/lib/woocommerce.ts (buildCategoryTree), src/lib/menu-tree.ts (buildDivisionMenus)]
       parameters:
         - $ref: '#/components/parameters/AppVersion'
         - $ref: '#/components/parameters/AppPlatform'
@@ -795,6 +800,52 @@ paths:
                     type: array
                     items: { $ref: '#/components/schemas/Brand' }
         '304': { $ref: '#/components/responses/NotModified' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+
+  /brands/{slug}:
+    get:
+      operationId: getBrandLanding
+      tags: [catalog]
+      summary: Contenido editorial de la landing de una marca (W3-01)
+      description: >-
+        Bloques de presentación de la marca (portada, texto, destacados, preguntas
+        frecuentes y llamado a la acción), los mismos de las landings de la web pero
+        ya en un formato que la app pinta con sus propios componentes. Es opcional:
+        una marca sin contenido responde 404 y la app muestra solo sus productos.
+      x-status: proposed
+      x-requirements: [RF-016, RF-017]
+      x-reuses: [src/lib/brand-landing-data.ts (BRAND_LANDINGS), src/content/brands/*]
+      parameters:
+        - $ref: '#/components/parameters/AppVersion'
+        - $ref: '#/components/parameters/AppPlatform'
+        - $ref: '#/components/parameters/DeviceIdOptional'
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+            maxLength: 200
+            pattern: '^[a-z0-9][a-z0-9._-]{0,199}$'
+      responses:
+        '200':
+          description: Landing de la marca
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/X-Request-Id' }
+            Cache-Control: { $ref: '#/components/headers/Cache-Control-Public' }
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/BrandLanding' }
+        '304': { $ref: '#/components/responses/NotModified' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
 
@@ -1488,6 +1539,39 @@ components:
         categorySlugs:
           type: array
           items: { type: string }
+        minQuantity:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 99
+          description: >-
+            Opcional (W1-06). Cantidad mínima por línea (campo `ipr_disponibilidad.min_compra`
+            de WordPress). Ausente o null = 1.
+        maxQuantity:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 99
+          description: >-
+            Opcional (W1-06). Cantidad máxima por línea (`ipr_disponibilidad.max_compra`,
+            plugin de cantidades de WooCommerce). Ausente o null = 99. Si es menor que
+            minQuantity la app ignora ambos. Al llegar al tope la app avisa y ofrece al
+            asesor por WhatsApp (paridad con la web).
+        hasVariants:
+          type: boolean
+          description: >-
+            Opcional (W1-01). true si es un producto variable (se elige medida,
+            voltaje, volumen…). La tarjeta muestra "Desde $X" y "Ver opciones" y la
+            compra se hace en la ficha. Ausente = false.
+        priceFrom:
+          type: [number, 'null']
+          minimum: 0
+          description: >-
+            Opcional (W1-01). Precio mínimo entre las variaciones con precio (COP, IVA
+            incluido). Solo si hasVariants; null si ninguna variación tiene precio.
+        variantLabel:
+          type: [string, 'null']
+          description: >-
+            Opcional (W1-01). Etiqueta de la opción cuando `id` es el de una variación
+            (líneas de /cart/validate), p. ej. "1 galón". name sigue siendo el del padre.
 
     ProductAttribute:
       type: object
@@ -1529,6 +1613,71 @@ components:
               type: array
               items: { $ref: '#/components/schemas/CategoryRef' }
             webUrl: { type: string, format: uri }
+            variantAxes:
+              type: array
+              description: >-
+                Opcional (W1-01). Ejes de elección de un producto variable, en el orden en
+                que se muestran. Vacío o ausente = producto simple.
+              items: { $ref: '#/components/schemas/ProductVariantAxis' }
+            variants:
+              type: array
+              maxItems: 100
+              description: >-
+                Opcional (W1-01). Variaciones comprables u ofrecibles. El `id` de una
+                variación es el que viaja en /cart/validate y /checkout (CartItem.id).
+              items: { $ref: '#/components/schemas/ProductVariant' }
+
+    ProductVariantAxis:
+      type: object
+      required: [slug, name, options]
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        options:
+          type: array
+          items:
+            type: object
+            required: [value, label]
+            properties:
+              value: { type: string }
+              label: { type: string }
+
+    ProductVariant:
+      type: object
+      required: [id, sku, price, availability, purchasable, selection]
+      properties:
+        id: { type: integer, minimum: 1 }
+        sku: { type: string }
+        price: { $ref: '#/components/schemas/Price' }
+        availability: { $ref: '#/components/schemas/Availability' }
+        purchasable:
+          type: boolean
+          description: true solo si la variación tiene precio y está disponible
+        minQuantity:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 99
+          description: Opcional (W1-06). Cantidad mínima por línea de esta variación; ausente = 1.
+        maxQuantity:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 99
+          description: Opcional (W1-06). Cantidad máxima por línea de esta variación; ausente = 99.
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/ImageRef'
+            - type: 'null'
+        selection:
+          type: array
+          description: >-
+            Opción de cada eje que define la variación. Un eje ausente significa
+            "cualquiera" (atributo vacío en WooCommerce).
+          items:
+            type: object
+            required: [axis, value]
+            properties:
+              axis: { type: string }
+              value: { type: string }
 
     Category:
       type: object
@@ -1541,6 +1690,56 @@ components:
         children:
           type: array
           items: { $ref: '#/components/schemas/Category' }
+
+    BrandLanding:
+      type: object
+      required: [slug, blocks]
+      properties:
+        slug: { type: string }
+        blocks:
+          type: array
+          maxItems: 12
+          description: Bloques en el orden en que se muestran; un `type` desconocido se omite.
+          items: { $ref: '#/components/schemas/BrandBlock' }
+
+    BrandBlock:
+      type: object
+      required: [type]
+      description: >-
+        Bloque de contenido. Campos por tipo: hero (title, subtitle, image, accentColor,
+        ctaLabel, target), text (title, body), highlights (title, items), faq (title,
+        items: pregunta en `title`, respuesta en `body`) y cta (title, body, ctaLabel,
+        target). El texto es plano (sin HTML).
+      properties:
+        type:
+          type: string
+          enum: [hero, text, highlights, faq, cta]
+        title: { type: [string, 'null'] }
+        subtitle: { type: [string, 'null'] }
+        body: { type: [string, 'null'] }
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/ImageRef'
+            - type: 'null'
+        accentColor:
+          type: [string, 'null']
+          description: >-
+            Color de la marca en el hero, "#RRGGBB". La app solo lo usa si el texto
+            blanco se lee sobre él (contraste ≥ 4,5:1); si no, usa el azul de IPR.
+        items:
+          type: array
+          maxItems: 12
+          items:
+            type: object
+            required: [title, body]
+            properties:
+              title: { type: string }
+              body: { type: string }
+        ctaLabel: { type: [string, 'null'] }
+        target:
+          oneOf:
+            - $ref: '#/components/schemas/HomeTarget'
+            - type: 'null'
 
     FilterDimension:
       type: object
@@ -1660,6 +1859,15 @@ components:
               properties:
                 whatsapp: { type: [string, 'null'] }
                 email: { type: [string, 'null'], format: email }
+                specialties:
+                  type: array
+                  maxItems: 6
+                  description: >-
+                    Opcional (W3-02). Equipo de ingeniería por especialidad (aire
+                    acondicionado y ventilación, refrigeración), con los canales
+                    corporativos de cada ciudad. Solo canales corporativos: el servidor
+                    **no** publica nombres ni teléfonos o correos personales (AC-080-2).
+                  items: { $ref: '#/components/schemas/EngineeringSpecialty' }
         legal:
           type: object
           required: [terms, privacyPolicy, dataRightsChannel, accountDeletionNotice]
@@ -1698,6 +1906,124 @@ components:
               type: array
               items: { type: integer }
             maxPage: { type: integer }
+        home:
+          type: object
+          description: >-
+            Opcional (W2). Contenido de la portada que mantiene Marketing y que la app
+            **no** fija en el código (D-07): campañas, cifras institucionales y bloques
+            destacados. Ausente o vacío = la app muestra solo lo que calcula ella misma.
+          properties:
+            banners:
+              type: array
+              maxItems: 10
+              description: Campañas del carrusel, en el orden en que se muestran.
+              items: { $ref: '#/components/schemas/HomeBanner' }
+            stats:
+              type: array
+              maxItems: 6
+              description: Cifras institucionales ya redactadas (p. ej. "+30" "años").
+              items: { $ref: '#/components/schemas/HomeStat' }
+            highlights:
+              type: array
+              maxItems: 6
+              description: Bloques destacados (ingeniería, formación…).
+              items: { $ref: '#/components/schemas/HomeHighlight' }
+
+    HomeTarget:
+      type: object
+      required: [kind]
+      description: >-
+        Destino de un banner o bloque de la portada. La app lo traduce a una pantalla
+        propia; un `kind` desconocido o un `ref` inválido se descarta (nunca se abre una
+        URL arbitraria).
+      properties:
+        kind:
+          type: string
+          enum: [category, product, brand, sale, branches, engineering, support, calculator, web, whatsapp]
+          description: >-
+            category/product/brand: `ref` es el slug. sale, branches, engineering, support y
+            calculator abren su pantalla (sin `ref`). web: `ref` es una URL https de la
+            web de IPR, que se abre en el navegador del sistema (p. ej. campañas con
+            ruleta o raspa que viven en WordPress). whatsapp: `ref` es el mensaje
+            prellenado para el asesor.
+        ref: { type: [string, 'null'] }
+
+    HomeBanner:
+      type: object
+      required: [id, alt, image, target]
+      properties:
+        id: { type: string }
+        alt:
+          type: string
+          description: Texto alternativo de la campaña (lo lee el lector de pantalla).
+        image:
+          description: Imagen de formato 4:3 pensada para móvil.
+          allOf:
+            - $ref: '#/components/schemas/ImageRef'
+        target: { $ref: '#/components/schemas/HomeTarget' }
+
+    HomeStat:
+      type: object
+      required: [id, value, label]
+      properties:
+        id: { type: string }
+        value:
+          type: string
+          description: Cifra o frase corta ya redactada ("+30", "31", "Líder del sector HVAC-R*").
+        unit:
+          type: [string, 'null']
+          description: Unidad opcional que acompaña a la cifra ("años").
+        label: { type: string }
+
+    HomeHighlight:
+      type: object
+      required: [id, title, body, cta, target]
+      properties:
+        id: { type: string }
+        eyebrow: { type: [string, 'null'] }
+        title: { type: string }
+        body: { type: string }
+        cta:
+          type: string
+          description: Texto del botón ("Ver capacitaciones").
+        image:
+          oneOf:
+            - $ref: '#/components/schemas/ImageRef'
+            - type: 'null'
+        target: { $ref: '#/components/schemas/HomeTarget' }
+
+    EngineeringSpecialty:
+      type: object
+      required: [id, name, contacts]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        whatsappMessage:
+          type: [string, 'null']
+          description: Mensaje prellenado para el WhatsApp de esta especialidad.
+        contacts:
+          type: array
+          maxItems: 20
+          items: { $ref: '#/components/schemas/EngineeringContact' }
+
+    EngineeringContact:
+      type: object
+      required: [id, city]
+      description: Canal corporativo de ingeniería en una ciudad. Al menos un canal.
+      properties:
+        id: { type: string }
+        city: { type: string }
+        email: { type: [string, 'null'], format: email }
+        whatsapp:
+          type: [string, 'null']
+          description: Número con código de país y solo dígitos (573001234567).
+        phoneDisplay:
+          type: [string, 'null']
+          description: Texto del teléfono con extensión ("6043604440 ext. 1151").
+        phoneDial:
+          type: [string, 'null']
+          description: Número base para marcar, sin extensión.
 
     PlatformVersions:
       type: object

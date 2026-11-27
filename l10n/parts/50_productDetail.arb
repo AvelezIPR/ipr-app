@@ -22,6 +22,10 @@
   "@productDetailImageFallbackAlt": { "placeholders": { "name": { "type": "String" } } },
 
   "productDetailPriceOnRequest": "Precio bajo consulta",
+  "productDetailSelectOption": "Selecciona una opción",
+  "productDetailSelectOptionHint": "Elige una opción de cada característica para ver el precio y comprar.",
+  "productDetailVariantUnavailable": "No disponible con lo que elegiste",
+  "productDetailVariantRemoveHint": "Toca de nuevo para quitar la opción",
   "productDetailOnSaleBadge": "Oferta",
 
   "productDetailOutOfStockNotice": "Este producto está agotado.",

@@ -4,7 +4,7 @@
     {
       "name": "mock-bff",
       "runtimeExecutable": "C:\\Users\\empr16\\tools\\flutter\\bin\\dart.bat",
-      "runtimeArgs": ["run", "tool/mock_bff/main.dart", "8787"],
+      "runtimeArgs": ["run", "tool/mock_bff/main.dart", "8787", "--demo"],
       "port": 8787
     },
     {

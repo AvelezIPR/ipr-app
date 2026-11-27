@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:ipr_mobile/core/config/app_config.dart';
+import 'package:ipr_mobile/core/config/engineering_team.dart';
+import 'package:ipr_mobile/core/config/home_content.dart';
 
 part 'remote_config.freezed.dart';
 
@@ -28,6 +30,11 @@ abstract class RemoteConfig with _$RemoteConfig {
     String? engineeringWhatsapp,
     String? engineeringEmail,
 
+    /// Equipo de ingeniería por especialidad y ciudad (W3-02); vacío = solo el
+    /// canal general.
+    @Default(<EngineeringSpecialty>[])
+    List<EngineeringSpecialty> engineeringSpecialties,
+
     /// Avisos de la ficha (RF-032): envío nacional y garantía.
     String? shippingNotice,
     String? warrantyNotice,
@@ -42,6 +49,9 @@ abstract class RemoteConfig with _$RemoteConfig {
     String? dataRightsUrl,
     String? dataRightsEmail,
     String? accountDeletionNotice,
+
+    /// Campañas, cifras y bloques destacados de la portada (W2, D-07).
+    @Default(HomeContent.empty) HomeContent home,
   }) = _RemoteConfig;
 
   /// Valores previos a la primera respuesta: todo apagado y WhatsApp de

@@ -13,11 +13,15 @@ class QuantitySelector extends StatefulWidget {
     required this.value,
     required this.onChanged,
     super.key,
+    this.minQuantity = QuantityRules.min,
     this.maxQuantity = QuantityRules.max,
   });
 
   final int value;
   final ValueChanged<int> onChanged;
+
+  /// Rango de esta compra: el del producto (W1-06) o 1–99.
+  final int minQuantity;
   final int maxQuantity;
 
   @override
@@ -65,7 +69,11 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   }
 
   void _commit(String raw) {
-    final input = QuantityRules.parse(raw, maxQuantity: widget.maxQuantity);
+    final input = QuantityRules.parse(
+      raw,
+      minQuantity: widget.minQuantity,
+      maxQuantity: widget.maxQuantity,
+    );
     _controller.text = '${input.value}';
     _lastCommitted = input.value;
     setState(() => _showRangeError = input.corrected);
@@ -75,6 +83,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   void _step(int delta) {
     final next = QuantityRules.clamp(
       widget.value + delta,
+      minQuantity: widget.minQuantity,
       maxQuantity: widget.maxQuantity,
     );
     setState(() => _showRangeError = false);
@@ -87,7 +96,8 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final max = widget.maxQuantity.clamp(QuantityRules.min, QuantityRules.max);
+    final min = widget.minQuantity.clamp(QuantityRules.min, QuantityRules.max);
+    final max = widget.maxQuantity.clamp(min, QuantityRules.max);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -109,9 +119,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
                     minWidth: IprSpace.minTapTarget,
                     minHeight: IprSpace.minTapTarget,
                   ),
-                  onPressed: widget.value > QuantityRules.min
-                      ? () => _step(-1)
-                      : null,
+                  onPressed: widget.value > min ? () => _step(-1) : null,
                   icon: const Icon(Icons.remove),
                 ),
                 SizedBox(
@@ -159,7 +167,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
             child: Padding(
               padding: const EdgeInsets.only(top: IprSpace.s1),
               child: Text(
-                l10n.productDetailQuantityRangeError(QuantityRules.min, max),
+                l10n.productDetailQuantityRangeError(min, max),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.error,
                 ),

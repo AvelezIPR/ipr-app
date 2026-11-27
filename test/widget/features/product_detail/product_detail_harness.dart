@@ -43,6 +43,9 @@ final class FakeAddToCart implements AddToCartAction {
   Result<AddToCartOutcome> result;
   final List<({int productId, int quantity})> calls = [];
 
+  /// Productos (instantáneas) tal como los vio la persona al añadir.
+  final List<ProductSummary?> snapshots = [];
+
   @override
   Future<Result<AddToCartOutcome>> add({
     required int productId,
@@ -50,6 +53,7 @@ final class FakeAddToCart implements AddToCartAction {
     ProductSummary? snapshot,
   }) async {
     calls.add((productId: productId, quantity: quantity));
+    snapshots.add(snapshot);
     return result;
   }
 }
