@@ -1,0 +1,29 @@
+{
+  "data": {
+    "lines": [
+      {
+        "id": 4702,
+        "quantity": 2,
+        "status": "available",
+        "product": {
+          "id": 4702,
+          "slug": "valvula-solenoide-demo",
+          "name": "Válvula solenoide de prueba",
+          "sku": "470-0002",
+          "brand": { "name": "Uniweld", "slug": "uniweld" },
+          "price": { "status": "priced", "amount": 240000, "regularAmount": 260000, "onSale": true, "discountPercent": 8, "currency": "COP", "taxIncluded": true },
+          "availability": "in_stock",
+          "purchasable": true,
+          "image": null,
+          "categorySlugs": ["valvulas"],
+          "variantLabel": "220 V / 3/4\"",
+          "minQuantity": 1,
+          "maxQuantity": 3
+        },
+        "lineSubtotal": 480000
+      }
+    ],
+    "informativeSubtotal": { "amount": 480000, "currency": "COP", "taxIncluded": true },
+    "checkoutAllowed": true
+  }
+}

@@ -9,6 +9,9 @@ import '../../../fixtures/catalog/fake_catalog_bff.dart';
 import '../../../mocks/fake_http_adapter.dart';
 import 'catalog_harness.dart';
 
+/// Botón de chevron que despliega o contrae la rama de [slug].
+Finder _toggle(String slug) => find.byKey(ValueKey('category-toggle-$slug'));
+
 void main() {
   late FakeCatalogBff bff;
 
@@ -30,36 +33,37 @@ void main() {
     });
 
     testWidgets(
-      'una raíz con hijos baja un nivel: título = categoría tocada y atrás sube',
+      'el chevron despliega las subcategorías en el mismo lugar, sin cambiar de pantalla',
       (tester) async {
         await pumpCatalog(tester, const CatalogScreen(), bff);
-        await tester.tap(find.text('Aire acondicionado'));
+        expect(find.text('Minisplit'), findsNothing);
+
+        await tester.tap(_toggle('aire-acondicionado'));
         await settle(tester);
-        // Nivel 2: título, "Ver todo" y subcategorías directas.
+        // Mismo título y las demás raíces siguen a la vista.
         expect(
           find.descendant(
             of: find.byType(AppBar),
-            matching: find.text('Aire acondicionado'),
+            matching: find.text('Catálogo'),
           ),
           findsOneWidget,
         );
-        expect(find.text('Ver todo en Aire acondicionado'), findsOneWidget);
         expect(find.text('Minisplit'), findsOneWidget);
         expect(find.text('Cassette'), findsOneWidget);
-        // No muestra nietos ni otras raíces.
+        expect(find.text('Herramientas'), findsOneWidget);
+        // Los nietos esperan a que se despliegue su rama.
         expect(find.text('Cassette inverter'), findsNothing);
-        expect(find.text('Herramientas'), findsNothing);
 
-        // Nivel 3.
-        await tester.tap(find.text('Cassette'));
+        await tester.tap(_toggle('cassette'));
         await settle(tester);
         expect(find.text('Cassette inverter'), findsOneWidget);
-        expect(find.text('Minisplit'), findsNothing);
-
-        // Atrás sube un nivel.
-        await goBack(tester);
         expect(find.text('Minisplit'), findsOneWidget);
-        await goBack(tester);
+
+        // Contraer la raíz esconde toda su rama.
+        await tester.tap(_toggle('aire-acondicionado'));
+        await settle(tester);
+        expect(find.text('Minisplit'), findsNothing);
+        expect(find.text('Cassette inverter'), findsNothing);
         expect(find.text('Herramientas'), findsOneWidget);
       },
     );
@@ -76,20 +80,32 @@ void main() {
       );
     });
 
-    testWidgets('"Ver todo en…" y una subcategoría hoja abren el listado', (
+    testWidgets(
+      'el nombre de una categoría con hijos abre su listado; no la despliega',
+      (tester) async {
+        final visited = <String>[];
+        await pumpCatalog(tester, const CatalogScreen(), bff, visited: visited);
+        await tester.tap(find.text('Aire acondicionado'));
+        await settle(tester);
+        expect(visited, ['/catalog/list?category=aire-acondicionado']);
+        await goBack(tester);
+        expect(find.text('Minisplit'), findsNothing);
+      },
+    );
+
+    testWidgets('lo desplegado se conserva al volver de un listado', (
       tester,
     ) async {
       final visited = <String>[];
       await pumpCatalog(tester, const CatalogScreen(), bff, visited: visited);
-      await tester.tap(find.text('Aire acondicionado'));
+      await tester.tap(_toggle('aire-acondicionado'));
       await settle(tester);
-      await tester.tap(find.text('Ver todo en Aire acondicionado'));
-      await settle(tester);
-      expect(visited.last, '/catalog/list?category=aire-acondicionado');
-      await goBack(tester);
       await tester.tap(find.text('Minisplit'));
       await settle(tester);
       expect(visited.last, '/catalog/list?category=minisplit');
+      await goBack(tester);
+      expect(find.text('Minisplit'), findsOneWidget);
+      expect(find.text('Cassette'), findsOneWidget);
     });
 
     testWidgets('los accesos a Marcas, Liquidaciones y búsqueda navegan', (
@@ -97,6 +113,11 @@ void main() {
     ) async {
       final visited = <String>[];
       await pumpCatalog(tester, const CatalogScreen(), bff, visited: visited);
+      expect(find.text('Ofertas'), findsOneWidget);
+      expect(
+        find.text('Precios especiales y ofertas vigentes'),
+        findsOneWidget,
+      );
       await tester.tap(find.text('Marcas'));
       await settle(tester);
       await goBack(tester);
@@ -107,6 +128,20 @@ void main() {
       await settle(tester);
       expect(visited, ['/catalog/brands', '/catalog/sale', '/search']);
     });
+
+    testWidgets(
+      'al desplegar una categoría padre, "Ver todo en ..." navega a su listado',
+      (tester) async {
+        final visited = <String>[];
+        await pumpCatalog(tester, const CatalogScreen(), bff, visited: visited);
+        await tester.tap(_toggle('aire-acondicionado'));
+        await settle(tester);
+        expect(find.text('Ver todo en Aire acondicionado'), findsOneWidget);
+        await tester.tap(find.text('Ver todo en Aire acondicionado'));
+        await settle(tester);
+        expect(visited, ['/catalog/list?category=aire-acondicionado']);
+      },
+    );
 
     testWidgets(
       'AC-010-4 · sin sesión: ninguna solicitud lleva Authorization',
@@ -229,6 +264,54 @@ void main() {
         find.bySemanticsLabel('Aire acondicionado. Subcategorías disponibles'),
         findsOneWidget,
       );
+      handle.dispose();
+    });
+
+    testWidgets('el botón de desplegar anuncia su estado (abierto/cerrado)', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpCatalog(tester, const CatalogScreen(), bff);
+      expect(
+        tester.getSemantics(
+          find.bySemanticsLabel('Desplegar Aire acondicionado'),
+        ),
+        matchesSemantics(
+          label: 'Desplegar Aire acondicionado',
+          isButton: true,
+          hasTapAction: true,
+          hasExpandedState: true,
+        ),
+      );
+      await tester.tap(_toggle('aire-acondicionado'));
+      await settle(tester);
+      expect(
+        tester.getSemantics(
+          find.bySemanticsLabel('Contraer Aire acondicionado'),
+        ),
+        matchesSemantics(
+          label: 'Contraer Aire acondicionado',
+          isButton: true,
+          hasTapAction: true,
+          hasExpandedState: true,
+          isExpanded: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('con las ramas desplegadas cumple las guías de accesibilidad', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpCatalog(tester, const CatalogScreen(), bff);
+      await tester.tap(_toggle('aire-acondicionado'));
+      await settle(tester);
+      await tester.tap(_toggle('cassette'));
+      await settle(tester);
+      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      await expectLater(tester, meetsGuideline(textContrastGuideline));
       handle.dispose();
     });
   });

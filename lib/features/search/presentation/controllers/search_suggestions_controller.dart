@@ -13,11 +13,17 @@ import 'package:meta/meta.dart';
 /// sigue funcionando (AC-021-4).
 @immutable
 final class SuggestionsState {
-  const new({this.query = '', this.items = const [], this.loading = false});
+  const new({
+    this.query = '',
+    this.items = const [],
+    this.total,
+    this.loading = false,
+  });
 
   /// Texto (normalizado) al que corresponden [items]. Solo en memoria.
   final String query;
   final List<SearchSuggestion> items;
+  final int? total;
   final bool loading;
 }
 
@@ -64,7 +70,10 @@ class SearchSuggestionsController extends Notifier<SuggestionsState> {
   /// Oculta y cancela todo (campo vacío, búsqueda enviada, borrar texto).
   void clear() {
     _cancelAll();
-    if (state.query.isNotEmpty || state.items.isNotEmpty || state.loading) {
+    if (state.query.isNotEmpty ||
+        state.items.isNotEmpty ||
+        state.total != null ||
+        state.loading) {
       state = const SuggestionsState();
     }
   }
@@ -81,6 +90,10 @@ class SearchSuggestionsController extends Notifier<SuggestionsState> {
       items: switch (result) {
         Ok<SearchSuggestions>(:final value) => value.items,
         Err<SearchSuggestions>() => const [],
+      },
+      total: switch (result) {
+        Ok<SearchSuggestions>(:final value) => value.total,
+        Err<SearchSuggestions>() => null,
       },
     );
   }

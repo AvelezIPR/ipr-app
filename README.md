@@ -33,6 +33,7 @@ Ejecutar con la configuración pública del flavor (ADR-009, nunca secretos):
 ```bash
 # BFF simulado local (contrato de contract/openapi.yaml)
 dart run tool/mock_bff/main.dart            # http://127.0.0.1:8787/mobile/v1
+dart run tool/mock_bff/main.dart --demo     # + catálogo, marcas y sedes parecidos a los reales
 
 flutter run --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json
 ```

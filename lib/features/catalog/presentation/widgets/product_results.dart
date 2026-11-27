@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ipr_mobile/core/errors/app_failure.dart';
+import 'package:ipr_mobile/features/catalog/domain/entities/category_node.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/product_query.dart';
 import 'package:ipr_mobile/features/catalog/presentation/controllers/product_list_controller.dart';
+import 'package:ipr_mobile/features/catalog/presentation/controllers/taxonomy_controllers.dart';
 import 'package:ipr_mobile/features/catalog/presentation/widgets/filter_sheet.dart';
 import 'package:ipr_mobile/features/catalog/presentation/widgets/sort_labels.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
@@ -12,9 +14,11 @@ import 'package:ipr_mobile/shared/design_system/tokens/spacing_tokens.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
 import 'package:ipr_mobile/shared/navigation/routes.dart';
 import 'package:ipr_mobile/shared/widgets/failure_messages.dart';
+import 'package:ipr_mobile/shared/widgets/ipr_card.dart';
 import 'package:ipr_mobile/shared/widgets/product_card.dart';
 import 'package:ipr_mobile/shared/widgets/state_widgets.dart';
 import 'package:ipr_mobile/shared/widgets/ui_state.dart';
+import 'package:ipr_mobile/shared/widgets/whatsapp_button.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Qué controles y textos de vacío lleva un listado.
@@ -38,10 +42,31 @@ enum ResultsMode {
 /// la página N conserva las anteriores (AC-009-5); un fallo al aplicar filtros
 /// conserva el listado y los filtros previos (AC-013-5).
 class ProductResults extends ConsumerStatefulWidget {
-  const new({required this.scope, required this.mode, super.key});
+  const new({
+    required this.scope,
+    required this.mode,
+    super.key,
+    this.header,
+    this.showHeaderWhenEmpty = true,
+    this.categoryName,
+    this.subcategories = const [],
+  });
 
   final ListScope scope;
   final ResultsMode mode;
+
+  /// Contenido que va **dentro** del desplazamiento, antes de los filtros y de
+  /// los productos (p. ej. el contenido editorial de una marca, W3-01).
+  final Widget? header;
+
+  /// Si la cabecera se conserva visible cuando el listado está vacío.
+  final bool showHeaderWhenEmpty;
+
+  /// Nombre visible de la categoría actual (cuando aplica).
+  final String? categoryName;
+
+  /// Subcategorías hijas para navegar cuando una categoría está vacía.
+  final List<CategoryNode> subcategories;
 
   @override
   ConsumerState<ProductResults> createState() => _ProductResultsState();
@@ -90,6 +115,20 @@ class _ProductResultsState extends ConsumerState<ProductResults> {
       }
     });
 
+    var categoryName = widget.categoryName;
+    var subcategories = widget.subcategories;
+    if (widget.mode == ResultsMode.category &&
+        widget.scope.categorySlug != null &&
+        categoryName == null &&
+        subcategories.isEmpty) {
+      final categories = ref.watch(categoriesProvider);
+      if (categories is UiData<List<CategoryNode>>) {
+        final node = findCategory(categories.value, widget.scope.categorySlug!);
+        categoryName = node?.name;
+        subcategories = node?.children ?? const [];
+      }
+    }
+
     return AsyncView<ProductListData>(
       state: state,
       onRetry: _controller.reload,
@@ -104,6 +143,9 @@ class _ProductResultsState extends ConsumerState<ProductResults> {
             controller: _scroll,
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
+              if (widget.header != null &&
+                  (data.items.isNotEmpty || widget.showHeaderWhenEmpty))
+                SliverToBoxAdapter(child: widget.header),
               SliverToBoxAdapter(
                 child: _Toolbar(
                   data: data,
@@ -117,15 +159,15 @@ class _ProductResultsState extends ConsumerState<ProductResults> {
                   hasScrollBody: false,
                   child: _EmptyResults(
                     data: data,
+                    scope: widget.scope,
                     mode: widget.mode,
                     controller: _controller,
+                    categoryName: categoryName,
+                    subcategories: subcategories,
                   ),
                 )
               else
-                _ProductSliver(
-                  items: data.items,
-                  showOfferBadge: widget.mode == ResultsMode.sale,
-                ),
+                _ProductSliver(items: data.items),
               SliverToBoxAdapter(
                 child: _Footer(data: data, controller: _controller),
               ),
@@ -382,11 +424,21 @@ class _ApplyFailureBanner extends StatelessWidget {
 
 /// 200 con lista vacía (vacío real, no un error).
 class _EmptyResults extends StatelessWidget {
-  const new({required this.data, required this.mode, required this.controller});
+  const new({
+    required this.data,
+    required this.scope,
+    required this.mode,
+    required this.controller,
+    required this.categoryName,
+    required this.subcategories,
+  });
 
   final ProductListData data;
+  final ListScope scope;
   final ResultsMode mode;
   final ProductListController controller;
+  final String? categoryName;
+  final List<CategoryNode> subcategories;
 
   @override
   Widget build(BuildContext context) {
@@ -414,14 +466,20 @@ class _EmptyResults extends StatelessWidget {
       );
     }
     return switch (mode) {
-      ResultsMode.category => EmptyState(
-        title: l10n.catalogEmptyCategoryTitle,
-        body: l10n.catalogEmptyCategoryBody,
-        action: OutlinedButton(
-          onPressed: () => context.push(Routes.search),
-          child: Text(l10n.catalogEmptySearchAction),
-        ),
-      ),
+      ResultsMode.category =>
+        scope.categorySlug != null || categoryName != null
+            ? _EmptyCategoryCommercial(
+                categoryName: categoryName,
+                subcategories: subcategories,
+              )
+            : EmptyState(
+                title: l10n.catalogEmptyCategoryTitle,
+                body: l10n.catalogEmptyCategoryBody,
+                action: OutlinedButton(
+                  onPressed: () => context.push(Routes.search),
+                  child: Text(l10n.catalogEmptySearchAction),
+                ),
+              ),
       ResultsMode.brand => EmptyState(
         title: l10n.catalogEmptyBrandTitle,
         body: l10n.catalogEmptyBrandBody,
@@ -429,8 +487,144 @@ class _EmptyResults extends StatelessWidget {
       ResultsMode.sale => EmptyState(
         title: l10n.catalogEmptySaleTitle,
         body: l10n.catalogEmptySaleBody,
+        action: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 360),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              FilledButton(
+                onPressed: () => context.go(Routes.catalog),
+                child: Text(l10n.catalogEmptySaleExploreAction),
+              ),
+              const SizedBox(height: IprSpace.s2),
+              WhatsAppButton(
+                label: l10n.catalogSaleWhatsappLabel,
+                message: l10n.catalogSaleWhatsappMsg,
+                filled: false,
+              ),
+            ],
+          ),
+        ),
       ),
     };
+  }
+}
+
+/// Tarjeta comercial cuando una categoría aún no tiene productos en línea:
+/// invita a cotizar o comprar por WhatsApp y muestra sus subcategorías hijas.
+class _EmptyCategoryCommercial extends StatelessWidget {
+  const new({required this.categoryName, required this.subcategories});
+
+  final String? categoryName;
+  final List<CategoryNode> subcategories;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final displayCategory =
+        categoryName ?? l10n.catalogEmptyCommercialFallbackCategory;
+    final whatsappMessage = categoryName != null
+        ? l10n.catalogEmptyCommercialWhatsappMsg(categoryName!)
+        : l10n.catalogEmptyCommercialWhatsappMsgGeneric;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(IprSpace.s4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            IprCard(
+              child: Padding(
+                padding: const EdgeInsets.all(IprSpace.s5),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        ExcludeSemantics(
+                          child: Icon(
+                            Icons.chat_outlined,
+                            size: 18,
+                            color: scheme.primary,
+                          ),
+                        ),
+                        const SizedBox(width: IprSpace.s2),
+                        Expanded(
+                          child: Text(
+                            l10n.catalogEmptyCommercialEyebrow,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: scheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: IprSpace.s2),
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        l10n.catalogEmptyCommercialTitle(displayCategory),
+                        style: theme.textTheme.titleLarge,
+                      ),
+                    ),
+                    const SizedBox(height: IprSpace.s3),
+                    Text(
+                      l10n.catalogEmptyCommercialBody,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: IprSpace.s4),
+                    WhatsAppButton(
+                      label: l10n.catalogEmptyCommercialWhatsappLabel,
+                      message: whatsappMessage,
+                    ),
+                    const SizedBox(height: IprSpace.s2),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        icon: const ExcludeSemantics(child: Icon(Icons.search)),
+                        label: Text(l10n.catalogEmptySearchAction),
+                        onPressed: () => context.push(Routes.search),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (subcategories.isNotEmpty) ...[
+              const SizedBox(height: IprSpace.s4),
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.catalogEmptyCommercialSubcategoriesTitle,
+                  style: theme.textTheme.titleSmall,
+                ),
+              ),
+              const SizedBox(height: IprSpace.s2),
+              Wrap(
+                spacing: IprSpace.s2,
+                runSpacing: IprSpace.s2,
+                children: [
+                  for (final child in subcategories)
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                      ),
+                      onPressed: () =>
+                          context.push(Routes.categoryList(child.slug)),
+                      child: Text(child.name),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -496,15 +690,14 @@ class _Footer extends StatelessWidget {
 /// lista de una columna cuando el texto del sistema es ≥ 1,2× (y la propia
 /// `ProductCard` adopta su variante horizontal a partir de 1,5×, RNF-068).
 class _ProductSliver extends StatelessWidget {
-  const new({required this.items, required this.showOfferBadge});
+  const new({required this.items});
 
   final List<ProductSummary> items;
-  final bool showOfferBadge;
 
   static const double _gap = IprSpace.s3;
 
-  /// A partir de esta escala de texto la rejilla de altura fija ya no cabe
-  /// sin recortes (el nombre y el precio se parten): se pasa a una columna.
+  /// A partir de esta escala de texto dos columnas ya no caben sin partir el
+  /// nombre y el precio: se pasa a una columna.
   static const double _gridMaxScale = 1.2;
 
   @override
@@ -517,9 +710,7 @@ class _ProductSliver extends StatelessWidget {
         product: product,
         onTap: () => context.push(Routes.product(product.slug)),
       );
-      return showOfferBadge
-          ? _OfferOverlay(visible: product.onSale, child: child)
-          : child;
+      return _OfferOverlay(visible: product.onSale, child: child);
     }
 
     if (asList) {
@@ -539,20 +730,27 @@ class _ProductSliver extends StatelessWidget {
         builder: (context, constraints) {
           final width = constraints.crossAxisExtent;
           final columns = width >= 600 ? 3 : 2;
-          final cell = (width - _gap * (columns - 1)) / columns;
-          // Alto de la tarjeta: imagen cuadrada + relleno + detalle (medido
-          // con nombre largo y precio en oferta: 436 dp a 1,0× con celda de
-          // 158 dp), que crece con el texto del sistema.
-          final extent = cell + 32 + 280 * scale;
-          return SliverGrid.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              mainAxisSpacing: _gap,
-              crossAxisSpacing: _gap,
-              mainAxisExtent: extent,
+          final rows = (items.length / columns).ceil();
+          // Filas que toman el alto de su tarjeta más alta: sin alto fijo, no
+          // sobra hueco bajo tarjetas cortas ni se recorta el texto largo.
+          return SliverList.separated(
+            itemCount: rows,
+            itemBuilder: (context, row) => IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var col = 0; col < columns; col++) ...[
+                    if (col > 0) const SizedBox(width: _gap),
+                    Expanded(
+                      child: row * columns + col < items.length
+                          ? card(items[row * columns + col])
+                          : const SizedBox.shrink(),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            itemCount: items.length,
-            itemBuilder: (context, index) => card(items[index]),
+            separatorBuilder: (_, _) => const SizedBox(height: _gap),
           );
         },
       ),

@@ -1,3 +1,6 @@
+import 'package:ipr_mobile/shared/domain/image_ref.dart';
+import 'package:ipr_mobile/shared/domain/price_status.dart';
+import 'package:ipr_mobile/shared/domain/stock_status.dart';
 import 'package:meta/meta.dart';
 
 /// Sugerencia de autocompletado (`openapi.yaml` → `Suggestion`). Solo lo que
@@ -10,6 +13,9 @@ final class SearchSuggestion {
     required this.name,
     required this.sku,
     this.brandName,
+    this.image,
+    this.price,
+    this.availability,
   });
 
   final int id;
@@ -17,6 +23,9 @@ final class SearchSuggestion {
   final String name;
   final String sku;
   final String? brandName;
+  final ImageRef? image;
+  final PriceStatus? price;
+  final StockStatus? availability;
 
   @override
   bool operator ==(Object other) =>

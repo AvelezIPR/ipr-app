@@ -22,6 +22,11 @@
   "@productDetailImageFallbackAlt": { "placeholders": { "name": { "type": "String" } } },
 
   "productDetailPriceOnRequest": "Precio bajo consulta",
+  "productDetailSelectOption": "Selecciona una opción",
+  "productDetailSelectOptionHint": "Elige una opción de cada característica para ver el precio y comprar.",
+  "productDetailVariantUnavailable": "No disponible con lo que elegiste",
+  "productDetailVariantSwitchHint": "Requiere cambiar otra opción",
+  "productDetailVariantRemoveHint": "Toca de nuevo para quitar la opción",
   "productDetailOnSaleBadge": "Oferta",
 
   "productDetailOutOfStockNotice": "Este producto está agotado.",
@@ -51,6 +56,7 @@
     "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } }
   },
   "productDetailAddToCart": "Agregar al carrito",
+  "productDetailMaxInCart": "Máximo en el carrito",
   "productDetailAddedToCart": "Producto agregado al carrito",
   "productDetailViewCart": "Ver carrito"
 }

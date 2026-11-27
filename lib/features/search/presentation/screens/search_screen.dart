@@ -161,6 +161,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       items: suggestions.query == typed
                           ? suggestions.items
                           : const [],
+                      total: suggestions.query == typed
+                          ? suggestions.total
+                          : null,
                       onOpen: (s) => _openProduct(s.slug),
                       onSeeAll: _submit,
                     )

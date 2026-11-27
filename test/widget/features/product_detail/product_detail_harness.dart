@@ -11,6 +11,7 @@ import 'package:ipr_mobile/core/config/remote_config_repository.dart';
 import 'package:ipr_mobile/core/network/request_cancellation.dart';
 import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/features/product_detail/domain/entities/product_detail.dart';
+import 'package:ipr_mobile/features/product_detail/domain/entities/product_variant.dart';
 import 'package:ipr_mobile/features/product_detail/domain/repositories/product_detail_repository.dart';
 import 'package:ipr_mobile/features/product_detail/domain/usecases/add_to_cart_action.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/controllers/add_to_cart_provider.dart';
@@ -20,6 +21,7 @@ import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 import 'package:material_ui/material_ui.dart' show IconButton;
 
@@ -43,6 +45,9 @@ final class FakeAddToCart implements AddToCartAction {
   Result<AddToCartOutcome> result;
   final List<({int productId, int quantity})> calls = [];
 
+  /// Productos (instantáneas) tal como los vio la persona al añadir.
+  final List<ProductSummary?> snapshots = [];
+
   @override
   Future<Result<AddToCartOutcome>> add({
     required int productId,
@@ -50,6 +55,7 @@ final class FakeAddToCart implements AddToCartAction {
     ProductSummary? snapshot,
   }) async {
     calls.add((productId: productId, quantity: quantity));
+    snapshots.add(snapshot);
     return result;
   }
 }
@@ -72,6 +78,7 @@ ProductDetailLoad loadOf(String fixture, {bool stale = false}) =>
 
 /// Producto construido a mano para casos puntuales (nombre, SKU, precio...).
 ProductDetail customProduct({
+  int id = 77,
   String name = 'Producto de prueba',
   String sku = 'SKU-1',
   PriceStatus price = const Priced(Money(10000)),
@@ -80,18 +87,24 @@ ProductDetail customProduct({
   String shortDescription = '',
   String descriptionHtml = '',
   bool serverPurchasable = true,
+  QuantityRange quantityRange = QuantityRange.standard,
+  List<ProductVariantAxis> variantAxes = const [],
+  List<ProductVariant> variants = const [],
 }) => ProductDetail(
   summary: ProductSummary(
-    id: 77,
+    id: id,
     slug: 'producto-de-prueba',
     name: name,
     sku: sku,
     price: price,
     availability: availability,
+    quantityRange: quantityRange,
   ),
   shortDescription: shortDescription,
   descriptionHtml: descriptionHtml,
   serverPurchasable: serverPurchasable,
+  variantAxes: variantAxes,
+  variants: variants,
   gallery: [for (final url in galleryUrls) ImageRef(url: url, alt: '')],
 );
 
@@ -102,11 +115,16 @@ List<Override> productOverrides({
   FakeExternalLauncher? launcher,
   FakeAddToCart? addToCart,
   RemoteConfig? config,
+  Map<int, int> cartQuantities = const {},
 }) => testOverrides(
   launcher: launcher,
   extra: [
     productDetailRepositoryProvider.overrideWithValue(repository),
     if (addToCart != null) addToCartActionProvider.overrideWithValue(addToCart),
+    if (cartQuantities.isNotEmpty)
+      cartQuantityForProductProvider.overrideWith(
+        (ref, productId) => cartQuantities[productId] ?? 0,
+      ),
     if (config != null)
       remoteConfigProvider.overrideWithBuild(
         (ref, notifier) => RemoteConfigState(
@@ -124,6 +142,7 @@ Future<void> pumpProduct(
   FakeExternalLauncher? launcher,
   FakeAddToCart? addToCart,
   RemoteConfig? config,
+  Map<int, int> cartQuantities = const {},
   double textScale = 1,
   String slug = kSlug,
   Size size = const Size(360, 800),
@@ -138,6 +157,7 @@ Future<void> pumpProduct(
       launcher: launcher,
       addToCart: addToCart,
       config: config,
+      cartQuantities: cartQuantities,
     ),
   );
   await tester.pump();

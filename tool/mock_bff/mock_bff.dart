@@ -6,6 +6,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 
 import '../contract/openapi_contract.dart';
+import 'demo_data.dart';
 
 /// BFF simulado de `/mobile/v1` generado a partir de `contract/openapi.yaml`.
 ///
@@ -16,17 +17,23 @@ import '../contract/openapi_contract.dart';
 /// * Escenarios forzados con la cabecera `X-Mock-Scenario`:
 ///   `error:404|429|503|502|504|426|500`, `html403` (borde de Cloudflare).
 ///
+/// * Con [demo] = `true`, categorías, marcas, productos, búsqueda, sedes y la
+///   ficha de producto responden con datos de demostración parecidos a los
+///   reales (`demo_data.dart`), validados contra el contrato. Por defecto
+///   está apagado: las pruebas siguen usando los ejemplos del contrato.
+///
 /// No es el servidor real: sirve para desarrollo, pruebas de integración
 /// ligeras y comprobar que el cliente cumple el contrato.
 Future<HttpServer> startMockBff({
   int port = 0,
   String contractPath = 'contract/openapi.yaml',
   InternetAddress? address,
+  bool demo = false,
 }) async {
   final contract = OpenApiContract.load(contractPath);
   final routes = _buildRoutes(contract);
   Future<Response> handler(Request request) =>
-      _handle(contract, routes, request);
+      _handle(contract, routes, request, demo: demo);
   final server = await shelf_io.serve(
     const Pipeline().addMiddleware(_cors).addHandler(handler),
     address ?? InternetAddress.loopbackIPv4,
@@ -88,8 +95,9 @@ List<_Route> _buildRoutes(OpenApiContract contract) {
 Future<Response> _handle(
   OpenApiContract contract,
   List<_Route> routes,
-  Request request,
-) async {
+  Request request, {
+  required bool demo,
+}) async {
   // El contrato lleva la ruta relativa a /mobile/v1.
   final path = '/${request.url.path}'.replaceFirst(RegExp('^/mobile/v1'), '');
   final requestId =
@@ -176,12 +184,12 @@ Future<Response> _handle(
   }
 
   // Cuerpo: se valida contra el esquema del contrato.
+  Object? requestJson;
   final body = route.operation['requestBody'];
   if (body is Map<String, dynamic> && body['required'] == true) {
     final text = await request.readAsString();
-    Object? json;
     try {
-      json = jsonDecode(text);
+      requestJson = jsonDecode(text);
     } on FormatException {
       return problem(400, 'validation_failed');
     }
@@ -189,7 +197,7 @@ Future<Response> _handle(
         ((body['content'] as Map<String, dynamic>)['application/json']
                 as Map<String, dynamic>)['schema']
             as Map<String, dynamic>;
-    final errors = contract.validate(json, schema);
+    final errors = contract.validate(requestJson, schema);
     if (errors.isNotEmpty) {
       return problem(
         400,
@@ -227,11 +235,30 @@ Future<Response> _handle(
       (content['application/json'] as Map<String, dynamic>)['schema']
           as Map<String, dynamic>;
   headers['content-type'] = 'application/json';
-  return Response(
-    status,
-    body: jsonEncode(contract.example(schema)),
-    headers: headers,
-  );
+  var payload = contract.example(schema);
+  if (demo) {
+    final demoJson = demoBody(
+      template: route.template,
+      path: path,
+      query: request.url.queryParameters,
+      example: payload,
+      requestBody: requestJson,
+    );
+    if (demoJson != null) {
+      final errors = contract.validate(demoJson, schema);
+      if (errors.isNotEmpty) {
+        // Los datos de demostración deben cumplir el contrato: si no, se ve.
+        stderr.writeln('demo inválido en ${route.template}: $errors');
+        return problem(500, 'internal_error');
+      }
+      payload = demoJson;
+    } else if (route.template == '/products/{slug}' ||
+        route.template == '/brands/{slug}' ||
+        route.template == '/orders/{orderId}') {
+      return problem(404, 'not_found');
+    }
+  }
+  return Response(status, body: jsonEncode(payload), headers: headers);
 }
 
 Response _problem(

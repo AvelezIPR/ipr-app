@@ -1,3 +1,4 @@
+import 'package:ipr_mobile/features/product_detail/domain/entities/product_variant.dart';
 import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
@@ -65,6 +66,8 @@ final class ProductDetail {
     this.categories = const [],
     this.webUrl,
     this.serverPurchasable = true,
+    this.variantAxes = const [],
+    this.variants = const [],
   });
 
   /// Datos comunes con las tarjetas (nombre, marca, SKU, precio, stock).
@@ -85,6 +88,14 @@ final class ProductDetail {
   /// local; si el servidor dice `false`, nunca se ofrece la compra.
   final bool serverPurchasable;
 
+  /// Ejes de elección y variaciones de un producto variable (W1-01); vacíos
+  /// en un producto simple.
+  final List<ProductVariantAxis> variantAxes;
+  final List<ProductVariant> variants;
+
+  /// ¿Es un producto variable? Solo si hay ejes **y** variaciones que elegir.
+  bool get isVariable => variantAxes.isNotEmpty && variants.isNotEmpty;
+
   int get id => summary.id;
   String get slug => summary.slug;
   String get name => summary.name;
@@ -92,8 +103,45 @@ final class ProductDetail {
   PriceStatus get price => summary.price;
 
   /// ¿Se puede ofrecer "Agregar al carrito"? Con precio y en stock, y siempre
-  /// que el servidor no lo niegue (CR-017: bajo pedido no).
-  bool get canAddToCart => summary.canAddToCart && serverPurchasable;
+  /// que el servidor no lo niegue (CR-017: bajo pedido no). Un producto
+  /// variable **nunca** se compra sin elegir una variación ([withVariant]).
+  bool get canAddToCart =>
+      !isVariable && summary.canAddToCart && serverPurchasable;
+
+  /// La ficha tal como se ve al elegir [variant] ([label] = sus opciones): su
+  /// id, SKU, precio, stock e imagen, y el nombre con la opción. Es un
+  /// producto **simple** (sin ejes), así que el resto de la pantalla y el
+  /// carrito lo tratan como cualquier otro. El id es el de la variación.
+  ProductDetail withVariant(ProductVariant variant, {required String label}) {
+    final base = summary;
+    return ProductDetail(
+      summary: ProductSummary(
+        id: variant.id,
+        slug: base.slug,
+        name: label.isEmpty ? base.name : '${base.name} · $label',
+        sku: variant.sku,
+        brandName: base.brandName,
+        brandSlug: base.brandSlug,
+        price: variant.price,
+        regularPrice: variant.regularPrice,
+        onSale: variant.onSale,
+        availability: variant.availability,
+        image: variant.image ?? base.image,
+        categorySlugs: base.categorySlugs,
+        quantityRange: variant.quantityRange,
+      ),
+      shortDescription: shortDescription,
+      descriptionHtml: descriptionHtml,
+      gallery: [
+        if (variant.image != null) variant.image!,
+        ...gallery.where((image) => image != variant.image),
+      ],
+      attributes: attributes,
+      categories: categories,
+      webUrl: webUrl,
+      serverPurchasable: variant.serverPurchasable,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -103,6 +151,8 @@ final class ProductDetail {
       other.descriptionHtml == descriptionHtml &&
       _sameList(other.gallery, gallery) &&
       _sameList(other.attributes, attributes) &&
+      _sameList(other.variantAxes, variantAxes) &&
+      _sameList(other.variants, variants) &&
       other.serverPurchasable == serverPurchasable;
 
   @override

@@ -22,6 +22,7 @@ import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 
 import '../../../mocks/test_providers.dart';
@@ -47,6 +48,7 @@ ProductSummary productOf({
   PriceStatus price = const Priced(Money(100000)),
   StockStatus stock = StockStatus.inStock,
   String? imageUrl,
+  QuantityRange range = QuantityRange.standard,
 }) => ProductSummary(
   id: id,
   slug: 'producto-$id',
@@ -56,6 +58,7 @@ ProductSummary productOf({
   price: price,
   availability: stock,
   image: imageUrl == null ? null : ImageRef(url: imageUrl, alt: name),
+  quantityRange: range,
 );
 
 /// Línea con instantánea.
@@ -65,6 +68,7 @@ CartLine lineOf(
   int price = 100000,
   String? name,
   StockStatus stock = StockStatus.inStock,
+  QuantityRange range = QuantityRange.standard,
 }) => CartLine(
   productId: id,
   quantity: quantity,
@@ -75,6 +79,7 @@ CartLine lineOf(
       sku: 'SKU-$id',
       price: price == 0 ? const OnRequest() : Priced(Money(price)),
       stock: stock,
+      range: range,
     ),
   ),
 );

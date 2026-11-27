@@ -1,6 +1,7 @@
 import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart' as stock_rules;
 import 'package:ipr_mobile/shared/domain/stock_status.dart' show StockStatus;
 import 'package:meta/meta.dart';
@@ -18,6 +19,7 @@ final class CartLineSnapshot {
     required this.availability,
     this.brandName,
     this.image,
+    this.quantityRange = QuantityRange.standard,
   });
 
   /// Instantánea tomada de un [ProductSummary] (ficha, listados o respuesta
@@ -31,6 +33,7 @@ final class CartLineSnapshot {
       price: product.price,
       availability: product.availability,
       image: image == null ? null : ImageRef(url: image.url, alt: image.alt),
+      quantityRange: product.quantityRange,
     );
   }
 
@@ -40,6 +43,9 @@ final class CartLineSnapshot {
   final PriceStatus price;
   final StockStatus availability;
   final ImageRef? image;
+
+  /// Cantidades por línea que permite el producto (W1-06).
+  final QuantityRange quantityRange;
 
   /// Elegible para comprar según lo último que se supo: precio con valor y
   /// "en stock" (IR-02, CR-017).
@@ -54,11 +60,19 @@ final class CartLineSnapshot {
       other.brandName == brandName &&
       other.price == price &&
       other.availability == availability &&
-      other.image == image;
+      other.image == image &&
+      other.quantityRange == quantityRange;
 
   @override
-  int get hashCode =>
-      Object.hash(name, sku, brandName, price, availability, image);
+  int get hashCode => Object.hash(
+    name,
+    sku,
+    brandName,
+    price,
+    availability,
+    image,
+    quantityRange,
+  );
 }
 
 /// Una línea del carrito: producto y cantidad (E37). La instantánea es
@@ -71,6 +85,11 @@ final class CartLine {
   final int productId;
   final int quantity;
   final CartLineSnapshot? snapshot;
+
+  /// Cantidades que admite esta línea: las del producto (W1-06) o el rango
+  /// general si no se conocen.
+  QuantityRange get quantityRange =>
+      snapshot?.quantityRange ?? QuantityRange.standard;
 
   CartLine copyWith({int? quantity, CartLineSnapshot? snapshot}) => CartLine(
     productId: productId,

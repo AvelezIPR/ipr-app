@@ -1,6 +1,5 @@
-import 'dart:math' as math;
-
 import 'package:ipr_mobile/features/cart/domain/entities/cart_line.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:meta/meta.dart';
 
 /// Límites del carrito (IR-04, RF-049; `src/lib/checkout-schema.ts`).
@@ -38,6 +37,7 @@ final class CartAdded extends CartAddResult {
     required this.quantity,
     required this.merged,
     required this.clamped,
+    this.maxQuantity = CartLimits.maxQuantity,
   });
 
   final Cart cart;
@@ -48,9 +48,12 @@ final class CartAdded extends CartAddResult {
   /// Ya existía: la cantidad se **sumó** (AC-029-5; sin líneas duplicadas).
   final bool merged;
 
-  /// La cantidad pedida o la suma superó 99 y se acotó (se informa al
-  /// usuario).
+  /// La cantidad pedida o la suma superó el máximo de la línea y se acotó
+  /// (se informa al usuario).
   final bool clamped;
+
+  /// Máximo por línea que se aplicó (el del producto o 99, W1-06).
+  final int maxQuantity;
 }
 
 final class CartAddRejected extends CartAddResult {
@@ -83,11 +86,8 @@ final class Cart {
       if (lines.length >= CartLimits.maxLines) break;
       if (line.productId <= 0 || !seen.add(line.productId)) continue;
       if (line.quantity < CartLimits.minQuantity) continue;
-      lines.add(
-        line.quantity > CartLimits.maxQuantity
-            ? line.copyWith(quantity: CartLimits.maxQuantity)
-            : line,
-      );
+      final next = line.quantityRange.clamp(line.quantity);
+      lines.add(next == line.quantity ? line : line.copyWith(quantity: next));
     }
     return Cart(List.unmodifiable(lines));
   }
@@ -128,9 +128,15 @@ final class Cart {
     }
 
     final existing = lineOf(productId);
+    // Los límites vigentes son los del producto que se acaba de ver; si no
+    // viene instantánea, los que ya tenía la línea (W1-06).
+    final range =
+        snapshot?.quantityRange ??
+        existing?.quantityRange ??
+        QuantityRange.standard;
     if (existing != null) {
       final sum = existing.quantity + quantity;
-      final next = math.min(sum, CartLimits.maxQuantity);
+      final next = range.clamp(sum);
       return CartAdded(
         Cart(
           List.unmodifiable([
@@ -143,12 +149,13 @@ final class Cart {
         ),
         quantity: next,
         merged: true,
-        clamped: sum > CartLimits.maxQuantity,
+        clamped: sum > range.max,
+        maxQuantity: range.max,
       );
     }
 
     if (isFull) return const CartAddRejected(CartRejection.lineLimit);
-    final next = math.min(quantity, CartLimits.maxQuantity);
+    final next = range.clamp(quantity);
     return CartAdded(
       Cart(
         List.unmodifiable([
@@ -158,16 +165,18 @@ final class Cart {
       ),
       quantity: next,
       merged: false,
-      clamped: quantity > CartLimits.maxQuantity,
+      clamped: quantity > range.max,
+      maxQuantity: range.max,
     );
   }
 
-  /// Fija la cantidad de una línea existente, llevada al rango 1–99. Un
-  /// producto que no está en el carrito no se crea aquí.
+  /// Fija la cantidad de una línea existente, llevada al rango de esa línea
+  /// (1–99 o el del producto, W1-06). Un producto que no está en el carrito
+  /// no se crea aquí.
   Cart setQuantity(int productId, int quantity) {
     final existing = lineOf(productId);
     if (existing == null) return this;
-    final next = quantity.clamp(CartLimits.minQuantity, CartLimits.maxQuantity);
+    final next = existing.quantityRange.clamp(quantity);
     if (next == existing.quantity) return this;
     return Cart(
       List.unmodifiable([
@@ -203,9 +212,10 @@ final class Cart {
         isFull) {
       return this;
     }
-    final restored = line.quantity > CartLimits.maxQuantity
-        ? line.copyWith(quantity: CartLimits.maxQuantity)
-        : line;
+    final clamped = line.quantityRange.clamp(line.quantity);
+    final restored = clamped == line.quantity
+        ? line
+        : line.copyWith(quantity: clamped);
     final at = index.clamp(0, lines.length);
     return Cart(
       List.unmodifiable([...lines.take(at), restored, ...lines.skip(at)]),
@@ -220,7 +230,12 @@ final class Cart {
       List.unmodifiable([
         for (final line in lines)
           if (snapshots[line.productId] case final snapshot?)
-            line.copyWith(snapshot: snapshot)
+            // El servidor puede haber cambiado los límites desde que se añadió
+            // (el carrito vive días en el teléfono): se recorta al vigente.
+            line.copyWith(
+              snapshot: snapshot,
+              quantity: snapshot.quantityRange.clamp(line.quantity),
+            )
           else
             line,
       ]),

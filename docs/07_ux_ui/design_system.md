@@ -281,14 +281,29 @@ Derivados de `--radius: 0.625rem` (10 px) de la web: `calc` ×0,6 / 0,8 / 1 / 1,
 
 ### 6.4 Elevación
 
-**[PROPUESTA]** Superficies planas con borde decorativo y elevación tonal (M3); no se replica el relieve `btn-depth` (brillo superior + doble sombra), que es decorativo y costoso de pintar en gama baja.
+**[PROPUESTA]** Tarjetas con borde fino y sombra suave teñida de azul marino, como las de la web (revisión visual de 2026-11-26: antes eran planas); no se replica el relieve `btn-depth` (brillo superior + doble sombra), que es decorativo y costoso de pintar en gama baja. Las sombras son una sola capa difusa (`IprShadows`), no apilada.
 
 | Nivel | Uso | Tratamiento |
 |---|---|---|
-| 0 | Fondo, tarjetas | Sin sombra; borde `outlineVariant` 1 dp |
+| 0 | Fondo | Sin sombra |
+| 0,5 | Tarjetas (`IprCard`, tarjeta de producto, accesos) | Borde `outlineVariant` 1 dp + `IprShadows.card` (`#053554` al 10 %, blur 14, y 4) |
+| 1 | Bloques de marca (`IprGradientPanel`) | `IprShadows.raised` (`#053554` al 20 %, blur 24, y 10) |
 | 1 | Barra superior al desplazar, barra de resumen de carrito fija | Sombra suave o tinte `surfaceContainer` |
 | 2 | Snackbar, botón de acción flotante (no se usa en el MVP) | Sombra M3 nivel 2 |
 | 3 | Hojas inferiores modales, diálogos | Sombra M3 nivel 3 + `scrim` 32 % |
+
+### 6.4.1 Superficies de marca (degradado y puntos) **[PROPUESTA — pendiente de aprobación de Marketing]**
+
+Réplica móvil de los bloques azules de la web (banner de bienvenida y banda de cifras).
+
+| Elemento | Especificación |
+|---|---|
+| `IprGradientPanel` | Degradado diagonal `blue700 → blue900` (hero) o `blue800 → blue900` (banda), radio `xxl`, textura de puntos blancos al 10 % cada 14 dp. **Solo texto blanco** encima (≥ 6,7:1). |
+| `IprGlassIcon` | Cuadro translúcido (blanco 15 %) con ícono blanco; decorativo, fuera del árbol de accesibilidad. |
+| Fondo de Inicio | `IprGradients.page`: blanco → `#F1F7FB`. |
+| Cifras | **Solo las que entrega el servidor** (sedes y ciudades desde `/stores`, marcas desde `/brands`). Las cifras institucionales de la web ("+30 años", "+10.000 referencias") **no se fijan en la app**: dependen de D-07. |
+| Texto grande | A escala de texto ≥ 1,5× la banda se apila en una columna y el botón "Buscar" del buscador queda solo con el ícono. |
+| Títulos | Poppins Bold (700) en `blue900`; la web usa 900 pero el activo ExtraBold/Black no está empaquetado (APR-05). |
 
 ### 6.5 Movimiento
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ipr_mobile/core/config/engineering_team.dart';
 import 'package:ipr_mobile/core/config/remote_config_controller.dart';
 import 'package:ipr_mobile/core/providers.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
@@ -74,6 +75,7 @@ class EngineeringScreen extends ConsumerWidget {
     final phoneDial = config.phoneDial?.trim();
     final phoneDisplay = config.phoneDisplay?.trim();
     final email = _clean(config.engineeringEmail) ?? _clean(config.salesEmail);
+    final specialties = config.engineeringSpecialties;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.supportEngineeringTitle)),
@@ -166,6 +168,52 @@ class EngineeringScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+              if (specialties.isNotEmpty) ...[
+                const SizedBox(height: IprSpace.s5),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    l10n.supportEngineeringTeamTitle,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                ),
+                const SizedBox(height: IprSpace.s2),
+                Text(
+                  l10n.supportEngineeringTeamIntro,
+                  style: theme.textTheme.bodyMedium,
+                ),
+                for (final specialty in specialties) ...[
+                  const SizedBox(height: IprSpace.s4),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      specialty.name,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
+                  for (final contact in specialty.contacts) ...[
+                    const SizedBox(height: IprSpace.s2),
+                    _EngineerContactCard(
+                      contact: contact,
+                      onWhatsApp: () => unawaited(
+                        openWhatsApp(
+                          context,
+                          ref,
+                          message:
+                              specialty.whatsappMessage ??
+                              l10n.supportEngineeringWhatsappMsg,
+                          phoneOverride: contact.whatsapp,
+                        ),
+                      ),
+                      onCall: () => unawaited(
+                        _callPhone(context, ref, contact.phoneDial!),
+                      ),
+                      onEmail: () =>
+                          unawaited(_writeEmail(context, ref, contact.email!)),
+                    ),
+                  ],
+                ],
+              ],
             ],
           ),
         ),
@@ -209,6 +257,104 @@ class _ServiceCard extends StatelessWidget {
                   Text(body, style: theme.textTheme.bodyMedium),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Contacto corporativo de ingeniería en una ciudad (W3-02): la ciudad y un
+/// botón por cada canal disponible (WhatsApp, teléfono, correo), de al menos
+/// 48 dp y con la ciudad en su etiqueta para el lector de pantalla.
+class _EngineerContactCard extends StatelessWidget {
+  const new({
+    required this.contact,
+    required this.onWhatsApp,
+    required this.onCall,
+    required this.onEmail,
+  });
+
+  final EngineeringContact contact;
+  final VoidCallback onWhatsApp;
+  final VoidCallback onCall;
+  final VoidCallback onEmail;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    const minSize = Size(IprSpace.minTapTarget, IprSpace.minTapTarget);
+    final phone = contact.phoneDisplay;
+    final email = contact.email;
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(IprSpace.s3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(
+              header: true,
+              child: Text(contact.city, style: theme.textTheme.titleSmall),
+            ),
+            const SizedBox(height: IprSpace.s2),
+            Wrap(
+              spacing: IprSpace.s2,
+              runSpacing: IprSpace.s2,
+              children: [
+                if (contact.whatsapp != null)
+                  Semantics(
+                    label: l10n.supportEngineeringCardWhatsappSemantics(
+                      contact.city,
+                    ),
+                    container: true,
+                    button: true,
+                    excludeSemantics: true,
+                    onTap: onWhatsApp,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(minimumSize: minSize),
+                      onPressed: onWhatsApp,
+                      icon: const Icon(Icons.chat_outlined),
+                      label: Text(l10n.supportEngineeringCardWhatsapp),
+                    ),
+                  ),
+                if (contact.hasPhone && phone != null)
+                  Semantics(
+                    label: l10n.supportEngineeringCardCallSemantics(
+                      contact.city,
+                      phone,
+                    ),
+                    container: true,
+                    button: true,
+                    excludeSemantics: true,
+                    onTap: onCall,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(minimumSize: minSize),
+                      onPressed: onCall,
+                      icon: const Icon(Icons.phone_outlined),
+                      label: Text(phone),
+                    ),
+                  ),
+                if (email != null)
+                  Semantics(
+                    label: l10n.supportEngineeringCardEmailSemantics(
+                      contact.city,
+                      email,
+                    ),
+                    container: true,
+                    button: true,
+                    excludeSemantics: true,
+                    onTap: onEmail,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(minimumSize: minSize),
+                      onPressed: onEmail,
+                      icon: const Icon(Icons.email_outlined),
+                      label: Text(l10n.supportEngineeringCardEmail),
+                    ),
+                  ),
+              ],
             ),
           ],
         ),

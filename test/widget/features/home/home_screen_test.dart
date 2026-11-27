@@ -157,6 +157,38 @@ void main() {
       expect(destinationOf(tester), '/catalog/list?category=cat-2');
     });
 
+    testWidgets(
+      'CTAs "Ver todo el catálogo" en Categorías y Más vendidos navegan a /catalog',
+      (tester) async {
+        await pumpHome(tester, repository: _repo(), size: _tall);
+        expect(find.text('Ver todo el catálogo'), findsNWidgets(2));
+
+        await tester.tap(find.text('Ver todo el catálogo').first);
+        await tester.pumpAndSettle();
+        expect(destinationOf(tester), '/catalog');
+
+        await pumpHome(tester, repository: _repo(), size: _tall);
+        await tester.tap(find.text('Ver todo el catálogo').last);
+        await tester.pumpAndSettle();
+        expect(destinationOf(tester), '/catalog');
+      },
+    );
+
+    testWidgets(
+      'sin datos en Categorías ni Más vendidos no muestra CTAs de catálogo',
+      (tester) async {
+        await pumpHome(
+          tester,
+          repository: _repo(
+            categories: _ok(<HomeCategory>[]),
+            featured: _ok(<ProductSummary>[]),
+          ),
+          size: _tall,
+        );
+        expect(find.text('Ver todo el catálogo'), findsNothing);
+      },
+    );
+
     testWidgets('AC-002-3 · 200 vacío: mensaje, no cuadrícula vacía', (
       tester,
     ) async {

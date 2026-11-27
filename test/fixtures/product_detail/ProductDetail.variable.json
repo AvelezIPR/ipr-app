@@ -1,0 +1,93 @@
+{
+  "data": {
+    "id": 4700,
+    "slug": "valvula-solenoide-demo",
+    "name": "Válvula solenoide de prueba",
+    "sku": "VAR-4700",
+    "brand": { "name": "Uniweld", "slug": "uniweld" },
+    "price": {
+      "status": "priced",
+      "amount": 180000,
+      "regularAmount": 180000,
+      "onSale": false,
+      "discountPercent": null,
+      "currency": "COP",
+      "taxIncluded": true
+    },
+    "availability": "in_stock",
+    "purchasable": false,
+    "image": { "url": "https://staging.invalid/media/valvula.jpg", "alt": "Válvula solenoide", "width": 800, "height": 800 },
+    "categorySlugs": ["valvulas"],
+    "shortDescription": "Válvula solenoide con varias medidas y voltajes.",
+    "descriptionHtml": "<p>Válvula solenoide para refrigeración.</p>",
+    "gallery": [
+      { "url": "https://staging.invalid/media/valvula.jpg", "alt": "Válvula solenoide", "width": 800, "height": 800 }
+    ],
+    "attributes": [
+      { "name": "Marca", "slug": "pa_marca", "options": ["Uniweld"] }
+    ],
+    "categories": [
+      { "id": 40, "slug": "valvulas", "name": "Válvulas" }
+    ],
+    "webUrl": "https://staging.invalid/producto/valvula-solenoide-demo",
+    "variantAxes": [
+      {
+        "slug": "pa_voltaje",
+        "name": "Voltaje",
+        "options": [
+          { "value": "220-v", "label": "220 V" },
+          { "value": "440-v", "label": "440 V" }
+        ]
+      },
+      {
+        "slug": "pa_diametro",
+        "name": "Diámetro",
+        "options": [
+          { "value": "1-2", "label": "1/2\"" },
+          { "value": "3-4", "label": "3/4\"" }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "id": 4701,
+        "sku": "470-0001",
+        "minQuantity": 2,
+        "maxQuantity": 12,
+        "price": { "status": "priced", "amount": 180000, "regularAmount": 180000, "onSale": false, "discountPercent": null, "currency": "COP", "taxIncluded": true },
+        "availability": "in_stock",
+        "purchasable": true,
+        "image": null,
+        "selection": [
+          { "axis": "pa_voltaje", "value": "220-v" },
+          { "axis": "pa_diametro", "value": "1-2" }
+        ]
+      },
+      {
+        "id": 4702,
+        "sku": "470-0002",
+        "maxQuantity": 3,
+        "price": { "status": "priced", "amount": 240000, "regularAmount": 260000, "onSale": true, "discountPercent": 8, "currency": "COP", "taxIncluded": true },
+        "availability": "in_stock",
+        "purchasable": true,
+        "image": { "url": "https://staging.invalid/media/valvula-34.jpg", "alt": "Válvula de 3/4 pulgada", "width": 800, "height": 800 },
+        "selection": [
+          { "axis": "pa_voltaje", "value": "220-v" },
+          { "axis": "pa_diametro", "value": "3-4" }
+        ]
+      },
+      {
+        "id": 4703,
+        "sku": "470-0003",
+        "price": { "status": "on_request", "amount": null, "regularAmount": null, "onSale": false, "discountPercent": null, "currency": "COP", "taxIncluded": true },
+        "availability": "in_stock",
+        "purchasable": false,
+        "image": null,
+        "selection": [
+          { "axis": "pa_voltaje", "value": "440-v" },
+          { "axis": "pa_diametro", "value": "1-2" }
+        ]
+      }
+    ]
+  }
+}

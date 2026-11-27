@@ -8,6 +8,7 @@ import 'package:ipr_mobile/core/storage/cache_store.dart';
 import 'package:ipr_mobile/features/catalog/data/datasources/catalog_remote_datasource.dart';
 import 'package:ipr_mobile/features/catalog/data/mappers/catalog_mappers.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/brand.dart';
+import 'package:ipr_mobile/features/catalog/domain/entities/brand_landing.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/category_node.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/filter_dimension.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/product_page.dart';
@@ -34,6 +35,7 @@ final class ApiCatalogRepository implements CatalogRepository {
 
   static const categoriesKey = 'catalog.categories.v1';
   static const brandsKey = 'catalog.brands.v1';
+  static const brandLandingKeyPrefix = 'catalog.brandLanding.v1:';
   static const filtersKeyPrefix = 'catalog.filters.v1:';
   static const productsKeyPrefix = 'catalog.products.v1:';
 
@@ -64,6 +66,20 @@ final class ApiCatalogRepository implements CatalogRepository {
     fetch: () => _remote.brands(cancel: cancel),
     parse: mapBrands,
     path: '/brands',
+  );
+
+  @override
+  Future<Result<Cached<BrandLanding>>> brandLanding(
+    String slug, {
+    bool forceRefresh = false,
+    RequestCancellation? cancel,
+  }) => _load(
+    key: '$brandLandingKeyPrefix$slug',
+    policy: CachePolicy.taxonomy,
+    forceRefresh: forceRefresh,
+    fetch: () => _remote.brandLanding(slug, cancel: cancel),
+    parse: mapBrandLanding,
+    path: '/brands/{slug}',
   );
 
   @override

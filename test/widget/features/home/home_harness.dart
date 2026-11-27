@@ -30,6 +30,7 @@ const _destinations = [
   '/branches',
   '/product/:slug',
   '/support',
+  '/support/engineering',
   '/cart',
   '/tools/btu',
 ];

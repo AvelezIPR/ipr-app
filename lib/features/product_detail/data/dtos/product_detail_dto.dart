@@ -22,6 +22,10 @@ final class ProductDetailDto {
     this.attributes = const [],
     this.categories = const [],
     this.webUrl,
+    this.variantAxes = const [],
+    this.variants = const [],
+    this.minQuantity,
+    this.maxQuantity,
   });
 
   factory fromJson(Map<String, dynamic> json) {
@@ -59,6 +63,16 @@ final class ProductDetailDto {
           .whereType<CategoryDto>()
           .toList(),
       webUrl: _asString(json['webUrl']),
+      variantAxes: _list(json['variantAxes'])
+          .map(VariantAxisDto.tryFromJson)
+          .whereType<VariantAxisDto>()
+          .toList(),
+      variants: _list(json['variants'])
+          .map(VariantDto.tryFromJson)
+          .whereType<VariantDto>()
+          .toList(),
+      minQuantity: json['minQuantity'],
+      maxQuantity: json['maxQuantity'],
     );
   }
 
@@ -82,6 +96,111 @@ final class ProductDetailDto {
   final List<AttributeDto> attributes;
   final List<CategoryDto> categories;
   final String? webUrl;
+
+  /// Productos variables (W1-01); vacíos en un producto simple.
+  final List<VariantAxisDto> variantAxes;
+  final List<VariantDto> variants;
+
+  /// Límites de cantidad tal cual llegan (W1-06); se interpretan con
+  /// `QuantityRange.fromContract`.
+  final Object? minQuantity;
+  final Object? maxQuantity;
+}
+
+final class VariantOptionDto {
+  const new({required this.value, required this.label});
+
+  static VariantOptionDto? tryFromJson(Object? json) {
+    if (json is! Map<String, dynamic>) return null;
+    final value = _asString(json['value']);
+    if (value == null || value.isEmpty) return null;
+    final label = _asString(json['label']);
+    return VariantOptionDto(
+      value: value,
+      label: label == null || label.trim().isEmpty ? value : label,
+    );
+  }
+
+  final String value;
+  final String label;
+}
+
+final class VariantAxisDto {
+  const new({required this.slug, required this.name, required this.options});
+
+  static VariantAxisDto? tryFromJson(Object? json) {
+    if (json is! Map<String, dynamic>) return null;
+    final slug = _asString(json['slug']);
+    final name = _asString(json['name']);
+    if (slug == null || slug.isEmpty || name == null || name.trim().isEmpty) {
+      return null;
+    }
+    final options = _list(json['options'])
+        .map(VariantOptionDto.tryFromJson)
+        .whereType<VariantOptionDto>()
+        .toList();
+    if (options.isEmpty) return null;
+    return VariantAxisDto(slug: slug, name: name, options: options);
+  }
+
+  final String slug;
+  final String name;
+  final List<VariantOptionDto> options;
+}
+
+final class VariantDto {
+  const new({
+    required this.id,
+    required this.selection,
+    this.sku,
+    this.price,
+    this.availability,
+    this.purchasable,
+    this.image,
+    this.minQuantity,
+    this.maxQuantity,
+  });
+
+  static VariantDto? tryFromJson(Object? json) {
+    if (json is! Map<String, dynamic>) return null;
+    final id = _asInt(json['id']);
+    if (id == null || id < 1) return null;
+    final selection = <String, String>{};
+    for (final item in _list(json['selection'])) {
+      if (item is! Map<String, dynamic>) continue;
+      final axis = _asString(item['axis']);
+      final value = _asString(item['value']);
+      if (axis != null &&
+          axis.isNotEmpty &&
+          value != null &&
+          value.isNotEmpty) {
+        selection[axis] = value;
+      }
+    }
+    return VariantDto(
+      id: id,
+      sku: _asString(json['sku']),
+      price: PriceDto.tryFromJson(json['price']),
+      availability: _asString(json['availability']),
+      purchasable: json['purchasable'] is bool
+          ? json['purchasable'] as bool
+          : null,
+      image: json['image'],
+      selection: selection,
+      minQuantity: json['minQuantity'],
+      maxQuantity: json['maxQuantity'],
+    );
+  }
+
+  final int id;
+  final String? sku;
+  final PriceDto? price;
+  final String? availability;
+  final bool? purchasable;
+  final Object? image;
+  final Map<String, String> selection;
+  final Object? minQuantity;
+  final Object? maxQuantity;
 }
 
 final class BrandDto {

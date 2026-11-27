@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,16 +43,20 @@ import 'package:ipr_mobile/features/checkout/domain/entities/checkout_ticket.dar
 import 'package:ipr_mobile/features/orders/data/datasources/orders_remote_datasource.dart';
 import 'package:ipr_mobile/features/orders/data/repositories/api_orders_repository.dart';
 import 'package:ipr_mobile/features/orders/domain/entities/order_entities.dart';
+import 'package:ipr_mobile/features/product_detail/data/repositories/api_product_detail_repository.dart';
+import 'package:ipr_mobile/features/product_detail/domain/entities/product_detail.dart';
 import 'package:ipr_mobile/features/profile/data/datasources/profile_remote_datasource.dart';
 import 'package:ipr_mobile/features/profile/data/repositories/api_profile_repository.dart';
 import 'package:ipr_mobile/features/profile/domain/entities/profile_entities.dart';
 import 'package:ipr_mobile/features/search/data/datasources/search_remote_datasource.dart';
 import 'package:ipr_mobile/features/search/data/repositories/api_search_repository.dart';
 import 'package:ipr_mobile/features/search/domain/entities/search_page.dart';
+import 'package:ipr_mobile/features/search/domain/entities/search_suggestion.dart';
 import 'package:ipr_mobile/features/support/data/datasources/pqrs_remote_datasource.dart';
 import 'package:ipr_mobile/features/support/data/repositories/api_pqrs_repository.dart';
 import 'package:ipr_mobile/features/support/domain/entities/pqrs.dart';
 
+import '../../../tool/contract/openapi_contract.dart';
 import '../../../tool/mock_bff/mock_bff.dart';
 import '../../../tool/preview/main.dart';
 
@@ -624,4 +630,349 @@ void main() {
       );
     });
   });
+
+  group('Cierre de brechas locales TC-033, TC-044, TC-088 y TC-091', () {
+    late _OpenApiResponseValidator validator;
+    setUpAll(
+      () => validator = _OpenApiResponseValidator(
+        OpenApiContract.load('contract/openapi.yaml'),
+      ),
+    );
+
+    test('TC-033 · GET /products/{slug} y /search/suggestions?q=co responden 200 sin Authorization y con sesión activa', () async {
+      final h = await _startHarness();
+      await h.session.restore();
+
+      final cache = MemoryCacheStore();
+      final productRepo = ApiProductDetailRepository(
+        client: h.client,
+        cache: cache,
+      );
+      final searchRepo = ApiSearchRepository(SearchRemoteDataSource(h.client));
+
+      // Sin sesión ni Authorization.
+      final anonRawProduct = await _sendRawHttp(
+        baseUrl: h.baseUrl,
+        method: 'GET',
+        path: '/products/compresor-rotativo-12000-btu',
+      );
+      expect(anonRawProduct.statusCode, 200);
+      validator.assertValidResponse(
+        operationId: 'getProduct',
+        statusCode: 200,
+        body: anonRawProduct.body,
+      );
+
+      final anonRawSuggestions = await _sendRawHttp(
+        baseUrl: h.baseUrl,
+        method: 'GET',
+        path: '/search/suggestions?q=co',
+      );
+      expect(anonRawSuggestions.statusCode, 200);
+      validator.assertValidResponse(
+        operationId: 'searchSuggestions',
+        statusCode: 200,
+        body: anonRawSuggestions.body,
+      );
+
+      final anonProdRes = await productRepo.load(
+        'compresor-rotativo-12000-btu',
+        forceRefresh: true,
+      );
+      expect(
+        anonProdRes,
+        isA<Ok<ProductDetailLoad>>(),
+        reason: '${anonProdRes.failureOrNull}',
+      );
+      final anonSuggRes = await searchRepo.suggestions('co');
+      expect(
+        anonSuggRes,
+        isA<Ok<SearchSuggestions>>(),
+        reason: '${anonSuggRes.failureOrNull}',
+      );
+      for (final r in h.requests) {
+        expect(r.headers.containsKey('Authorization'), isFalse);
+      }
+
+      // Con sesión activa: AuthInterceptor sigue omitiendo Authorization.
+      final authRepo = ApiAuthRepository(AuthRemoteDataSource(h.client));
+      final auth = ((await authRepo.login(
+        const LoginCredentials(
+          login: 'cliente@example.invalid',
+          password: 'QaPassword123!',
+        ),
+      )) as Ok<AuthenticatedSession>).value;
+      await h.session.setSession(auth.tokens, userId: auth.userId);
+      h.requests.clear();
+
+      final authProdRes = await productRepo.load(
+        'compresor-rotativo-12000-btu',
+        forceRefresh: true,
+      );
+      expect(
+        authProdRes,
+        isA<Ok<ProductDetailLoad>>(),
+        reason: '${authProdRes.failureOrNull}',
+      );
+      final authSuggRes = await searchRepo.suggestions('co');
+      expect(
+        authSuggRes,
+        isA<Ok<SearchSuggestions>>(),
+        reason: '${authSuggRes.failureOrNull}',
+      );
+
+      final prodReq = h
+          .requestsFor('GET', '/products/compresor-rotativo-12000-btu')
+          .single;
+      final suggReq = h.requestsFor('GET', '/search/suggestions').single;
+      expect(suggReq.queryParameters['q'], 'co');
+      for (final r in [prodReq, suggReq]) {
+        expect(r.headers.containsKey('Authorization'), isFalse);
+      }
+    });
+
+    test('TC-044 (paso 4) · POST /cart/validate rechaza >100 ítems y cantidades 0 o 100 con 400 validation_failed', () async {
+      final h = await _startHarness();
+
+      final overLimitBody = {
+        'items': [
+          for (var i = 1; i <= 101; i++) {'id': i, 'quantity': 1},
+        ],
+      };
+      final rawOverLimit = await _sendRawHttp(
+        baseUrl: h.baseUrl,
+        method: 'POST',
+        path: '/cart/validate',
+        body: overLimitBody,
+      );
+      expect(rawOverLimit.statusCode, 400);
+      expect(rawOverLimit.body['code'], 'validation_failed');
+      validator.assertValidResponse(
+        operationId: 'validateCart',
+        statusCode: 400,
+        body: rawOverLimit.body,
+      );
+
+      final clientOverLimit = await h.client.send(
+        ApiRequest.post('/cart/validate', body: overLimitBody),
+      );
+      expect(clientOverLimit.failureOrNull, isA<Validation>());
+      expect(
+        (clientOverLimit.failureOrNull! as Validation).code,
+        'validation_failed',
+      );
+
+      for (final badQuantity in [0, 100]) {
+        final badQtyBody = {
+          'items': [
+            {'id': 101, 'quantity': badQuantity},
+          ],
+        };
+        final rawBadQty = await _sendRawHttp(
+          baseUrl: h.baseUrl,
+          method: 'POST',
+          path: '/cart/validate',
+          body: badQtyBody,
+        );
+        expect(rawBadQty.statusCode, 400, reason: 'quantity=$badQuantity');
+        expect(rawBadQty.body['code'], 'validation_failed');
+        validator.assertValidResponse(
+          operationId: 'validateCart',
+          statusCode: 400,
+          body: rawBadQty.body,
+        );
+
+        final clientBadQty = await h.client.send(
+          ApiRequest.post('/cart/validate', body: badQtyBody),
+        );
+        expect(clientBadQty.failureOrNull, isA<Validation>());
+        expect(
+          (clientBadQty.failureOrNull! as Validation).code,
+          'validation_failed',
+        );
+      }
+    });
+
+    test('TC-088 · POST /me/deletion sin Bearer o con Bearer inválido devuelve 401 unauthorized según OpenAPI', () async {
+      final h = await _startHarness();
+      await h.session.restore();
+
+      const deletionPayload = {
+        'currentPassword': 'QaPassword123!',
+        'confirm': true,
+      };
+
+      // Sin Authorization.
+      final withoutBearer = await _sendRawHttp(
+        baseUrl: h.baseUrl,
+        method: 'POST',
+        path: '/me/deletion',
+        headers: {'Idempotency-Key': uuidV4()},
+        body: deletionPayload,
+      );
+      expect(withoutBearer.statusCode, 401);
+      expect(withoutBearer.body['code'], 'unauthorized');
+      validator.assertValidResponse(
+        operationId: 'requestAccountDeletion',
+        statusCode: 401,
+        body: withoutBearer.body,
+      );
+
+      // Con Authorization inválido.
+      final invalidBearer = await _sendRawHttp(
+        baseUrl: h.baseUrl,
+        method: 'POST',
+        path: '/me/deletion',
+        headers: {
+          'Authorization': 'Bearer token-invalido',
+          'Idempotency-Key': uuidV4(),
+        },
+        body: deletionPayload,
+      );
+      expect(invalidBearer.statusCode, 401);
+      expect(invalidBearer.body['code'], 'unauthorized');
+      validator.assertValidResponse(
+        operationId: 'requestAccountDeletion',
+        statusCode: 401,
+        body: invalidBearer.body,
+      );
+
+      // Con el repositorio real en sesión anónima.
+      final profileRepo = ApiProfileRepository(
+        ProfileRemoteDataSource(h.client),
+      );
+      final repoRes = await profileRepo.requestDeletion(
+        currentPassword: 'QaPassword123!',
+        idempotencyKey: uuidV4(),
+      );
+      expect(repoRes.failureOrNull, isA<Unauthorized>());
+    });
+
+    test('TC-091 · POST /me/deletion con X-Mock-Scenario error:503 devuelve 503 upstream_unavailable según OpenAPI', () async {
+      final h = await _startHarness();
+      await h.session.restore();
+
+      final authRepo = ApiAuthRepository(AuthRemoteDataSource(h.client));
+      final auth = ((await authRepo.login(
+        const LoginCredentials(
+          login: 'cliente@example.invalid',
+          password: 'QaPassword123!',
+        ),
+      )) as Ok<AuthenticatedSession>).value;
+      await h.session.setSession(auth.tokens, userId: auth.userId);
+
+      const deletionPayload = {
+        'currentPassword': 'QaPassword123!',
+        'confirm': true,
+      };
+      final raw503 = await _sendRawHttp(
+        baseUrl: h.baseUrl,
+        method: 'POST',
+        path: '/me/deletion',
+        headers: {
+          'Authorization': 'Bearer ${auth.tokens.accessToken}',
+          'Idempotency-Key': uuidV4(),
+          'X-Mock-Scenario': 'error:503',
+        },
+        body: deletionPayload,
+      );
+      expect(raw503.statusCode, 503);
+      expect(raw503.body['code'], 'upstream_unavailable');
+      validator.assertValidResponse(
+        operationId: 'requestAccountDeletion',
+        statusCode: 503,
+        body: raw503.body,
+      );
+
+      final client503 = await h.client.send(
+        ApiRequest.post(
+          '/me/deletion',
+          body: deletionPayload,
+          requiresAuth: true,
+          requiresIdempotency: true,
+          idempotencyKey: uuidV4(),
+          headers: const {'X-Mock-Scenario': 'error:503'},
+        ),
+      );
+      expect(client503.failureOrNull, isA<ServiceUnavailable>());
+      expect((client503.failureOrNull! as ServiceUnavailable).retryAfter, 1);
+    });
+  });
+}
+
+final class _OpenApiResponseValidator {
+  new(this._contract);
+
+  final OpenApiContract _contract;
+
+  void assertValidResponse({
+    required String operationId,
+    required int statusCode,
+    required Object? body,
+  }) {
+    Map<String, dynamic>? operation;
+    for (final pathItem in _contract.paths.values) {
+      if (pathItem is! Map<String, dynamic>) continue;
+      for (final method in const ['get', 'post', 'put', 'patch', 'delete']) {
+        final candidate = pathItem[method];
+        if (candidate is Map<String, dynamic> &&
+            candidate['operationId'] == operationId) {
+          operation = candidate;
+          break;
+        }
+      }
+      if (operation != null) break;
+    }
+    expect(
+      operation,
+      isNotNull,
+      reason: 'operationId no encontrado: $operationId',
+    );
+    final responses = operation!['responses'] as Map<String, dynamic>;
+    final rawResp = responses['$statusCode'];
+    expect(
+      rawResp,
+      isNotNull,
+      reason: '$operationId sin respuesta $statusCode',
+    );
+    final resp = _contract.resolve(rawResp! as Map<String, dynamic>);
+    final content = resp['content'] as Map<String, dynamic>;
+    final media =
+        (content['application/problem+json'] ?? content['application/json'])!
+            as Map<String, dynamic>;
+    final schema = media['schema'] as Map<String, dynamic>;
+    final errors = _contract.validate(body, schema);
+    expect(errors, isEmpty, reason: '$operationId $statusCode: $errors');
+  }
+}
+
+Future<({int statusCode, Map<String, dynamic> body})> _sendRawHttp({
+  required Uri baseUrl,
+  required String method,
+  required String path,
+  Map<String, String> headers = const {},
+  Object? body,
+}) async {
+  final client = HttpClient();
+  try {
+    final uri = Uri.parse('$baseUrl$path');
+    final req = await client.openUrl(method, uri);
+    req.headers
+      ..set('X-App-Version', '1.0.0')
+      ..set('X-App-Platform', 'android')
+      ..set('X-Device-Id', uuidV4());
+    for (final entry in headers.entries) {
+      req.headers.set(entry.key, entry.value);
+    }
+    if (body != null) {
+      req.headers.contentType = ContentType.json;
+      req.add(utf8.encode(jsonEncode(body)));
+    }
+    final res = await req.close();
+    final rawText = await utf8.decoder.bind(res).join();
+    final decoded = jsonDecode(rawText) as Map<String, dynamic>;
+    return (statusCode: res.statusCode, body: decoded);
+  } finally {
+    client.close(force: true);
+  }
 }

@@ -30,6 +30,15 @@
   "updateRequiredBody": "Esta versión de la app ya no es compatible. Instala la versión más reciente desde la tienda.",
   "priceConsult": "Más información",
   "priceTaxIncluded": "IVA incluido",
+  "priceFrom": "Desde",
+  "priceFromSemantics": "Desde {amount} pesos, IVA incluido",
+  "@priceFromSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "priceSemantics": "{amount} pesos, IVA incluido",
   "@priceSemantics": {
     "placeholders": {
@@ -57,6 +66,24 @@
   "failureServer": "Algo salió mal. Intenta de nuevo.",
   "failureContract": "Algo salió mal.",
   "failureUnknown": "Algo salió mal. Intenta de nuevo.",
+  "sharedProductViewOptions": "Ver opciones",
+  "sharedMaxQuantityNotice": "Máximo {max, plural, =1{1 unidad} other{{max} unidades}} por producto. Para más, habla con un asesor.",
+  "@sharedMaxQuantityNotice": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "sharedMaxQuantityAdvisor": "WhatsApp",
+  "sharedMaxQuantityAdvisorSemantics": "Hablar con un asesor por WhatsApp sobre {name}",
+  "@sharedMaxQuantityAdvisorSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "sharedProductSku": "SKU {sku}",
   "@sharedProductSku": {
     "placeholders": {
@@ -135,6 +162,7 @@
   "homeShortcutBtu": "Calculadora de BTU",
   "homeSearchHint": "Buscar por nombre, marca o referencia (SKU)",
   "homeSearchSemantics": "Buscar productos por nombre, marca o referencia",
+  "homeSearchButton": "Buscar",
   "homeCategoriesTitle": "Categorías",
   "homeCategoriesEmptyTitle": "Aún no hay categorías para mostrar",
   "homeCategoriesEmptyBody": "Puedes buscar un producto o escribirnos por WhatsApp.",
@@ -163,10 +191,26 @@
   "homeShortcutBranches": "Sedes",
   "homeShortcutCall": "Llamar a la línea de atención",
   "homeCallFailed": "No pudimos abrir el marcador del teléfono.",
+  "homeLinkFailed": "No pudimos abrir el enlace.",
+  "homeBannersLabel": "Campañas de IPR",
+  "homeBannerPrevious": "Campaña anterior",
+  "homeBannerNext": "Campaña siguiente",
+  "homeBannerPosition": "Campaña {index} de {total}",
+  "@homeBannerPosition": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "homeLogoSemantics": "Logo de IPR",
   "homeHeroTitle": "Todo para aire acondicionado, refrigeración y ventilación",
   "homeHeroBody": "Equipos, partes y repuestos con asesoría técnica en todo el país.",
   "homeHeroCta": "Ver el catálogo",
+  "homeSeeAllCatalog": "Ver todo el catálogo",
   "homeBranchesTitle": "Nuestras sedes",
   "homeBranchesSummary": "{branches, plural, =1{1 sede} other{{branches} sedes}} en {cities, plural, =1{1 ciudad} other{{cities} ciudades}}",
   "@homeBranchesSummary": {
@@ -199,6 +243,30 @@
     }
   },
   "homeBranchesSeeAll": "Ver todas las sedes",
+  "homeStatBranches": "{count, plural, =1{sede} other{sedes}}",
+  "@homeStatBranches": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeStatCities": "{count, plural, =1{ciudad} other{ciudades}}",
+  "@homeStatCities": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeStatBrands": "{count, plural, =1{marca} other{marcas}}",
+  "@homeStatBrands": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "homeBtuTagline": "Calcula los BTU que necesita tu espacio antes de comprar.",
   "homeBtuCta": "Abrir la calculadora",
   "homeSectionLoadingSemantics": "Cargando {section}",
@@ -223,6 +291,22 @@
   "catalogSaleLink": "Liquidaciones",
   "catalogCategoryItemSemantics": "{name}. Subcategorías disponibles",
   "@catalogCategoryItemSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogCategoryExpandSemantics": "Desplegar {name}",
+  "@catalogCategoryExpandSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogCategoryCollapseSemantics": "Contraer {name}",
+  "@catalogCategoryCollapseSemantics": {
     "placeholders": {
       "name": {
         "type": "String"
@@ -350,6 +434,35 @@
   "catalogBrandSearchClear": "Borrar búsqueda",
   "catalogBrandSearchSubmit": "Buscar",
   "catalogSaleTitle": "Liquidaciones",
+  "catalogSaleHighlightBadge": "Ofertas",
+  "catalogSaleHighlightSubtitle": "Precios especiales y ofertas vigentes",
+  "catalogSaleBannerTitle": "Ofertas especiales por tiempo limitado",
+  "catalogSaleBannerBody": "Consulta referencias en liquidación o cotiza directamente con un asesor.",
+  "catalogSaleWhatsappLabel": "Escríbenos por WhatsApp",
+  "catalogSaleWhatsappMsg": "¡Hola IPR! Quiero aprovechar las liquidaciones.",
+  "catalogEmptySaleExploreAction": "Explorar el catálogo",
+  "catalogEmptyCommercialEyebrow": "Disponible por WhatsApp",
+  "catalogEmptyCommercialTitle": "¡Encuentra aquí los productos de {category}!",
+  "@catalogEmptyCommercialTitle": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogEmptyCommercialFallbackCategory": "esta categoría",
+  "catalogEmptyCommercialBody": "Aunque nuestro catálogo en línea de esta categoría aún está en publicación, contamos con estos productos para ti. Escríbenos y un asesor te cotiza al instante.",
+  "catalogEmptyCommercialWhatsappLabel": "Comprar por WhatsApp",
+  "catalogEmptyCommercialWhatsappMsg": "¡Hola IPR! Quiero comprar productos de la categoría «{category}».",
+  "@catalogEmptyCommercialWhatsappMsg": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogEmptyCommercialWhatsappMsgGeneric": "¡Hola IPR! Quiero comprar productos de esta categoría.",
+  "catalogEmptyCommercialSubcategoriesTitle": "Subcategorías disponibles",
   "catalogBtuFilterLabel": "Capacidad BTU",
   "catalogBtuOptionLabel": "{capacity} BTU",
   "@catalogBtuOptionLabel": {
@@ -377,6 +490,18 @@
     "placeholders": {
       "term": {
         "type": "String"
+      }
+    }
+  },
+  "searchSuggestionsSeeAllWithTotal": "Ver todos los resultados para “{term}” ({total})",
+  "@searchSuggestionsSeeAllWithTotal": {
+    "description": "Último renglón de las sugerencias con el total de coincidencias.",
+    "placeholders": {
+      "term": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
       }
     }
   },
@@ -453,6 +578,11 @@
     }
   },
   "productDetailPriceOnRequest": "Precio bajo consulta",
+  "productDetailSelectOption": "Selecciona una opción",
+  "productDetailSelectOptionHint": "Elige una opción de cada característica para ver el precio y comprar.",
+  "productDetailVariantUnavailable": "No disponible con lo que elegiste",
+  "productDetailVariantSwitchHint": "Requiere cambiar otra opción",
+  "productDetailVariantRemoveHint": "Toca de nuevo para quitar la opción",
   "productDetailOnSaleBadge": "Oferta",
   "productDetailOutOfStockNotice": "Este producto está agotado.",
   "productDetailBackorderNotice": "Este producto está disponible bajo pedido. Consúltanos por WhatsApp.",
@@ -510,6 +640,7 @@
     }
   },
   "productDetailAddToCart": "Agregar al carrito",
+  "productDetailMaxInCart": "Máximo en el carrito",
   "productDetailAddedToCart": "Producto agregado al carrito",
   "productDetailViewCart": "Ver carrito",
   "authenticationLoginTitle": "Iniciar sesión",
@@ -910,6 +1041,40 @@
   "supportEngineeringRefTitle": "Refrigeración",
   "supportEngineeringRefBody": "Asesoría en cuartos fríos, unidades condensadoras, evaporadores, compresores y repuestos industriales.",
   "supportEngineeringContactTitle": "Canales corporativos de ingeniería",
+  "supportEngineeringTeamTitle": "Ingenieros por ciudad",
+  "supportEngineeringTeamIntro": "Escribe o llama al equipo de ingeniería de la sede que te queda más cerca.",
+  "supportEngineeringCardWhatsapp": "WhatsApp",
+  "supportEngineeringCardWhatsappSemantics": "WhatsApp de ingeniería en {city}",
+  "@supportEngineeringCardWhatsappSemantics": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "supportEngineeringCardCallSemantics": "Llamar a ingeniería en {city}: {phone}",
+  "@supportEngineeringCardCallSemantics": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "supportEngineeringCardEmail": "Correo",
+  "supportEngineeringCardEmailSemantics": "Escribir a ingeniería en {city}: {email}",
+  "@supportEngineeringCardEmailSemantics": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "supportEngineeringWhatsapp": "Escribir por WhatsApp de ingeniería",
   "supportEngineeringWhatsappMsg": "Hola, solicito asesoría técnica corporativa para un proyecto o selección de equipos.",
   "supportEngineeringPhone": "Llamar al PBX de atención",
@@ -965,6 +1130,27 @@
   "branchesTitle": "Sedes",
   "branchesEmptyTitle": "No hay sedes disponibles por ahora",
   "branchesEmptyBody": "Vuelve a intentar en unos minutos o escríbenos por WhatsApp.",
+  "branchesMapSemantics": "Mapa de Colombia con las ciudades donde hay sedes. Elige una ciudad en los botones de abajo.",
+  "branchesCityAll": "Todas las ciudades",
+  "branchesCityChip": "{city} · {count, plural, =1{1 sede} other{{count} sedes}}",
+  "@branchesCityChip": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "branchesCityChipUpcoming": "{city} · próximamente",
+  "@branchesCityChipUpcoming": {
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
   "branchesUpcomingBadge": "Próximamente",
   "branchesUpcomingBody": "Esta sede estará disponible próximamente. Aún no tiene canales de atención habilitados.",
   "branchesOpenDetailsSemantics": "Abrir ficha de la sede {name}",

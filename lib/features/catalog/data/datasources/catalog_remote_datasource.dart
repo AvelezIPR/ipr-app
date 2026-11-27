@@ -82,6 +82,11 @@ final class CatalogRemoteDataSource {
   Future<Result<ApiResponse>> brands({RequestCancellation? cancel}) =>
       _send(const ApiRequest.get('/brands'), cancel);
 
+  Future<Result<ApiResponse>> brandLanding(
+    String slug, {
+    RequestCancellation? cancel,
+  }) => _send(ApiRequest.get('/brands/${Uri.encodeComponent(slug)}'), cancel);
+
   Future<Result<ApiResponse>> filters({
     String? categorySlug,
     RequestCancellation? cancel,

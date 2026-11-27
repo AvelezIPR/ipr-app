@@ -10,8 +10,10 @@ import 'package:ipr_mobile/features/search/data/mappers/search_mapper.dart';
 import 'package:ipr_mobile/features/search/data/repositories/api_search_repository.dart';
 import 'package:ipr_mobile/features/search/domain/entities/search_suggestion.dart';
 import 'package:ipr_mobile/features/search/search_providers.dart';
+import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 
 import '../../../mocks/fake_http_adapter.dart';
@@ -160,6 +162,119 @@ void main() {
         () => mapSearchSuggestions({'data': <String, Object?>{}}),
         throwsFormatException,
       );
+    });
+
+    test(
+      'mapea hasVariants, priceFrom y quantityRange en productos de búsqueda',
+      () {
+        final base = fixture('ProductSummary.priced.json');
+        final page = mapSearchPage(
+          searchEnvelope([
+            <String, dynamic>{
+              ...base,
+              'id': 601,
+              'hasVariants': true,
+              'priceFrom': 140000,
+              'minQuantity': 2,
+              'maxQuantity': 12,
+            },
+            <String, dynamic>{
+              ...base,
+              'id': 602,
+              'hasVariants': true,
+              'priceFrom': 0,
+              'minQuantity': 10,
+              'maxQuantity': 5,
+            },
+            <String, dynamic>{
+              ...base,
+              'id': 603,
+              'hasVariants': false,
+              'priceFrom': 95000,
+              'minQuantity': 'invalido',
+              'maxQuantity': 0,
+            },
+          ]),
+          page: 1,
+        );
+        expect(page.items, hasLength(3));
+        final variable = page.items[0];
+        expect(variable.hasVariants, isTrue);
+        expect(variable.priceFrom, const Money(140000));
+        expect(variable.quantityRange, const QuantityRange(min: 2, max: 12));
+
+        final zeroAndIncoherent = page.items[1];
+        expect(zeroAndIncoherent.hasVariants, isTrue);
+        expect(zeroAndIncoherent.priceFrom, isNull);
+        expect(zeroAndIncoherent.quantityRange, QuantityRange.standard);
+
+        final simpleWithInvalidLimits = page.items[2];
+        expect(simpleWithInvalidLimits.hasVariants, isFalse);
+        expect(simpleWithInvalidLimits.priceFrom, isNull);
+        expect(simpleWithInvalidLimits.quantityRange, QuantityRange.standard);
+      },
+    );
+
+    test('mapea image, price y availability en sugerencias (y casos ausentes/inválidos)', () {
+      final base = fixture('Suggestion.valid.json');
+      final result = mapSearchSuggestions(<String, dynamic>{
+        'data': <String, dynamic>{
+          'query': 'val',
+          'total': 3,
+          'items': [
+            <String, dynamic>{
+              ...base,
+              'id': 1,
+              'image': <String, dynamic>{
+                'url': 'https://staging.invalid/img/s-1.jpg',
+                'alt': 'Válvula',
+                'width': 200,
+                'height': 200,
+              },
+              'price': <String, dynamic>{'status': 'priced', 'amount': 185000},
+              'availability': 'in_stock',
+            },
+            <String, dynamic>{
+              ...base,
+              'id': 2,
+              'image': 'no-es-mapa',
+              'price': <String, dynamic>{'status': 'priced', 'amount': 0},
+              'availability': 'preorder',
+            },
+            <String, dynamic>{
+              ...base,
+              'id': 3,
+              'image': null,
+              'price': 'invalido',
+              'availability': 123,
+            },
+          ],
+        },
+      });
+      expect(result.items, hasLength(3));
+
+      final enriched = result.items[0];
+      expect(
+        enriched.image,
+        const ImageRef(
+          url: 'https://staging.invalid/img/s-1.jpg',
+          alt: 'Válvula',
+          width: 200,
+          height: 200,
+        ),
+      );
+      expect(enriched.price, const Priced(Money(185000)));
+      expect(enriched.availability, StockStatus.inStock);
+
+      final zeroAndUnknown = result.items[1];
+      expect(zeroAndUnknown.image, isNull);
+      expect(zeroAndUnknown.price, const OnRequest());
+      expect(zeroAndUnknown.availability, StockStatus.unknown);
+
+      final absent = result.items[2];
+      expect(absent.image, isNull);
+      expect(absent.price, isNull);
+      expect(absent.availability, isNull);
     });
   });
 

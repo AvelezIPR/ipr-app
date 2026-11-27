@@ -2,12 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ipr_mobile/core/errors/app_failure.dart';
 import 'package:ipr_mobile/features/product_detail/domain/entities/product_detail.dart';
+import 'package:ipr_mobile/features/product_detail/domain/rules/variant_selection.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/controllers/product_detail_controller.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/widgets/product_attributes.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/widgets/product_description.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/widgets/product_gallery.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/widgets/product_notices.dart';
 import 'package:ipr_mobile/features/product_detail/presentation/widgets/purchase_box.dart';
+import 'package:ipr_mobile/features/product_detail/presentation/widgets/variant_selector.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/ipr_colors.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/spacing_tokens.dart';
@@ -44,7 +46,11 @@ class ProductDetailScreen extends ConsumerWidget {
       _ => AsyncView<ProductDetail>(
         state: state,
         onRetry: () => ref.read(provider.notifier).retry(),
-        builder: (context, product) => _ProductBody(product: product),
+        builder: (context, product) => _ProductBody(
+          // Una ficha distinta (otro slug) reinicia lo elegido.
+          key: ValueKey(product.slug),
+          product: product,
+        ),
       ),
     };
 
@@ -78,16 +84,72 @@ class _ProductUnavailable extends StatelessWidget {
   }
 }
 
-class _ProductBody extends StatelessWidget {
-  const new({required this.product});
+class _ProductBody extends StatefulWidget {
+  const new({required this.product, super.key});
 
   final ProductDetail product;
+
+  @override
+  State<_ProductBody> createState() => _ProductBodyState();
+}
+
+class _ProductBodyState extends State<_ProductBody> {
+  /// Opciones elegidas de un producto variable (W1-01); `null` en uno simple.
+  VariantSelection? _selection;
+
+  @override
+  void initState() {
+    super.initState();
+    _selection = _initialSelection(widget.product);
+  }
+
+  @override
+  void didUpdateWidget(_ProductBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Datos nuevos de la misma ficha (reintento, datos al día): se conserva
+    // lo elegido mientras siga existiendo en las nuevas variaciones.
+    if (oldWidget.product != widget.product) {
+      final fresh = _initialSelection(widget.product);
+      final previous = _selection;
+      if (fresh != null && previous != null && previous.chosen.isNotEmpty) {
+        var next = VariantSelection(
+          axes: widget.product.variantAxes,
+          variants: widget.product.variants,
+        );
+        for (final entry in previous.chosen.entries) {
+          if (next.isOptionAvailable(entry.key, entry.value)) {
+            next = next.toggle(entry.key, entry.value);
+          }
+        }
+        _selection = next.chosen.isEmpty ? fresh : next;
+      } else {
+        _selection = fresh;
+      }
+    }
+  }
+
+  static VariantSelection? _initialSelection(ProductDetail product) =>
+      product.isVariable
+      ? VariantSelection.initial(
+          axes: product.variantAxes,
+          variants: product.variants,
+        )
+      : null;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final styles = theme.extension<IprTextStyles>()!;
     final ipr = theme.extension<IprColors>()!;
+    final parent = widget.product;
+    final selection = _selection;
+    final chosen = selection?.variant;
+    // Con una variación elegida la ficha se ve como un producto simple con
+    // su id, SKU, precio, stock e imagen (W1-01).
+    final product = (selection != null && chosen != null)
+        ? parent.withVariant(chosen, label: selection.labelOf(chosen))
+        : parent;
+    final needsSelection = selection != null && chosen == null;
     final summary = product.summary;
     final brand = summary.brandName;
     final images = <ImageRef>[
@@ -120,11 +182,27 @@ class _ProductBody extends StatelessWidget {
               style: styles.monoSku.copyWith(color: ipr.textSecondary),
             ),
           const SizedBox(height: IprSpace.s3),
-          _PriceBlock(product: product),
-          const SizedBox(height: IprSpace.s3),
-          _StockRow(product: product),
+          if (needsSelection)
+            FromPriceText(
+              from: selection.fromPrice,
+              style: theme.textTheme.headlineLarge,
+            )
+          else
+            _PriceBlock(product: product),
+          if (!needsSelection) ...[
+            const SizedBox(height: IprSpace.s3),
+            _StockRow(product: product),
+          ],
           const SizedBox(height: IprSpace.s4),
-          PurchaseBox(product: product),
+          if (selection != null) ...[
+            VariantSelector(
+              selection: selection,
+              onToggle: (axis, value) =>
+                  setState(() => _selection = selection.toggle(axis, value)),
+            ),
+            const SizedBox(height: IprSpace.s1),
+          ],
+          PurchaseBox(product: product, needsSelection: needsSelection),
           const SizedBox(height: IprSpace.s4),
           ProductNotices(price: product.price),
           ProductDescription(

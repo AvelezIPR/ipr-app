@@ -8,6 +8,7 @@ import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/features/search/domain/entities/search_page.dart';
 import 'package:ipr_mobile/features/search/domain/entities/search_suggestion.dart';
 import 'package:ipr_mobile/features/search/domain/repositories/search_repository.dart';
+import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
@@ -34,8 +35,8 @@ final class SuggestionsCall {
   final RequestCancellation? cancellation;
   final Completer<Result<SearchSuggestions>> completer;
 
-  void ok(List<SearchSuggestion> items) => completer.complete(
-    Ok(SearchSuggestions(items: items, total: items.length)),
+  void ok(List<SearchSuggestion> items, {int? total}) => completer.complete(
+    Ok(SearchSuggestions(items: items, total: total ?? items.length)),
   );
   void fail(AppFailure failure) => completer.complete(Err(failure));
 }
@@ -82,6 +83,9 @@ ProductSummary product(
   String? name,
   PriceStatus price = const Priced(Money(185000)),
   StockStatus stock = StockStatus.inStock,
+  Money? regularPrice,
+  bool onSale = false,
+  ImageRef? image,
 }) => ProductSummary(
   id: id,
   slug: 'producto-$id',
@@ -89,7 +93,10 @@ ProductSummary product(
   sku: 'QA-${id.toString().padLeft(4, '0')}',
   brandName: 'Elitech',
   price: price,
+  regularPrice: regularPrice,
+  onSale: onSale,
   availability: stock,
+  image: image,
 );
 
 SearchPage pageOf(
@@ -104,12 +111,20 @@ SearchPage pageOf(
   total: total ?? items.length,
 );
 
-SearchSuggestion suggestion(int id) => SearchSuggestion(
+SearchSuggestion suggestion(
+  int id, {
+  ImageRef? image,
+  PriceStatus? price,
+  StockStatus? availability,
+}) => SearchSuggestion(
   id: id,
   slug: 'producto-$id',
   name: 'Válvula solenoide $id',
   sku: 'QA-${id.toString().padLeft(4, '0')}',
   brandName: 'Elitech',
+  image: image,
+  price: price,
+  availability: availability,
 );
 
 /// Lee un fixture de `test/fixtures/search/`.

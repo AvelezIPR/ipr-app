@@ -1216,6 +1216,12 @@ void main() {
 
       // Falla cerrado en PiiScrubber.
       expect(PiiScrubber.redacted, '<redacted>');
+
+      // DEF-005: documentos y números de 6 dígitos también se depuran.
+      expect(
+        const PiiScrubber().scrub('Doc 123456 registrado'),
+        'Doc <number> registrado',
+      );
     });
 
     test(

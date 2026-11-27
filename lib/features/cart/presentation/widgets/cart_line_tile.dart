@@ -39,6 +39,12 @@ class CartLineTile extends StatelessWidget {
     final brand = view.brandName;
     final price = view.unitPrice;
     final subtotal = view.lineSubtotal;
+    final isPriceOnRequest =
+        price is OnRequest || view.status == CartLineStatus.priceOnRequest;
+    final showAdvisor =
+        isPriceOnRequest ||
+        view.status == CartLineStatus.outOfStock ||
+        view.status == CartLineStatus.onBackorder;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: IprSpace.s1),
@@ -84,11 +90,13 @@ class CartLineTile extends StatelessWidget {
               const SizedBox(height: IprSpace.s2),
               CartNotice(icon: Icons.block, title: status, isError: true),
             ],
-            if (price is OnRequest && view.name != null) ...[
+            if (showAdvisor) ...[
               const SizedBox(height: IprSpace.s2),
               WhatsAppButton(
-                label: l10n.priceConsult,
-                message: _whatsAppMessage(l10n, view.name!, sku),
+                label: isPriceOnRequest
+                    ? l10n.priceConsult
+                    : l10n.sharedWhatsappAdvice,
+                message: _whatsAppMessage(l10n, name, sku),
                 filled: false,
                 expand: false,
               ),
@@ -106,6 +114,8 @@ class CartLineTile extends StatelessWidget {
                 CartQuantityStepper(
                   quantity: view.quantity,
                   productName: name,
+                  range: view.quantityRange,
+                  whatsAppMessage: _whatsAppMessage(l10n, name, sku),
                   onChanged: onQuantityChanged,
                 ),
                 IconButton(

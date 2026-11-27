@@ -1,6 +1,7 @@
 import 'package:ipr_mobile/core/network/request_cancellation.dart';
 import 'package:ipr_mobile/core/network/result.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/brand.dart';
+import 'package:ipr_mobile/features/catalog/domain/entities/brand_landing.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/category_node.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/filter_dimension.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/product_page.dart';
@@ -21,6 +22,14 @@ abstract interface class CatalogRepository {
 
   /// Directorio de marcas (`listBrands`, caché de taxonomía).
   Future<Result<Cached<List<Brand>>>> brands({
+    bool forceRefresh = false,
+    RequestCancellation? cancel,
+  });
+
+  /// Contenido editorial de la landing de una marca (`getBrandLanding`,
+  /// W3-01). Es opcional: una marca sin contenido responde `Err(NotFound())`.
+  Future<Result<Cached<BrandLanding>>> brandLanding(
+    String slug, {
     bool forceRefresh = false,
     RequestCancellation? cancel,
   });

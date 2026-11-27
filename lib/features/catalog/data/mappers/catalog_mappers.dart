@@ -1,4 +1,6 @@
+import 'package:ipr_mobile/core/config/home_content.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/brand.dart';
+import 'package:ipr_mobile/features/catalog/domain/entities/brand_landing.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/category_node.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/filter_dimension.dart';
 import 'package:ipr_mobile/features/catalog/domain/entities/product_page.dart';
@@ -6,6 +8,7 @@ import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 
 /// Mapeo tolerante del contrato `/mobile/v1` a entidades. Una estructura
@@ -166,5 +169,125 @@ ProductSummary? mapProductSummary(Object? json) {
               if (c is String) c,
           ]
         : const [],
+    hasVariants: json['hasVariants'] == true,
+    priceFrom: json['hasVariants'] == true
+        ? _nonZero(Money.tryFromJson(json['priceFrom']))
+        : null,
+    quantityRange: QuantityRange.fromContract(
+      min: json['minQuantity'],
+      max: json['maxQuantity'],
+    ),
   );
+}
+
+/// Un precio 0 nunca se muestra (RF-012): se trata como ausente.
+Money? _nonZero(Money? money) => money == null || money.isZero ? null : money;
+
+/// `GET /brands/{slug}` → contenido editorial de la landing (W3-01).
+///
+/// Lectura **tolerante**: un bloque de un tipo desconocido, sin lo mínimo para
+/// pintarse o con un destino inválido se omite sin romper el resto; el texto
+/// es plano y los destinos solo los que la app sabe abrir (`HomeTarget`). Un
+/// cuerpo que no es `{data: {...}}` lanza [FormatException].
+BrandLanding mapBrandLanding(Object? body) {
+  final data = body is Map<String, dynamic> ? body['data'] : null;
+  if (data is! Map<String, dynamic>) {
+    throw const FormatException('se esperaba {data: {...}}');
+  }
+  final slug = _string(data['slug']);
+  if (slug == null) throw const FormatException('landing sin slug');
+  final raw = data['blocks'];
+  final blocks = <BrandBlock>[];
+  if (raw is List<Object?>) {
+    for (final item in raw) {
+      if (blocks.length >= _maxBrandBlocks) break;
+      if (item is! Map<String, dynamic>) continue;
+      final block = _brandBlock(item);
+      if (block != null) blocks.add(block);
+    }
+  }
+  return BrandLanding(slug: slug, blocks: List.unmodifiable(blocks));
+}
+
+const _maxBrandBlocks = 12;
+const _maxBrandItems = 12;
+
+String? _plain(Object? value, {int max = 2000}) {
+  if (value is! String) return null;
+  final text = value.trim();
+  return text.isEmpty || text.length > max ? null : text;
+}
+
+String? _httpsImage(Object? image) {
+  if (image is! Map<String, dynamic>) return null;
+  final url = image['url'];
+  if (url is! String) return null;
+  final uri = Uri.tryParse(url);
+  if (uri == null ||
+      uri.scheme.toLowerCase() != 'https' ||
+      uri.host.isEmpty ||
+      uri.userInfo.isNotEmpty) {
+    return null;
+  }
+  return url;
+}
+
+List<BrandBlockItem> _brandItems(Object? raw) {
+  if (raw is! List<Object?>) return const [];
+  final out = <BrandBlockItem>[];
+  for (final item in raw) {
+    if (out.length >= _maxBrandItems) break;
+    if (item is! Map<String, dynamic>) continue;
+    final title = _plain(item['title'], max: 200);
+    final body = _plain(item['body']);
+    if (title != null && body != null) {
+      out.add(BrandBlockItem(title: title, body: body));
+    }
+  }
+  return List.unmodifiable(out);
+}
+
+BrandBlock? _brandBlock(Map<String, dynamic> json) {
+  final type = BrandBlockType.tryParse(json['type']);
+  if (type == null) return null;
+  final title = _plain(json['title'], max: 200);
+  final subtitle = _plain(json['subtitle'], max: 400);
+  final body = _plain(json['body']);
+  final ctaLabel = _plain(json['ctaLabel'], max: 60);
+  final target = HomeTarget.tryFromJson(json['target']);
+  // Un destino a medias no se ofrece: el botón necesita etiqueta y destino.
+  final cta = ctaLabel != null && target != null;
+
+  switch (type) {
+    case BrandBlockType.hero:
+      if (title == null) return null;
+      return BrandBlock(
+        type: type,
+        title: title,
+        subtitle: subtitle,
+        imageUrl: _httpsImage(json['image']),
+        accentArgb: BrandAccent.tryParse(
+          json['accentColor'] is String ? json['accentColor']! as String : null,
+        ),
+        ctaLabel: cta ? ctaLabel : null,
+        target: cta ? target : null,
+      );
+    case BrandBlockType.text:
+      if (body == null) return null;
+      return BrandBlock(type: type, title: title, body: body);
+    case BrandBlockType.highlights:
+    case BrandBlockType.faq:
+      final items = _brandItems(json['items']);
+      if (items.isEmpty) return null;
+      return BrandBlock(type: type, title: title, items: items);
+    case BrandBlockType.cta:
+      if (title == null || !cta) return null;
+      return BrandBlock(
+        type: type,
+        title: title,
+        body: body,
+        ctaLabel: ctaLabel,
+        target: target,
+      );
+  }
 }

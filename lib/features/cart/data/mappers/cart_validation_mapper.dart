@@ -3,6 +3,7 @@ import 'package:ipr_mobile/shared/domain/image_ref.dart';
 import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 
 /// `POST /cart/validate` → [CartValidation]. Mapeo tolerante:
@@ -71,10 +72,13 @@ ProductSummary? _product(Object? json) {
       ? price
       : const <String, Object?>{};
   final brand = json['brand'];
+  // Una variación llega con el nombre del padre y su opción aparte (W1-01):
+  // la línea muestra "Nombre · opción".
+  final variantLabel = _string(json['variantLabel']);
   return ProductSummary(
     id: id,
     slug: _string(json['slug']) ?? '',
-    name: name,
+    name: variantLabel == null ? name : '$name · $variantLabel',
     sku: json['sku'] is String ? json['sku']! as String : '',
     brandName: brand is Map<String, dynamic> ? _string(brand['name']) : null,
     brandSlug: brand is Map<String, dynamic> ? _string(brand['slug']) : null,
@@ -90,5 +94,9 @@ ProductSummary? _product(Object? json) {
       json['availability'] is String ? json['availability']! as String : null,
     ),
     image: ImageRef.tryFromJson(json['image']),
+    quantityRange: QuantityRange.fromContract(
+      min: json['minQuantity'],
+      max: json['maxQuantity'],
+    ),
   );
 }

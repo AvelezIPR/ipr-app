@@ -30,7 +30,7 @@ void main() {
   late OpenApiContract contract;
   setUpAll(() => contract = OpenApiContract.load('contract/openapi.yaml'));
 
-  group('ST-016 · QG-M06 · validador de contrato', () {
+  group('ST-066 · QG-M06 · validador de contrato', () {
     test('todos los fixtures cumplen o incumplen según su manifiesto', () {
       final manifest = fixture('manifest.json')! as Map<String, dynamic>;
       for (final item
@@ -211,6 +211,22 @@ void main() {
         );
       }
     });
+
+    test(
+      'DEF-007 · FilterDimension.key != ejemplo y OrderSummary.currency == COP',
+      () {
+        final filterExample =
+            contract.example(contract.schema('FilterDimension'))!
+                as Map<String, dynamic>;
+        expect(filterExample['key'], isNot('ejemplo'));
+        expect(filterExample['key'], 'brand');
+
+        final orderExample =
+            contract.example(contract.schema('OrderSummary'))!
+                as Map<String, dynamic>;
+        expect(orderExample['currency'], 'COP');
+      },
+    );
   });
 
   group('Los fixtures del contrato alimentan al código de la app', () {
@@ -459,6 +475,67 @@ void main() {
         checked++;
       }
       expect(checked, greaterThan(5));
+    });
+
+    test('--demo · GET /liquidaciones, GET /orders y HomeStat.target cumplen el contrato', () async {
+      final demoServer = await startMockBff(demo: true);
+      addTearDown(() => demoServer.close(force: true));
+      final demoBase = Uri.parse(
+        'http://127.0.0.1:${demoServer.port}/mobile/v1',
+      );
+      final demoClient = ApiClient.build(
+        config: AppConfig.fromMap({
+          'environment': 'dev',
+          'apiBaseUrl': demoBase.toString(),
+          'deepLinkHost': 'dev.invalid',
+          'checkoutAllowedHosts': 'dev.invalid',
+          'mediaHosts': 'dev.invalid',
+          'supportWhatsApp': '573000000000',
+        }),
+        interceptors: (dio) => [
+          AppHeadersInterceptor(
+            appVersion: '1.0.0',
+            platform: 'android',
+            deviceId: () async => uuidV4(),
+          ),
+          ErrorMappingInterceptor(),
+        ],
+      );
+
+      final configRes = await demoClient.send(const ApiRequest.get('/config'));
+      expect(configRes.isOk, isTrue);
+      final configData =
+          ((configRes as Ok<ApiResponse>).value.data!
+                  as Map<String, dynamic>)['data']
+              as Map<String, dynamic>;
+      final stats =
+          ((configData['home'] as Map<String, dynamic>)['stats']
+                  as List<dynamic>)
+              .cast<Map<String, dynamic>>();
+      expect(stats.where((s) => s.containsKey('target')), hasLength(2));
+
+      for (final path in ['/liquidaciones', '/orders']) {
+        final res = await demoClient.send(
+          ApiRequest.get(
+            path,
+            headers: {if (path == '/orders') 'Authorization': bearer()},
+          ),
+        );
+        expect(res.isOk, isTrue, reason: path);
+        final get =
+            (contract.paths[path] as Map<String, dynamic>)['get']
+                as Map<String, dynamic>;
+        final okResp = contract.resolve(
+          (get['responses'] as Map<String, dynamic>)['200']
+              as Map<String, dynamic>,
+        );
+        final schema =
+            ((okResp['content'] as Map<String, dynamic>)['application/json']
+                    as Map<String, dynamic>)['schema']
+                as Map<String, dynamic>;
+        final body = (res as Ok<ApiResponse>).value.data;
+        expect(contract.validate(body, schema), isEmpty, reason: path);
+      }
     });
   });
 }

@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ipr_mobile/features/branches/branches_providers.dart';
 import 'package:ipr_mobile/features/branches/domain/entities/branch.dart';
+import 'package:ipr_mobile/features/branches/domain/entities/colombia_map.dart';
 import 'package:ipr_mobile/features/branches/presentation/controllers/branches_controller.dart';
+import 'package:ipr_mobile/features/branches/presentation/widgets/branches_map.dart';
 import 'package:ipr_mobile/l10n/app_localizations.dart';
 import 'package:ipr_mobile/shared/design_system/tokens/spacing_tokens.dart';
 import 'package:ipr_mobile/shared/navigation/routes.dart';
@@ -11,15 +14,25 @@ import 'package:ipr_mobile/shared/widgets/state_widgets.dart';
 import 'package:ipr_mobile/shared/widgets/whatsapp_button.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// Listado de sedes agrupado por ciudad (`/branches`, RF-072, AC-072-1..6).
-class BranchesScreen extends ConsumerWidget {
+/// Listado de sedes agrupado por ciudad (`/branches`, RF-072, AC-072-1..6), con
+/// un mapa de Colombia y botones de ciudad para filtrar (W3-03).
+class BranchesScreen extends ConsumerStatefulWidget {
   const new({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BranchesScreen> createState() => _BranchesScreenState();
+}
+
+class _BranchesScreenState extends ConsumerState<BranchesScreen> {
+  /// Ciudad elegida en el mapa o en los botones; `null` = todas.
+  String? _city;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(branchesProvider);
     final controller = ref.read(branchesProvider.notifier);
+    final map = ref.watch(colombiaMapProvider).value ?? ColombiaMap.empty;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.branchesTitle)),
@@ -40,13 +53,42 @@ class BranchesScreen extends ConsumerWidget {
                 ),
               );
             }
+            // Si la ciudad elegida ya no existe (datos nuevos), se vuelve a todas.
+            final city = groups.any((g) => g.city == _city) ? _city : null;
+            final visible = city == null
+                ? groups
+                : [
+                    for (final g in groups)
+                      if (g.city == city) g,
+                  ];
+            final pins = [
+              for (final group in groups)
+                MapPin(
+                  city: group.city,
+                  branchCount: group.branches.where((b) => !b.upcoming).length,
+                  upcoming: group.branches.every((b) => b.upcoming),
+                ),
+            ];
             return RefreshIndicator(
               onRefresh: controller.refresh,
               child: ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(IprSpace.s4),
                 children: [
-                  for (final group in groups) ...[
+                  BranchesMap(
+                    map: map,
+                    pins: pins,
+                    selected: city,
+                    onSelect: (value) => setState(() => _city = value),
+                  ),
+                  if (!map.isEmpty) const SizedBox(height: IprSpace.s3),
+                  _CityChips(
+                    pins: pins,
+                    selected: city,
+                    onSelect: (value) => setState(() => _city = value),
+                  ),
+                  const SizedBox(height: IprSpace.s4),
+                  for (final group in visible) ...[
                     _CitySection(group: group),
                     const SizedBox(height: IprSpace.s4),
                   ],
@@ -56,6 +98,46 @@ class BranchesScreen extends ConsumerWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+/// Botones de ciudad: el control accesible del filtro (el mapa es una ayuda
+/// visual). Cada uno mide al menos 48 dp y dice cuántas sedes tiene.
+class _CityChips extends StatelessWidget {
+  const new({
+    required this.pins,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final List<MapPin> pins;
+  final String? selected;
+  final ValueChanged<String?> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Wrap(
+      spacing: IprSpace.s2,
+      runSpacing: IprSpace.s2,
+      children: [
+        ChoiceChip(
+          label: Text(l10n.branchesCityAll),
+          selected: selected == null,
+          onSelected: (_) => onSelect(null),
+        ),
+        for (final pin in pins)
+          ChoiceChip(
+            label: Text(
+              pin.upcoming
+                  ? l10n.branchesCityChipUpcoming(pin.city)
+                  : l10n.branchesCityChip(pin.city, pin.branchCount),
+            ),
+            selected: selected == pin.city,
+            onSelected: (isSelected) => onSelect(isSelected ? pin.city : null),
+          ),
+      ],
     );
   }
 }

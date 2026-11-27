@@ -5,6 +5,7 @@ import 'package:ipr_mobile/shared/domain/money.dart';
 import 'package:ipr_mobile/shared/domain/price_status.dart';
 import 'package:ipr_mobile/shared/domain/product_ref.dart';
 import 'package:ipr_mobile/shared/domain/product_summary.dart';
+import 'package:ipr_mobile/shared/domain/quantity_range.dart';
 import 'package:ipr_mobile/shared/domain/stock_status.dart';
 
 /// Última página que admite el contrato (`Page.maximum: 50`).
@@ -76,6 +77,7 @@ ProductSummary? _product(Object? raw) {
   final sku = m['sku'];
   final availability = m['availability'];
   final categories = m['categorySlugs'];
+  final hasVariants = m['hasVariants'] == true;
   return ProductSummary(
     id: id,
     slug: slug,
@@ -96,8 +98,17 @@ ProductSummary? _product(Object? raw) {
               if (c is String) c,
           ]
         : const [],
+    hasVariants: hasVariants,
+    priceFrom: hasVariants ? _nonZero(Money.tryFromJson(m['priceFrom'])) : null,
+    quantityRange: QuantityRange.fromContract(
+      min: m['minQuantity'],
+      max: m['maxQuantity'],
+    ),
   );
 }
+
+/// Un precio 0 nunca se muestra (RF-012): se trata como ausente.
+Money? _nonZero(Money? money) => money == null || money.isZero ? null : money;
 
 SearchSuggestion? _suggestion(Object? raw) {
   final m = _map(raw);
@@ -109,12 +120,25 @@ SearchSuggestion? _suggestion(Object? raw) {
   if (name.trim().isEmpty || !ProductRef.isValidSlug(slug)) return null;
   final sku = m['sku'];
   final brand = m['brandName'];
+  final priceJson = _map(m['price']);
+  final status = priceJson?['status'];
+  final availability = m['availability'];
   return SearchSuggestion(
     id: id,
     slug: slug,
     name: name,
     sku: sku is String ? sku : '',
     brandName: brand is String && brand.isNotEmpty ? brand : null,
+    image: ImageRef.tryFromJson(m['image']),
+    price: priceJson == null
+        ? null
+        : PriceStatus.fromContract(
+            status: status is String ? status : null,
+            amount: priceJson['amount'],
+          ),
+    availability: availability is String
+        ? StockStatus.fromContract(availability)
+        : null,
   );
 }
 

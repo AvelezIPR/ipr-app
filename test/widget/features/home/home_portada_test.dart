@@ -65,13 +65,13 @@ void main() {
       expect(destinationOf(tester), '/catalog');
     });
 
-    testWidgets('las categorías se numeran 01, 02, 03…', (tester) async {
+    testWidgets('cada categoría lleva su ícono, no un número', (tester) async {
       await pumpHome(tester, repository: _repo(), size: _tall);
 
-      expect(find.text('01'), findsOneWidget);
-      expect(find.text('02'), findsOneWidget);
-      expect(find.text('03'), findsOneWidget);
-      expect(find.text('04'), findsNothing);
+      expect(find.byIcon(Icons.air), findsOneWidget);
+      expect(find.byIcon(Icons.ac_unit), findsWidgets);
+      expect(find.byIcon(Icons.bolt), findsOneWidget);
+      expect(find.text('01'), findsNothing);
     });
   });
 
@@ -79,19 +79,67 @@ void main() {
     testWidgets('muestra totales y una entrada por ciudad desde /stores', (
       tester,
     ) async {
+      final handle = tester.ensureSemantics();
       await pumpHome(tester, repository: _repo(), size: _tall);
 
       expect(find.text('Nuestras sedes'), findsOneWidget);
       // Cartagena (por abrir) no suma a los totales.
-      expect(find.text('14 sedes en 2 ciudades'), findsOneWidget);
+      // Banda de cifras: sedes, ciudades (sin la que está por abrir) y las
+      // marcas que entrega el servidor; cada cifra se lee junta.
+      expect(find.bySemanticsLabel('14 sedes'), findsOneWidget);
+      expect(find.bySemanticsLabel('2 ciudades'), findsOneWidget);
+      expect(find.bySemanticsLabel('1 marca'), findsOneWidget);
+      expect(find.text('14'), findsOneWidget);
+      expect(find.text('2'), findsOneWidget);
       expect(find.text('Medellín · 9 sedes'), findsOneWidget);
       expect(find.text('Cali · 5 sedes'), findsOneWidget);
       expect(find.text('Cartagena · próximamente'), findsOneWidget);
+      handle.dispose();
     });
+
+    testWidgets(
+      'chip upcoming muestra ícono + texto diferenciado y cumple accesibilidad',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        await pumpHome(tester, repository: _repo(), size: _tall);
+
+        expect(find.byIcon(Icons.schedule_outlined), findsOneWidget);
+        expect(find.text('Cartagena · próximamente'), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.widgetWithText(OutlinedButton, 'Cartagena · próximamente'),
+            matching: find.byIcon(Icons.schedule_outlined),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.widgetWithText(OutlinedButton, 'Medellín · 9 sedes'),
+            matching: find.byIcon(Icons.schedule_outlined),
+          ),
+          findsNothing,
+        );
+
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        handle.dispose();
+
+        await pumpHome(
+          tester,
+          repository: _repo(),
+          textScale: 2,
+          size: const Size(360, 9000),
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
 
     testWidgets('el singular se escribe bien (1 sede en 1 ciudad)', (
       tester,
     ) async {
+      final handle = tester.ensureSemantics();
       await pumpHome(
         tester,
         repository: _repo(
@@ -103,8 +151,10 @@ void main() {
         ),
         size: _tall,
       );
-      expect(find.text('1 sede en 1 ciudad'), findsOneWidget);
+      expect(find.bySemanticsLabel('1 sede'), findsOneWidget);
+      expect(find.bySemanticsLabel('1 ciudad'), findsOneWidget);
       expect(find.text('Rionegro · 1 sede'), findsOneWidget);
+      handle.dispose();
     });
 
     testWidgets('tocar una ciudad o "Ver todas las sedes" abre /branches', (

@@ -255,11 +255,15 @@ void main() {
         expect(c.read(searchSuggestionsControllerProvider).loading, isTrue);
         await tester.pump(const Duration(milliseconds: 1));
         expect(repo.suggestionCalls.single.query, 'val');
-        repo.suggestionCalls.single.ok([suggestion(1), suggestion(2)]);
+        repo.suggestionCalls.single.ok([
+          suggestion(1),
+          suggestion(2),
+        ], total: 12);
         await tester.pump();
         final state = c.read(searchSuggestionsControllerProvider);
         expect(state.loading, isFalse);
         expect(state.items, hasLength(2));
+        expect(state.total, 12);
         expect(state.query, 'val');
       },
     );
@@ -336,6 +340,7 @@ void main() {
       await tester.pump();
       final state = c.read(searchSuggestionsControllerProvider);
       expect(state.items, isEmpty);
+      expect(state.total, isNull);
       expect(state.loading, isFalse);
     });
 

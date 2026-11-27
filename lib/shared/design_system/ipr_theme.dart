@@ -35,9 +35,17 @@ abstract final class IprTheme {
   );
 
   static ThemeData light() {
-    final textTheme = IprTypography.textTheme().apply(
+    final base = IprTypography.textTheme().apply(
       bodyColor: _lightScheme.onSurface,
       displayColor: _lightScheme.onSurface,
+    );
+    // Títulos en azul marino como los h2 de la web (#053554 ≈ blue900,
+    // 12,5:1 sobre blanco); el cuerpo conserva la tinta.
+    const heading = IprPalette.blue900;
+    final textTheme = base.copyWith(
+      headlineLarge: base.headlineLarge?.copyWith(color: heading),
+      headlineMedium: base.headlineMedium?.copyWith(color: heading),
+      titleLarge: base.titleLarge?.copyWith(color: heading),
     );
     return ThemeData(
       useMaterial3: true,
@@ -76,13 +84,45 @@ abstract final class IprTheme {
         // Etiqueta SIEMPRE visible arriba, nunca flotante (se recorta a 200 %).
         floatingLabelBehavior: FloatingLabelBehavior.never,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(IprRadius.md),
+          borderRadius: BorderRadius.circular(IprRadius.lg),
           borderSide: const BorderSide(color: IprPalette.gray500),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(IprRadius.lg),
+          borderSide: const BorderSide(color: IprPalette.blue700, width: 2),
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: _lightScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 2,
+        shadowColor: const Color(0x33053554),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(IprRadius.xl),
+          side: BorderSide(color: _lightScheme.outlineVariant),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: _lightScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 8,
+        shadowColor: const Color(0x33053554),
         indicatorColor: _lightScheme.primaryContainer,
-        labelTextStyle: WidgetStatePropertyAll(textTheme.labelMedium),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? textTheme.labelMedium?.copyWith(
+                  color: _lightScheme.primary,
+                  fontWeight: FontWeight.w700,
+                )
+              : textTheme.labelMedium,
+        ),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? _lightScheme.primary
+                : _lightScheme.onSurfaceVariant,
+          ),
+        ),
       ),
     );
   }
